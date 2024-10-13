@@ -1,0 +1,28 @@
+book suggestion system
+copy openlibrary.com ui
+user ratings and reviews
+
+markdown parser for descriptions
+
+logging each action into admin portal
+
+use reverse proxy to cache static files
+
+buying function
+
+follow rest api http code rules
+
+check if there's any unwanted attributes in the req body, like
+- adding _id and updating the object's id in the db,
+- changing type of user, etc
+- do is admin check for almost all methods and return with 403 if not
+
+assymetric encryption of password on client side, and decryption on server side to compare it with hash
+
+generate session token
+use salt for encryption
+
+look onto patch method (for update actions)
+make user to be stay logged in even after session expires
+  - give a stay logged in option in log in page
+  - refresh session id for each page refresh
