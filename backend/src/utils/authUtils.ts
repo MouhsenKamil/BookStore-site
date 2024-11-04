@@ -1,0 +1,180 @@
+import { Request, Response } from "express"
+import { UserDoc, UserType } from "../models/User"
+
+import bcrypt from 'bcryptjs'
+import jwt, { TokenExpiredError } from 'jsonwebtoken'
+
+import env from '../config/env.ts'
+import { HttpError, InvalidToken, RedirectTo } from "./exceptions.ts"
+// import { HttpError, InvalidToken } from "./exceptions.ts"
+
+
+// Client ID token util
+// export async function getClientIdToken(user: UserDoc) {
+//   return await bcrypt.hash(
+//     JSON.stringify({
+//       id: user.id,
+//       name: user.name,
+//       email: user.email,
+//       type: user.type,
+//     }),
+//     env.CLIENT_ID_SALT,
+//   )
+// }
+
+
+// Access Token utils
+export interface AccessToken {
+  id: string
+  type: UserType
+}
+
+
+export async function hashAccessToken(accessToken: string) {
+  return await bcrypt.hash(accessToken, env.CLIENT_ID_SALT)
+}
+
+
+export async function getAccessToken(user: UserDoc) {
+  return jwt.sign(
+    { id: user._id, type: user.type },
+    env.ACCESS_TOKEN_SECRET,
+    { expiresIn: '15m' }
+  )
+}
+
+
+export function setAccessTokenToCookies(res: Response, accessToken: string) {
+  const EXPIRE_IN_15_MINS =  15 * 60 * 1000
+  const [header, payload, signature] = accessToken.split('.')
+
+  res.cookie(env.ACCESS_TOKEN_HEADER_PAYLOAD_COOKIE_NAME, `${header}.${payload}`, {
+    httpOnly: true, // accessible only by web server
+    secure: true, // https
+    sameSite: "lax",
+    maxAge: EXPIRE_IN_15_MINS
+  })
+
+  res.cookie(env.ACCESS_TOKEN_SIGN_COOKIE_NAME, signature, {
+    httpOnly: true, // accessible only by web server
+    secure: true, // https
+    sameSite: "lax",
+    maxAge: EXPIRE_IN_15_MINS
+  })
+}
+
+
+export function clearAccessTokenFromCookies(res: Response) {
+  res.clearCookie(env.ACCESS_TOKEN_HEADER_PAYLOAD_COOKIE_NAME, {
+    httpOnly: true, // accessible only by web server
+    secure: true, // https
+    sameSite: "lax",
+  })
+
+  res.clearCookie(env.ACCESS_TOKEN_SIGN_COOKIE_NAME, {
+    httpOnly: true, // accessible only by web server
+    secure: true, // https
+    sameSite: "lax",
+  })
+}
+
+
+export async function verifyAccessToken(accessToken: string): Promise<AccessToken> {
+  return new Promise((resolve, _) => {
+    jwt.verify(accessToken, env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+      const _decoded = decoded as AccessToken
+
+      if (!err && decoded) {
+        resolve(_decoded)
+        return
+      }
+
+      if (!(err instanceof TokenExpiredError))
+        throw new InvalidToken('Invalid access token', { statusCode: 401, cause: err as Error })
+
+      // Access token has expired. Return this object to issue a new access token
+      // from the existing refresh token
+      throw err
+    })
+  })
+}
+
+
+// Refresh Token utils
+export interface RefreshToken {
+  id: string
+  userIP: string
+  userAgent: string
+  accessTokenHash: string
+}
+
+
+export async function getRefreshToken(req: Request, user: UserDoc, accessToken: string) {
+  // const clientId = await getClientIdToken(user)
+  const userIP = req.headers['cf-connecting-ip'] || 
+                 req.headers['x-real-ip'] ||
+                 req.headers['x-forwarded-for'] ||
+                 req.socket.remoteAddress || ''
+
+  const userAgent = req.headers["user-agent"]
+  const accessTokenHash = hashAccessToken(accessToken)
+
+  return jwt.sign(
+    { id: user._id, userIP, userAgent, accessTokenHash },
+    env.REFRESH_TOKEN_SECRET,
+    { expiresIn: '7d' },
+  )
+}
+
+
+export function setRefreshTokenToCookies(res: Response, refreshToken: string) {
+  const EXPIRE_IN_7_DAYS =  7 * 24 * 60 * 60 * 1000
+
+  res.cookie(env.REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
+    httpOnly: true, // accessible only by web server
+    secure: true, // https
+    sameSite: "lax",
+    maxAge: EXPIRE_IN_7_DAYS
+  })
+}
+
+
+export function clearRefreshTokenFromCookies(res: Response) {
+  res.clearCookie(
+    env.REFRESH_TOKEN_COOKIE_NAME,
+    { httpOnly: true, secure: true, sameSite: "lax" }
+  )
+}
+
+
+export async function verifyRefreshToken(refreshToken: string): Promise<RefreshToken> {
+  return new Promise((resolve, reject) => {
+    jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
+      if (!err && decoded) {
+        resolve(decoded as RefreshToken)
+        return
+      }
+
+      // If the refresh token is also expired, logout the client
+      if (err instanceof TokenExpiredError)
+        // Logout user and redirect them to /login
+        throw new RedirectTo('Session expired', '/login', { statusCode: 308, cause: err })
+
+      // Exit out if there's any other error while parsing refresh token
+      throw new HttpError('Internal server error', { statusCode: 500, cause: err as Error })
+    })
+  })
+}
+
+
+// Other utils
+export async function updateTokensInCookies(
+  req: Request, res: Response, user: UserDoc, options?: { accessToken?: string, refreshToken?: string }
+) {
+  const accessToken = options?.accessToken ?? await getAccessToken(user)
+  const refreshToken = options?.refreshToken ?? await getRefreshToken(req, user, accessToken)
+  setRefreshTokenToCookies(res, refreshToken)
+  setAccessTokenToCookies(res, accessToken)
+
+  return { refreshToken, accessToken }
+}
