@@ -1,0 +1,13 @@
+nav ul {
+  margin: 0 auto;
+  padding: 0;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  list-style-type: none;
+  gap: 1em;
+}
+
+nav {
+  width: calc(100vw - 4rem);
+}
