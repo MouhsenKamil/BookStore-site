@@ -26,7 +26,7 @@ export async function getCartOfUser(req: Request, res: Response) {
     })
 
   if (!cart)
-    throw new HttpError('Cart has no items', { statusCode: 404 })
+    throw new HttpError('Cart is empty', { statusCode: 404 })
 
   res.status(200).json(cart)
 }
@@ -72,14 +72,14 @@ export async function addBookToCart(req: Request, res: Response) {
 export async function deleteBookInCart(req: Request, res: Response) {
   const { bookId } = req.body
   const { userId } = req.params
-  const deletedCart = await Cart.findOneAndUpdate(
+  const updatedCart = await Cart.findOneAndUpdate(
     { user: userId }, { $pull: { books: { id: bookId } } }, { new: true }
   )
 
-  if (!deletedCart)
+  if (!updatedCart)
     throw new HttpError('Cart not found', { statusCode: 404 })
 
-  await deletedCart.save()
+  await updatedCart.save()
     .catch(err => {
       throw new HttpError(`Error while deleting book from cart`, { cause: err })
     })
@@ -94,7 +94,7 @@ export async function checkout(req: Request, res: Response) {
 
   const cart = await Cart.findOne({ user: userId })
   if (!cart)
-    throw new HttpError('Cart is empty', { statussCode: 404 })
+    throw new HttpError('Cart is empty', { statusCode: 404 })
 
   const currentDate = new Date()
   const deliveredByDate = new Date(

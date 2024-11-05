@@ -13,6 +13,7 @@ export interface IUser {
   passwordHash: string
   type: UserType
   blocked: boolean
+  createdAt: Date
 }
 
 export type UserDoc = IUser & Document
@@ -30,7 +31,7 @@ export const User = mongoose.model<UserDoc>(
     },
     blocked: { type: Boolean, required: true, default: false },
   }, {
-    timestamps: { createdAt: 'timestamp', updatedAt: false },
+    timestamps: { createdAt: true, updatedAt: false },
     // discriminatorKey: 'type'
   })
 )

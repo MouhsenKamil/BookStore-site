@@ -109,10 +109,14 @@ import { HttpError } from '../utils/exceptions.ts'
 export async function registerBook(req: Request, res: Response) {
   await addBook(req, res)
     .catch(err => {
-      throw new HttpError('Error registering book', { cause: err })
+      throw new HttpError('Error while registering book', { cause: err })
     })
 }
 
+
+export async function getSalesAnalytics(req: Request, res: Response) {
+
+}
 
 // export async function changePassword(req: Request, res: Response) {
 //   const { oldPasswordHash, newPasswordHash } = req.body

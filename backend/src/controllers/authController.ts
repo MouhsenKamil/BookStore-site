@@ -58,11 +58,17 @@ export async function login(req: Request, res: Response) {
 
   const user = await User.findOne({ email })
   if (!user)
-    throw new HttpError('Unauthorized', { statusCode: 401 })
+    throw new HttpError('Invalid email id', {
+      statusCode: 401,
+      debugMsg: `Email id ${email} not registered`
+    })
 
   // Validate username and password
   if (!user || !bcrypt.compareSync(password, user.passwordHash))
-    throw new HttpError('Invalid credentials', { statusCode: 401 })
+    throw new HttpError('Invalid password', {
+      statusCode: 401,
+      debugMsg: 'Invalid password provided for login'
+    })
 
   // Issue access and refresh token to the user
   await updateTokensInCookies(req, res, user)
@@ -87,7 +93,7 @@ export async function refresh(req: Request, res: Response) {
   // } = cookies
 
   // if (!accessTokenHeaderPayload || !accessTokenSign)
-  //   throw new InvalidToken('Invalid token', { statusCode: 401 })
+  //   throw new HttpError('Invalid token', { statusCode: 401 })
 
   // const accessToken = `${accessTokenHeaderPayload}.${accessTokenSign}`
 

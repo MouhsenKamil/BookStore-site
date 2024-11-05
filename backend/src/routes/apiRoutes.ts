@@ -2,6 +2,7 @@ import express, { Response } from 'express'
 import path from "path"
 
 import authRoutes from './authRoutes'
+import adminRoutes from './adminRoutes'
 import bookRoutes from './bookRoutes'
 import sellerRoutes from './sellerRoutes'
 import customerRoutes from './userRoutes'
@@ -10,6 +11,7 @@ import customerRoutes from './userRoutes'
 const router = express.Router()
 
 router.use('/auth', authRoutes)
+router.use('/admin', adminRoutes)
 router.use('/books', bookRoutes)
 router.use('/sellers', sellerRoutes)
 router.use('/users', customerRoutes)

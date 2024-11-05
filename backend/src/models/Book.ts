@@ -12,19 +12,11 @@ export interface IBook {
   price: number
   unitsInStock: number
   seller: Types.ObjectId
+  createdAt: Date
 }
 
-export interface IBookWithSellerName {
-  authorName: Array<string>
-  title: string
-  subtitle: string | null
-  lang: Array<string>
-  subject: Array<string>
-  coverImage: string | null
-  description: string | null
-  price: number
-  unitsInStock: number
-  seller: string
+export interface IBookWithSellerName extends IBook {
+  sellerName: string
 }
 
 export type BookDoc = IBook & Document
@@ -42,7 +34,8 @@ export const Book = mongoose.model<BookDoc>(
     price: { type: Number, required: true },
     unitsInStock: { type: Number, required: true, min: 0 },
     seller: { type: Schema.Types.ObjectId, required: true },
+    // createdAt: { type: Date, required: true, default: new Date() }
   }, {
-    timestamps: { createdAt: 'timestamp', updatedAt: false }
-  })
-)
+    timestamps: { createdAt: true, updatedAt: false }
+  }
+))

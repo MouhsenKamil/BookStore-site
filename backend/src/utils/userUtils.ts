@@ -16,7 +16,10 @@ export async function createUserUtil(req: Request, res: Response) {
   const userExists = await User.findOne({ email: req.body.email })
 
   if (userExists)
-    throw new NewUserError('User already exists', { statusCode: 409 })
+    throw new NewUserError('User already exists', {
+      statusCode: 409,
+      debugMsg: "Tried to create a user with pre-existing user's email id"
+    })
 
   const hashedPassword = await bcrypt.hash(req.body.password, 12)
   req.body.passwordHash = hashedPassword

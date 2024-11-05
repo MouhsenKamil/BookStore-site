@@ -1,7 +1,19 @@
+interface BackendErrorOptionsProp {
+  cause?: Error
+  debugMsg?: string
+  // [key: string]: any
+}
+
+
+interface HttpErrorOptionsProp extends BackendErrorOptionsProp {
+  statusCode?: number
+}
+
+
 export class BackendError extends Error {
   debugMsg: string
 
-  constructor(message: string, options?: { cause?: Error, debugMsg?: string }) {
+  constructor(message: string, options?: BackendErrorOptionsProp) {
     const { debugMsg = '', ...otherOptions } = options || {}
     super(message, otherOptions)
     this.debugMsg = debugMsg
@@ -9,10 +21,11 @@ export class BackendError extends Error {
   }
 }
 
+
 export class HttpError extends BackendError {
   statusCode: number
 
-  constructor(message: string, options: { statusCode?: number, cause?: Error, [key: string]: any, debugMsg?: string } = {}) {
+  constructor(message: string, options: HttpErrorOptionsProp = {}) {
     const { statusCode = 500, ...otherOptions } = options
     super(message, otherOptions)
     this.statusCode = statusCode
@@ -20,8 +33,6 @@ export class HttpError extends BackendError {
     Object.setPrototypeOf(this, HttpError.prototype)
   }
 }
-
-export class InvalidToken extends HttpError {}
 
 
 export class RenewAccessToken extends BackendError {
@@ -35,16 +46,26 @@ export class RenewAccessToken extends BackendError {
 }
 
 
-export class RedirectTo extends HttpError {
-  constructor(message: string, path: string, options: { statusCode?: number, cause?: Error, [key: string]: any, debugMsg?: string } = {}) {
+export class Redirect extends HttpError {
+  constructor(message: string, path: string, options: HttpErrorOptionsProp = {}) {
     options.statusCode = options.statusCode ?? 308
-    super(message + ' ' + path, options)
-    Object.setPrototypeOf(this, RedirectTo.prototype)
+    super(message, options)
+    Object.setPrototypeOf(this, ForceReLogin.prototype)
   }
 }
 
+
+export class ForceReLogin extends Redirect {
+  constructor(message: string, options: HttpErrorOptionsProp = {}) {
+    options.statusCode = options.statusCode ?? 308
+    super(message, '/login', options)
+    Object.setPrototypeOf(this, ForceReLogin.prototype)
+  }
+}
+
+
 export class NewUserError extends HttpError {
-  constructor(message: string, options?: { statusCode?: number, cause?: Error }) {
+  constructor(message: string, options?: HttpErrorOptionsProp) {
     super(message, options)
     Object.setPrototypeOf(this, NewUserError.prototype)
   }

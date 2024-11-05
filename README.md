@@ -21,7 +21,7 @@ ACCESS_TOKEN_SECRET: Secret key for signing access tokens
 REFRESH_TOKEN_SECRET: Secret key for signing refresh tokens
 COOKIE_SESSION_SECRET: Secret key for cookie-parser package for signing cookies
 
-CLIENT_ID_SALT: Salt value that's used to generate hashes (if required any)
+CLIENT_ID_SALT: Salt value that's used to generate client id hash
 
 # Cookie names list
 REFRESH_TOKEN_COOKIE_NAME: Name of the cookie to store refresh token

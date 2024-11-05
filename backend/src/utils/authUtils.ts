@@ -5,28 +5,28 @@ import bcrypt from 'bcryptjs'
 import jwt, { TokenExpiredError } from 'jsonwebtoken'
 
 import env from '../config/env.ts'
-import { HttpError, InvalidToken, RedirectTo } from "./exceptions.ts"
-// import { HttpError, InvalidToken } from "./exceptions.ts"
+import { HttpError, ForceReLogin } from "./exceptions.ts"
 
 
 // Client ID token util
-// export async function getClientIdToken(user: UserDoc) {
-//   return await bcrypt.hash(
-//     JSON.stringify({
-//       id: user.id,
-//       name: user.name,
-//       email: user.email,
-//       type: user.type,
-//     }),
-//     env.CLIENT_ID_SALT,
-//   )
-// }
+export async function getClientIdToken(user: UserDoc) {
+  return await bcrypt.hash(
+    JSON.stringify({
+      name: user.name,
+      email: user.email,
+      type: user.type,
+      passwordHash: user.passwordHash
+    }),
+    env.CLIENT_ID_SALT,
+  )
+}
 
 
 // Access Token utils
 export interface AccessToken {
   id: string
   type: UserType
+  passwordHash: string
 }
 
 
@@ -37,7 +37,11 @@ export async function hashAccessToken(accessToken: string) {
 
 export async function getAccessToken(user: UserDoc) {
   return jwt.sign(
-    { id: user._id, type: user.type },
+    {
+      id: user._id,
+      type: user.type,
+      passwordHash: user.passwordHash
+    },
     env.ACCESS_TOKEN_SECRET,
     { expiresIn: '15m' }
   )
@@ -82,15 +86,16 @@ export function clearAccessTokenFromCookies(res: Response) {
 export async function verifyAccessToken(accessToken: string): Promise<AccessToken> {
   return new Promise((resolve, _) => {
     jwt.verify(accessToken, env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
-      const _decoded = decoded as AccessToken
-
       if (!err && decoded) {
-        resolve(_decoded)
+        resolve(decoded as AccessToken)
         return
       }
 
       if (!(err instanceof TokenExpiredError))
-        throw new InvalidToken('Invalid access token', { statusCode: 401, cause: err as Error })
+        throw new HttpError('Invalid access token', {
+          statusCode: 401, cause: err as Error,
+          debugMsg: 'Some error hash been occurred while parsing access token'
+        })
 
       // Access token has expired. Return this object to issue a new access token
       // from the existing refresh token
@@ -103,6 +108,7 @@ export async function verifyAccessToken(accessToken: string): Promise<AccessToke
 // Refresh Token utils
 export interface RefreshToken {
   id: string
+  passwordHash: string
   userIP: string
   userAgent: string
   accessTokenHash: string
@@ -148,7 +154,7 @@ export function clearRefreshTokenFromCookies(res: Response) {
 
 
 export async function verifyRefreshToken(refreshToken: string): Promise<RefreshToken> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _) => {
     jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
       if (!err && decoded) {
         resolve(decoded as RefreshToken)
@@ -158,10 +164,16 @@ export async function verifyRefreshToken(refreshToken: string): Promise<RefreshT
       // If the refresh token is also expired, logout the client
       if (err instanceof TokenExpiredError)
         // Logout user and redirect them to /login
-        throw new RedirectTo('Session expired', '/login', { statusCode: 308, cause: err })
+        throw new ForceReLogin('Session expired', {
+          cause: err,
+          debugMsg: 'refresh token expired. Forcing client to re-login'
+        })
 
       // Exit out if there's any other error while parsing refresh token
-      throw new HttpError('Internal server error', { statusCode: 500, cause: err as Error })
+      throw new HttpError('Internal server error', {
+        debugMsg: 'Error occured while validating refresh token',
+        cause: err as Error
+      })
     })
   })
 }
@@ -177,4 +189,10 @@ export async function updateTokensInCookies(
   setAccessTokenToCookies(res, accessToken)
 
   return { refreshToken, accessToken }
+}
+
+
+export async function clearTokensInCookies(res: Response) {
+  clearAccessTokenFromCookies(res)
+  clearRefreshTokenFromCookies(res)
 }

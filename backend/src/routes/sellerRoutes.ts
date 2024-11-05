@@ -1,5 +1,6 @@
 import express from 'express'
 import {
+  getSalesAnalytics,
   // createSeller,
   // getSellers,
   // getSellerById,
@@ -29,6 +30,7 @@ routerWithSellerId.use(
 // )
 // routerWithSellerId.delete('/', deleteSeller)
 routerWithSellerId.post('/add-book', registerBook)
+routerWithSellerId.get('/analytics', getSalesAnalytics)
 // routerWithSellerId.patch('/change-password', changePassword)
 
 

@@ -49,9 +49,10 @@ export async function updateOrderStatus(req: Request, res: Response) {
 
   updatedOrder.books.forEach(async (book) => {
     const originalBookObj = await Book.findById(book.id)
-    if (!originalBookObj || originalBookObj.unitsInStock !== 0) return
+    if (!originalBookObj || originalBookObj.unitsInStock !== 0)
+      return
 
-    originalBookObj.deleteOne()
+    await originalBookObj.deleteOne()
       .catch(err => {
         throw new HttpError('Error while removing sold out book', { cause: err })
       })

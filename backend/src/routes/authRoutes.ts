@@ -9,11 +9,11 @@ const router = express.Router()
 const ONE_MINUTE = 60 * 1000
 
 const redirectToHomeIfAuthenticated = IsAuthenticated({
-  yes: { redirectTo: "/home", statusCode: 308 },
+  yes: { redirectTo: '/home' },
 })
 
 const redirectToLoginIfNotAuthenticated = IsAuthenticated({
-  no: { redirectTo: "/login", statusCode: 308 },
+  no: { redirectTo: '/login' },
 })
 
 

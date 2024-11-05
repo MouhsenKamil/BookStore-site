@@ -34,7 +34,9 @@ routerWithUserId.use('/wishlist', wishListRoutes)
 
 routerWithUserId.get('/', getUserById)
 routerWithUserId.patch(
-  '/', checkRequestAttrs({ obj: 'body', mustNot: ['type', 'password_hash'] }), updateUser
+  '/',
+  checkRequestAttrs({ obj: 'body', mustNot: ['email', 'passwordHash', 'type'] }),
+  updateUser
 )
 routerWithUserId.patch('/change-password', changePassword)
 routerWithUserId.patch('/become-a-seller', becomeSeller)

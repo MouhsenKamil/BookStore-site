@@ -42,7 +42,7 @@ export const Order = mongoose.model<OrderDoc>(
         unitPrice: { type: Number, required: true },
       },
     ],
-    orderTime: { type: Date, required: true, default: Date.now },
+    // orderTime: { type: Date, required: true, default: Date.now },
     deliveredBy: { type: Date, required: true },
     status: { type: String, enum: OrderStatus, default: OrderStatus.ON_DELIVERY },
     address: { type: String, required: true },
@@ -53,6 +53,6 @@ export const Order = mongoose.model<OrderDoc>(
     },
     paymentMethod: { type: String, enum: PaymentMethod, required: true },
   }, {
-    timestamps: { createdAt: 'timestamp', updatedAt: false }
-  })
-)
+    timestamps: { createdAt: 'orderTime', updatedAt: false }
+  }
+))

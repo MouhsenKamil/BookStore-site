@@ -5,6 +5,7 @@ import { User, UserType } from '../models/User.ts'
 // import { Customer } from '../models/Customer.ts'
 import { createUserUtil } from '../utils/userUtils.ts'
 import { HttpError, NewUserError } from '../utils/exceptions.ts'
+import { updateTokensInCookies } from '../utils/authUtils.ts'
 
 
 export async function getUsers(req: Request, res: Response) {
@@ -49,9 +50,11 @@ export async function getUserById(req: Request, res: Response) {
 
 export async function createUser(req: Request, res: Response) {
   const userExists = await User.findOne({ email: req.body.email })
-
   if (userExists)
-    throw new NewUserError('User already exists', { statusCode: 409 })
+    throw new NewUserError('User already exists', {
+      statusCode: 409,
+      debugMsg: "Tried to create a new user with an another pre-existing user's email id"
+    })
 
   const hashedPassword = await bcrypt.hash(req.body.password, 12)
   req.body.passwordHash = hashedPassword
@@ -67,7 +70,7 @@ export async function createUser(req: Request, res: Response) {
 
   res.status(201).json({ userId: user._id })
 
-  // OR 
+  // OR
   // const userExists = await User.findOne({ email: req.body.email })
 
   // if (userExists)
@@ -98,22 +101,22 @@ export async function updateUser(req: Request, res: Response) {
     throw new HttpError('Error while updating user', { cause: err })
   })
 
-  res.status(200).json({ message: 'Successfully updated user' })
+  res.status(204)
 }
 
 
 export async function changePassword(req: Request, res: Response) {
   const { oldPasswordHash, newPasswordHash } = req.body
-  const userObj = await User.findById(req.params.userId)
-  if (!userObj)
+  const user = await User.findById(req.params.userId)
+  if (!user)
     throw new HttpError('User not found', { statusCode: 404 })
 
-  if (userObj.passwordHash !== oldPasswordHash)
+  if (user.passwordHash !== oldPasswordHash)
     throw new HttpError(
       'old password is not matching with the current password', { statusCode: 401 }
     )
 
-  const updatedUser = await userObj.updateOne(
+  const updatedUser = await user.updateOne(
     { passwordHash: newPasswordHash }, { runValidators: true, new: true }
   )
   // .catch(err => {
@@ -124,6 +127,7 @@ export async function changePassword(req: Request, res: Response) {
   // if (!updatedUser)
   //   throw new HttpError('Error while updating user')
 
+  await updateTokensInCookies(req, res, updatedUser)
   res.sendStatus(204)
 }
 
@@ -136,7 +140,10 @@ export async function deleteUser(req: Request, res: Response) {
     })
 
   if (!deletedUser)
-    throw new HttpError('Error while deleting user')
+    throw new HttpError('Error while deleting user', {
+      statusCode: 404,
+      debugMsg: 'Tried to delete a non-existing user'
+    })
 
   res.sendStatus(204)
 }

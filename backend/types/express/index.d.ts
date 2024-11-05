@@ -7,11 +7,7 @@ declare global {
         Hold user's data thats propagated to route methods
         to authenticate user
       */
-      __userAuth: AccessToken
+      __userAuth: Omit<AccessToken, 'passwordHash'>
     }
   }
 }
-
-// export function Router() {
-//   throw new Error('Function not implemented.')
-// }

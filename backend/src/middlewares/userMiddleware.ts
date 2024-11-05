@@ -14,7 +14,11 @@ export function verifyUserIdParamByUserAuth(paramName: string) {
     const idFromParams = req.params[paramName]
 
     if (idFromParams !== req.__userAuth.id || idFromParams !== '@me')
-      throw new HttpError('Forbidden', { statusCode: 403 })
+      throw new HttpError('Forbidden', {
+        statusCode: 403,
+        debugMsg: 'user tried to interact with server as an another user via ' +
+                  `:${paramName} param in url`
+      })
 
     next()
   }
