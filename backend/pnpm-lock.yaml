@@ -47,6 +47,9 @@ importers:
       morgan:
         specifier: ^1.10.0
         version: 1.10.0
+      rotating-file-stream:
+        specifier: ^3.2.5
+        version: 3.2.5
       uuid:
         specifier: ^11.0.0
         version: 11.0.0
@@ -674,6 +677,10 @@ packages:
   readdirp@3.6.0:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
+
+  rotating-file-stream@3.2.5:
+    resolution: {integrity: sha512-T8iBxUA4SookMTU97cIHUPck7beLOvN4g+y4db9E2eLn54OFsdp4qMnxuqmmJ05lcQHzueEVnPRykxfnPG948g==}
+    engines: {node: '>=14.0'}
 
   safe-buffer@5.1.2:
     resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==}
@@ -1404,6 +1411,8 @@ snapshots:
   readdirp@3.6.0:
     dependencies:
       picomatch: 2.3.1
+
+  rotating-file-stream@3.2.5: {}
 
   safe-buffer@5.1.2: {}
 

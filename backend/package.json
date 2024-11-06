@@ -3,8 +3,9 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"start": "tsc && node dist/main.js",
-		"dev": "nodemon -w src src/main.ts"
+    "db": "mongod.exe -f \"db/bookstoredb.conf\"",
+		"start": "pnpm run db && tsc && node dist/main.js",
+		"dev": "pnpm run db && nodemon -w src src/main.ts"
 	},
 	"dependencies": {
 		"bcryptjs": "^2.4.3",
@@ -20,6 +21,7 @@
 		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^8.7.3",
 		"morgan": "^1.10.0",
+		"rotating-file-stream": "^3.2.5",
 		"uuid": "^11.0.0"
 	},
 	"packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c",

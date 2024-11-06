@@ -42,7 +42,6 @@ export const Order = mongoose.model<OrderDoc>(
         unitPrice: { type: Number, required: true },
       },
     ],
-    // orderTime: { type: Date, required: true, default: Date.now },
     deliveredBy: { type: Date, required: true },
     status: { type: String, enum: OrderStatus, default: OrderStatus.ON_DELIVERY },
     address: { type: String, required: true },

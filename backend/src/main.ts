@@ -12,21 +12,20 @@ import cookieSession from 'cookie-session'
 
 import apiRoutes from './routes/apiRoutes.ts'
 
-import { connectDB } from './config/db.ts'
 import env from './config/env.ts'
+import { connectDB } from './config/db.ts'
+
 import errorHandler from './middlewares/errorHandler.ts'
-import { loggerMiddleware } from './middlewares/logger.ts'
 
 
 const PORT = env.BACKEND_PORT
-
 const app = express()
 
 // Middlewares
 app.disable('x-powered-by')
 app.use(express.json())
 app.use(cors())
-app.use(morgan('dev'))
+app.use(morgan('short')) // previously 'dev'
 app.use(
   cookieSession({
     secret: env.COOKIE_SESSION_SECRET,
@@ -36,7 +35,6 @@ app.use(
   })
 )
 app.use(cookieParser())
-app.use(loggerMiddleware)
 app.use('/api', apiRoutes) // API Routes
 
 // app.use('*', function(req, res) {

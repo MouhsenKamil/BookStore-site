@@ -56,7 +56,9 @@ routerWithUserId.use(adminRoutesWithUserId)
 // exporting routes
 const router = express.Router()
 
-router.use(authenticate, restrictToRoles(UserType.ADMIN, UserType.CUSTOMER))
+router.use(authenticate,
+  // restrictToRoles(UserType.ADMIN, UserType.CUSTOMER)
+)
 router.use('/:userId', routerWithUserId)
 
 router.get('/', restrictToRoles(UserType.ADMIN), queryInParamExists, getUsers)

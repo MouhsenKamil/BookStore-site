@@ -9,7 +9,6 @@ export interface ICart {
   }[]
 }
 
-
 export type CartDoc = ICart & Document
 
 export const Cart = mongoose.model<CartDoc>(

@@ -25,13 +25,13 @@ export const User = mongoose.model<UserDoc>(
     email: { type: String, required: true, unique: true },
     passwordHash: { type: String, required: true },
     type: { type: String, enum: UserType, default: UserType.CUSTOMER,
-      // validate: {
-      //   validator: isValidUserType, message: props => `${props.value} is not a valid user type.`
-      // }
+      validate: {
+        validator: (val: string) => Object.keys(UserType).includes(val),
+        message: props => `${props.value} is not a valid user type.`
+      }
     },
     blocked: { type: Boolean, required: true, default: false },
   }, {
     timestamps: { createdAt: true, updatedAt: false },
-    // discriminatorKey: 'type'
   })
 )

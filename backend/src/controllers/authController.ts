@@ -16,7 +16,6 @@ import {
   updateTokensInCookies
 } from '../utils/authUtils.ts'
 import { authenticate } from '../middlewares/authMiddleware.ts'
-// import { createSeller } from './sellerController.ts'
 
 
 export async function register(req: Request, res: Response) {
@@ -26,16 +25,6 @@ export async function register(req: Request, res: Response) {
     authenticate(req, res, () => {})
     res.send(200).json({ redirectTo: '/home' })
   } catch (err) {
-    // const { type } = req.body
-  
-    // if (!type)
-    //   throw new HttpError('User type is required')
-  
-    // if (type === UserType.SELLER) {
-    //   await createSeller(req, res)
-    //   return
-    // }
-
     if (!(err instanceof HttpError))
       throw err
 
@@ -74,7 +63,7 @@ export async function login(req: Request, res: Response) {
   await updateTokensInCookies(req, res, user)
   res.sendStatus(204)
 
-  await logEvents(`User ${email} logged in`)
+  logEvents(`User ${email} logged in`)
 }
 
 

@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { Order, OrderStatus } from '../models/Order.ts'
 import { Book } from '../models/Book.ts'
 import { HttpError } from '../utils/exceptions.ts'
+import { BookArchive } from '../models/BooksArchive.ts'
 
 
 export async function getOrdersOfUser(req: Request, res: Response) {
@@ -62,20 +63,31 @@ export async function updateOrderStatus(req: Request, res: Response) {
 }
 
 
-export async function deleteOrder(req: Request, res: Response) {
-  const deletedOrder = await Order.findByIdAndDelete(req.params.orderId)
+export async function cancelOrder(req: Request, res: Response) {
+  const cancelledOrder = await Order.findById(req.params.orderId)
     .catch(err => {
-      throw new HttpError('Error while deleting order', { cause: err })
+      throw new HttpError('Error while cancelling order', { cause: err })
     })
 
-  if (!deletedOrder)
+  if (!cancelledOrder)
     throw new HttpError('Order not found', { statusCode: 404 })
 
+  if (cancelledOrder.status === OrderStatus.DELIVERED)
+    throw new HttpError(
+      "Cannot cancel an order that's already delivered", { statusCode: 406 }
+    )
+
+  // Load the archive copies and move it back to the 'book' collection
+  cancelledOrder.books.forEach(async (book) => {
+    const originalBookObj = await Book.findById(book.id)
+    await originalBookObj?.updateOne(
+      { $inc: { units_in_stock: book.quantity } }
+    )
+
+    const archiveCopy = BookArchive.findById(book.id)
+    await archiveCopy?.updateOne(
+      { $inc: { units_in_stock: -book.quantity } }
+    )
+  })
   res.sendStatus(204)
-}
-
-
-export async function cancelOrder(req: Request, res: Response) {
-  req.body.status = OrderStatus.CANCELLED
-  await updateOrderStatus(req, res)
 }

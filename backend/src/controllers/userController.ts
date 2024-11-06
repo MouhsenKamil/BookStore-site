@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 
 import { User, UserType } from '../models/User.ts'
-// import { Customer } from '../models/Customer.ts'
 import { createUserUtil } from '../utils/userUtils.ts'
 import { HttpError, NewUserError } from '../utils/exceptions.ts'
 import { updateTokensInCookies } from '../utils/authUtils.ts'
@@ -69,28 +68,6 @@ export async function createUser(req: Request, res: Response) {
     })
 
   res.status(201).json({ userId: user._id })
-
-  // OR
-  // const userExists = await User.findOne({ email: req.body.email })
-
-  // if (userExists)
-  //   throw new NewUserError('User already exists', { statusCode: 409 })
-
-  // const hashedPassword = await bcrypt.hash(req.body.password, 12)
-  // req.body.passwordHash = hashedPassword
-  // delete req.body.password
-
-  // let newUser = new User(req.body)
-  // await newUser.save()
-  //   .catch(async (err) => {
-  //     throw new HttpError(
-  //       (err instanceof NewUserError) ? err.message : 'Error while registering user',
-  //       { cause: err }
-  //     )
-  //   })
-
-  // res.status(201).json({ userId: newUser._id })
-  // await logEvents(`New user account created: ${newUser._id}`)
 }
 
 
@@ -119,13 +96,11 @@ export async function changePassword(req: Request, res: Response) {
   const updatedUser = await user.updateOne(
     { passwordHash: newPasswordHash }, { runValidators: true, new: true }
   )
-  // .catch(err => {
-  //   throw new HttpError('Error while updating password', { cause: err })
-  // })
+  .catch(err => {
+    throw new HttpError('Error while updating password', { cause: err })
+  })
 
   console.log('from updateuser func', JSON.stringify(updatedUser))
-  // if (!updatedUser)
-  //   throw new HttpError('Error while updating user')
 
   await updateTokensInCookies(req, res, updatedUser)
   res.sendStatus(204)

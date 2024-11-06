@@ -33,7 +33,7 @@ export async function createUserUtil(req: Request, res: Response) {
 
   let newUser = new User(req.body)
   await newUser.save()
-  await logEvents(`New user account created: ${newUser._id}`)
+  logEvents(`New user account created: ${newUser._id}`)
   return newUser
 }
 

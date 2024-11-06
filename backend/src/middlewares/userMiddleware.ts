@@ -19,7 +19,6 @@ export function verifyUserIdParamByUserAuth(paramName: string) {
         debugMsg: 'user tried to interact with server as an another user via ' +
                   `:${paramName} param in url`
       })
-
     next()
   }
 }
@@ -29,7 +28,6 @@ export function parseMeInParams(paramName: string) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (req.params[paramName] == '@me')
       req.params[paramName] = req.__userAuth.id
-
     next()
   }
 }

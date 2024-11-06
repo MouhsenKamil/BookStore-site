@@ -21,21 +21,19 @@ export interface IBookWithSellerName extends IBook {
 
 export type BookDoc = IBook & Document
 
-export const Book = mongoose.model<BookDoc>(
-  'books',
-  new Schema<BookDoc>({
-    authorName: { type: [String], required: true },
-    title: { type: String, required: true },
-    subtitle: String,
-    lang: { type: [String], required: true, default: ['eng']},
-    subject: { type: [String], required: true },
-    coverImage: String,
-    description: String,
-    price: { type: Number, required: true },
-    unitsInStock: { type: Number, required: true, min: 0 },
-    seller: { type: Schema.Types.ObjectId, required: true },
-    // createdAt: { type: Date, required: true, default: new Date() }
-  }, {
-    timestamps: { createdAt: true, updatedAt: false }
-  }
-))
+export const BookSchema = new Schema<BookDoc>({
+  authorName: { type: [String], required: true },
+  title: { type: String, required: true },
+  subtitle: String,
+  lang: { type: [String], required: true, default: ['eng']},
+  subject: { type: [String], required: true },
+  coverImage: String,
+  description: String,
+  price: { type: Number, required: true },
+  unitsInStock: { type: Number, required: true, min: 0, default: 0 },
+  seller: { type: Schema.Types.ObjectId, required: true },
+}, {
+  timestamps: { createdAt: true, updatedAt: false }
+})
+
+export const Book = mongoose.model<BookDoc>('books', BookSchema)

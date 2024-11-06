@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import rateLimit, { Options } from 'express-rate-limit'
-import { logEventsToFile } from './logger'
+import { logServerErrors } from './logger'
 
 
 export function rateLimiter(message: string, timeWindowMS: number) {
@@ -8,10 +8,9 @@ export function rateLimiter(message: string, timeWindowMS: number) {
     windowMs: timeWindowMS,
     max: 5, // Limit each IP to 5 requests per `window` per minute
     message: {message: message},
-    handler:  async (req: Request, res: Response, next: NextFunction, options: Options) => {
-      await logEventsToFile(
+    handler: (req: Request, res: Response, next: NextFunction, options: Options) => {
+      logServerErrors(
         `Too Many Requests: ${options.message.message}\t${req.method}\t${req.url}\t${req.headers.origin}`,
-        'errLog.log'
       )
       res.status(options.statusCode).send(options.message)
     },

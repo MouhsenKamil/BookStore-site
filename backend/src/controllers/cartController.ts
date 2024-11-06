@@ -4,6 +4,7 @@ import { Cart } from '../models/Cart.ts'
 import { Order, PaymentMethod } from '../models/Order.ts'
 import { Book } from '../models/Book.ts'
 import { HttpError } from '../utils/exceptions.ts'
+import { BookArchive } from '../models/BooksArchive.ts'
 
 
 interface cartPurchaseFormData {
@@ -50,23 +51,6 @@ export async function addBookToCart(req: Request, res: Response) {
     })
   res.sendStatus(204)
 }
-
-
-// export async function getCartById(req: Request, res: Response) {
-//   try {
-//     const { id } = req.params
-//     const cart = await Cart.findById(id)
-
-//     if (!cart) {
-//       res.status(404).json({ message: 'Cart not found' })
-//       return
-//     }
-
-//     res.status(201).json(cart)
-//   } catch (error) {
-//     res.status(500).json({ message: 'Server Error' })
-//   }
-// }
 
 
 export async function deleteBookInCart(req: Request, res: Response) {
@@ -119,8 +103,14 @@ export async function checkout(req: Request, res: Response) {
     const originalBookObj = await Book.findById(book.id)
     if (!originalBookObj) return
 
-    const remaining_books_in_stock = originalBookObj.unitsInStock - book.quantity
-    await originalBookObj.updateOne({ $inc: { units_in_stock: -remaining_books_in_stock } })
+    // Pass the purchased books to archive
+    const archiveCopy = new BookArchive(originalBookObj.toJSON())
+
+    // Update the original book
+    await originalBookObj.updateOne({ $inc: { units_in_stock: -book.quantity } })
+
+    // Set the available quantity in it with the purchased quantity
+    archiveCopy.updateOne({ $inc: { units_in_stock: book.quantity } })
   })
 
   await cart.deleteOne()
@@ -130,8 +120,6 @@ export async function checkout(req: Request, res: Response) {
     order_id: order._id,
     deliveredBy: deliveredByDate
   })
-
-  // throw new HttpError(`Error in processing the purchase.`, { cause: err })
 }
 
 

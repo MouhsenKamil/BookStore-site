@@ -3,7 +3,7 @@ import {
   getOrdersOfUser,
   getOrderById,
   updateOrderStatus,
-  deleteOrder,
+  // deleteOrder,
   cancelOrder
 } from '../controllers/orderController.ts'
 import { checkRequestAttrs } from '../middlewares/validators.ts'
@@ -11,12 +11,12 @@ import { checkRequestAttrs } from '../middlewares/validators.ts'
 
 const routeWithOrderId = express.Router()
 
-routeWithOrderId.use(checkRequestAttrs({obj: 'params', must :['orderId']}))
+routeWithOrderId.use(checkRequestAttrs({obj: 'params', must: ['orderId']}))
 
 routeWithOrderId.get('/', getOrderById)
 routeWithOrderId.patch('/', updateOrderStatus)
-routeWithOrderId.patch('/cancel', cancelOrder)
-routeWithOrderId.delete('/', deleteOrder)
+routeWithOrderId.delete('/', cancelOrder)
+// routeWithOrderId.delete('/', deleteOrder)
 
 const router = express.Router()
 

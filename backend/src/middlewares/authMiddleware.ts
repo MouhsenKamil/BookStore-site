@@ -11,7 +11,6 @@ import {
 
 
 export async function authenticate(req: Request, res: Response, next: NextFunction) {
-  // const cookies = req.cookies as AuthCookies
   const cookies = req.cookies as { [key: string]: string | undefined }
 
   if (Object.keys(cookies).length === 0) // If there are no cookies
@@ -54,7 +53,6 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
             debugMsg: 'Password reset has occurred. Forcing user to re-login to continue further'
           }
         )
-
     })
     .catch(async (err) => {
       if (!(err instanceof TokenExpiredError)) throw err
@@ -63,10 +61,22 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       const _decodedRT = await verifyRefreshToken(refreshToken)
 
       if (_decodedRT.accessTokenHash !== await hashAccessToken(accessToken))
-        // If the access token does not contain the hash of it's refresh token,
+        // If the access token does not contain the actual hash of it's access token,
         // then its not related to it. Thus, its an invalid token.
-        // But we can't give out a valid access token just by a random refresh token.
+        // But we can't give out a valid access token just by a access refresh token.
         // So we ask user to log in again.
+        throw new ForceReLogin(
+          'Invalid Token, re-login to continue', {
+            cause: err as Error,
+            debugMsg: 'Given access token is not related to the given refresh token. ' +
+                      'Forcing Forcing user to re-login to continue further'
+          }
+        )
+
+      if (_decodedRT.userAgent !== req.headers['user-agent'])
+        // If the refresh token does not contain the same user agent,
+        // then its not related to the previous system it's logged in.
+        // Thus, its an invalid token.
         throw new ForceReLogin(
           'Invalid Token, re-login to continue', {
             cause: err as Error,

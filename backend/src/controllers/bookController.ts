@@ -13,7 +13,7 @@ export async function addBook(req: Request, res: Response) {
     throw new HttpError('Error while adding book', { cause: err })
   })
   res.status(201).json(newBook)
-  await logEvents(`Seller ${req.body.seller} added a book ${newBook._id}`)
+  logEvents(`Seller ${req.body.seller} added a book ${newBook._id}`)
 }
 
 
