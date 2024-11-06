@@ -1,7 +1,6 @@
 interface BackendErrorOptionsProp {
   cause?: Error
   debugMsg?: string
-  // [key: string]: any
 }
 
 

@@ -22,15 +22,13 @@ export default function errorHandler(err: HttpError, req: Request, res: Response
   logServerErrors(logMsg)
 
   // Handle 'Redirect' errors to forcefully logout clients and let them re-log
-  res.status(statusCode)
-
   if (!(err instanceof ForceReLogin))
-    res.json({ message })
+    res.status(statusCode).json({ message })
 
   else {
     clearTokensInCookies(res)
-    res.location('/login')
+    res.status(statusCode).location('/login')
   }
 
-  console.error(err)
+  console.error(err, err.stack || '')
 }

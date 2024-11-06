@@ -116,7 +116,6 @@ export interface RefreshToken {
 
 
 export async function getRefreshToken(req: Request, user: UserDoc, accessToken: string) {
-  // const clientId = await getClientIdToken(user)
   const userIP = req.headers['cf-connecting-ip'] || 
                  req.headers['x-real-ip'] ||
                  req.headers['x-forwarded-for'] ||
@@ -137,7 +136,7 @@ export function setRefreshTokenToCookies(res: Response, refreshToken: string) {
   const EXPIRE_IN_7_DAYS =  7 * 24 * 60 * 60 * 1000
 
   res.cookie(env.REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
-    httpOnly: true, // accessible only by web server
+    httpOnly: true, // Accessible only by web server
     secure: true, // https
     sameSite: "lax",
     maxAge: EXPIRE_IN_7_DAYS

@@ -13,7 +13,8 @@ import {
 export async function authenticate(req: Request, res: Response, next: NextFunction) {
   const cookies = req.cookies as { [key: string]: string | undefined }
 
-  if (Object.keys(cookies).length === 0) // If there are no cookies
+  // Unauthorized access or new user registration if there are no cookies
+  if (Object.keys(cookies).length === 0)
     throw new HttpError('Unauthorized', {
       statusCode: 401,
       debugMsg: 'Cookies were empty while trying to authenticate user'
@@ -128,16 +129,16 @@ type IsAuthenticatedProps = {
 export function IsAuthenticated(props: IsAuthenticatedProps) {
   const { yes, no } = props
 
-  return (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      authenticate(req, res, () => {})
+      await authenticate(req, res, (...args) => {})
       if (yes !== undefined && Object.keys(yes).length !== 0) {
-        res.send(yes.statusCode ?? 308).location(yes.redirectTo)
+        res.status(yes.statusCode ?? 308).location(yes.redirectTo)
         return
       }
     } catch {
       if (no !== undefined && Object.keys(no).length !== 0) {
-        res.send(no.statusCode ?? 308).location(no.redirectTo)
+        res.status(no.statusCode ?? 308).location(no.redirectTo)
         return
       }
     }

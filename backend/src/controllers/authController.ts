@@ -19,26 +19,17 @@ import { authenticate } from '../middlewares/authMiddleware.ts'
 
 
 export async function register(req: Request, res: Response) {
-  try {
-    // Check whether the user has already signed in.
-    // If yes, we just send 200 to tell the client to redirect to home page
-    authenticate(req, res, () => {})
-    res.send(200).json({ redirectTo: '/home' })
-  } catch (err) {
-    if (!(err instanceof HttpError))
-      throw err
+  const newUser = await createUserUtil(req, res)
+    .catch(err => {
+      if (err instanceof NewUserError) throw err
+      throw new HttpError('Error while registering user', { cause: err })
+    })
 
-    const newUser = await createUserUtil(req, res)
-      .catch(err => {
-        if (err instanceof NewUserError) throw err
-        throw new HttpError('Error while registering user', { cause: err })
-      })
+  const accessToken = await getAccessToken(newUser)
+  setAccessTokenToCookies(res, accessToken)
+  setRefreshTokenToCookies(res, await getRefreshToken(req, newUser, accessToken))
 
-    const accessToken = await getAccessToken(newUser)
-    setAccessTokenToCookies(res, accessToken)
-    setRefreshTokenToCookies(res, await getRefreshToken(req, newUser, accessToken))
-  // res.status(201).json({ accessToken, refreshToken })
-  }
+  res.sendStatus(204)
 }
 
 

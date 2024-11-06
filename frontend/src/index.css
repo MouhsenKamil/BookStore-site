@@ -75,11 +75,11 @@ input {
 form {
   display: flex;
   flex-direction: column;
-  padding: 1em;
+  padding: 1.7em;
   width: min(100%, 400px);
   border: 1px solid white;
   border-radius: 10px;
-  gap: 0.7em;
+  gap: 1em;
 }
 
 .form-heading {

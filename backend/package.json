@@ -3,12 +3,13 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-    "db": "mongod.exe -f \"db/bookstoredb.conf\"",
-		"start": "pnpm run db && tsc && node dist/main.js",
-		"dev": "pnpm run db && nodemon -w src src/main.ts"
+		"db": "mongod.exe -f \"db/bookstoredb.conf\"",
+		"start": "concurrently --kill-others \"pnpm run db\" \"tsc && node dist/main.js\"",
+		"dev": "concurrently --kill-others \"pnpm run db\" \"nodemon -w src src/main.ts\""
 	},
 	"dependencies": {
 		"bcryptjs": "^2.4.3",
+		"concurrently": "^9.1.0",
 		"cookie-parser": "^1.4.7",
 		"cookie-session": "^2.1.0",
 		"date-fns": "^4.1.0",
