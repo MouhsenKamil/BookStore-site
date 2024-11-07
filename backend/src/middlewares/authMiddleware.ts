@@ -26,13 +26,11 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
 
   if (!accessTokenHeaderPayload || !accessTokenSign)
     throw new HttpError('Access token not found', {
-      statusCode: 401,
-      debugMsg: 'access token not found in cookies while trying to authenticate'
+      statusCode: 401, debugMsg: 'access token not found in cookies while trying to authenticate'
     })
 
   if (!refreshToken)
-    throw new HttpError('Invalid token', {
-      statusCode: 401,
+    throw new ForceReLogin('Invalid Token, re-login to continue', {
       debugMsg: 'refresh token not found in cookies while trying to authenticate'
     })
 
@@ -44,16 +42,13 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
 
       if (!user)
         throw new HttpError('Invalid session for unknown user', {
-          statusCode: 401,
-          debugMsg: 'user id mentioned in access token does not exist'
+          statusCode: 401, debugMsg: 'user id mentioned in access token does not exist'
         })
 
       if (_decodedAT.passwordHash !== user.passwordHash)
-        throw new ForceReLogin(
-          'Invalid Token, re-login to continue', {
-            debugMsg: 'Password reset has occurred. Forcing user to re-login to continue further'
-          }
-        )
+        throw new ForceReLogin('Invalid Token, re-login to continue', {
+          debugMsg: 'Password reset has occurred. Forcing user to re-login to continue further'
+        })
     })
     .catch(async (err) => {
       if (!(err instanceof TokenExpiredError)) throw err

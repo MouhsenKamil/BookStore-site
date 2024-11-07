@@ -17,7 +17,7 @@ export async function getClientIdToken(user: UserDoc) {
       type: user.type,
       passwordHash: user.passwordHash
     }),
-    env.CLIENT_ID_SALT,
+    12,
   )
 }
 
@@ -31,7 +31,7 @@ export interface AccessToken {
 
 
 export async function hashAccessToken(accessToken: string) {
-  return await bcrypt.hash(accessToken, env.CLIENT_ID_SALT)
+  return await bcrypt.hash(accessToken, 12)
 }
 
 

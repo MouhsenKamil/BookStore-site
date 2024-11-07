@@ -13,7 +13,6 @@ export interface IUser {
   passwordHash: string
   type: UserType
   blocked: boolean
-  createdAt: Date
 }
 
 export type UserDoc = IUser & Document
@@ -26,7 +25,11 @@ export const User = mongoose.model<UserDoc>(
     passwordHash: { type: String, required: true },
     type: { type: String, enum: UserType, default: UserType.CUSTOMER,
       validate: {
-        validator: (val: string) => Object.keys(UserType).includes(val),
+        validator: (val: string) => {
+          console.log(val)
+          console.log(Object.values(UserType))
+          return Object.values(UserType).includes(val as UserType)
+        },
         message: props => `${props.value} is not a valid user type.`
       }
     },

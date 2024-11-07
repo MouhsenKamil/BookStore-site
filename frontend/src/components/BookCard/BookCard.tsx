@@ -1,20 +1,21 @@
-import { IBook } from "../../types/book"
+import { IBookWithSellerName } from "../../../../backend/src/models/Book"
 
 interface BookCardProps {
-  book: IBook
+  book: IBookWithSellerName
   onAddToCart?: () => void
   onBuy?: () => void
 }
 
+
 export default function BookCard({ book, onAddToCart, onBuy }: BookCardProps) {
   return (
     <div className="book-card">
-      <img src={book.coverImage} alt={book.title} />
+      <img src={book.coverImage ?? '../../assets/cover-image-placeholder.png'} alt={book.title} />
       <div className="book-info">
         <h3>{book.title}</h3>
-        <p>by {book.author}</p>
+        <p>by {book.authorName}</p>
         <p>₹{book.price.toFixed(2)}</p>
-        <p><b>Seller: </b>{book.seller}</p>
+        <p><b>Seller: </b>{book.sellerName}</p>
         <p>{book.description}</p>
         <div className="book-actions">
           <button onClick={onAddToCart}>Add to Cart</button>

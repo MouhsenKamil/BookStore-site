@@ -2,6 +2,7 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import axios from 'axios'
 
 import './Register.css'
+import { useState } from 'react'
 
 
 interface RegisterFormInputs {
@@ -22,6 +23,7 @@ const passwordValidationFuncs: { [key: string]:[ (val: string) => boolean, strin
 
 export default function Register() {
   const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormInputs>()
+  const [registrationError, setRegistrationError] = useState<string>('')
 
   // Watch password field to compare it with confirmPassword
   const password = watch('password', '')
@@ -36,7 +38,7 @@ export default function Register() {
 
       console.log(registerRes.data)
     } catch (err) {
-      console.error('Registration failed:', err)
+      setRegistrationError((err as Error).message)
     }
   }
 
@@ -120,6 +122,7 @@ export default function Register() {
         </div> */}
 
         <button type="submit">Register</button>
+        <p className='registration-err'>{registrationError}</p>
       </form>
       <p>Already have an account? <a href="/login">Login</a></p>
     </>

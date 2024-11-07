@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 
 import { logEvents } from '../middlewares/logger.ts'
 
-import { HttpError, NewUserError } from '../utils/exceptions.ts'
+import { ForceReLogin, HttpError, NewUserError } from '../utils/exceptions.ts'
 import { createUserUtil } from '../utils/userUtils.ts'
 
 import { User } from '../models/User.ts'
@@ -15,7 +15,6 @@ import {
   setRefreshTokenToCookies,
   updateTokensInCookies
 } from '../utils/authUtils.ts'
-import { authenticate } from '../middlewares/authMiddleware.ts'
 
 
 export async function register(req: Request, res: Response) {
@@ -28,8 +27,8 @@ export async function register(req: Request, res: Response) {
   const accessToken = await getAccessToken(newUser)
   setAccessTokenToCookies(res, accessToken)
   setRefreshTokenToCookies(res, await getRefreshToken(req, newUser, accessToken))
-
-  res.sendStatus(204)
+  // res.sendStatus(204)
+  res.status(308).location('/')
 }
 
 
@@ -52,7 +51,8 @@ export async function login(req: Request, res: Response) {
 
   // Issue access and refresh token to the user
   await updateTokensInCookies(req, res, user)
-  res.sendStatus(204)
+  // res.sendStatus(204)
+  res.status(308).location('/')
 
   logEvents(`User ${email} logged in`)
 }
@@ -109,4 +109,18 @@ export async function refresh(req: Request, res: Response) {
 export function logout(req: Request, res: Response) {
   clearRefreshTokenFromCookies(res)
   res.sendStatus(204)
+}
+
+
+export async function verify(req: Request, res: Response) {
+  const user = await User.findById(
+    req.__userAuth.id, { _id: 0, passwordHash: 0, blocked: 0 }
+  ).catch(err => {
+    throw new ForceReLogin("Unable to veify and geti's ")
+  })
+
+  if (!user)
+    return // Unreachable code
+
+  res.status(200).json(user.toJSON())
 }

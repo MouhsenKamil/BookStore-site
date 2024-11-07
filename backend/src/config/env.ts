@@ -23,7 +23,6 @@ interface ENV {
   REFRESH_TOKEN_SECRET?: string
 
   CLIENT_ID_SECRET?: string
-  CLIENT_ID_SALT?: string
 
   // Cookie names to store tokens
   REFRESH_TOKEN_COOKIE_NAME?: string
@@ -59,7 +58,6 @@ function getConfig(): ENV {
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
 
     CLIENT_ID_SECRET: process.env.CLIENT_ID_SECRET,
-    CLIENT_ID_SALT: process.env.CLIENT_ID_SALT,
 
     REFRESH_TOKEN_COOKIE_NAME: process.env.REFRESH_TOKEN_COOKIE_NAME,
 

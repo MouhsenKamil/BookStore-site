@@ -10,8 +10,8 @@ export default function errorHandler(err: HttpError, req: Request, res: Response
   const statusCode = err.statusCode ?? 500
 
   let logMsg = (
-    `${err.name}: ${message}\t${req.method}\t${req.url}\t` +
-    `${req.headers.origin ?? 'Unknown-Origin'}\t${req.socket.remoteAddress}\n`
+    `${err.name}: ${message} ${req.method} ${req.url} ` +
+    `${req.headers.origin ?? 'Unknown-Origin'} ${req.socket.remoteAddress}\n`
   )
 
   if (err instanceof HttpError)

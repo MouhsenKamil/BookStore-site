@@ -31,7 +31,7 @@ export const BookSchema = new Schema<BookDoc>({
   description: String,
   price: { type: Number, required: true },
   unitsInStock: { type: Number, required: true, min: 0, default: 0 },
-  seller: { type: Schema.Types.ObjectId, required: true },
+  seller: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
 }, {
   timestamps: { createdAt: true, updatedAt: false }
 })

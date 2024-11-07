@@ -15,8 +15,8 @@ function SearchResultItem(props: SearchResultItem) {
   const { book } = props
   let description = book.description ?? 'No description'
 
-  if (description.length > 60)
-    description = description.substring(0, 60) + "..." // Add ellipsis after slicing desc based on latest word
+  if (description.length > 150)
+    description = description.substring(0, 150)
 
   let imgUrl = book.coverImage ? `/api/static${book.coverImage}` : 'src/assets/cover-image-placeholder.png'
 
@@ -25,13 +25,15 @@ function SearchResultItem(props: SearchResultItem) {
       <img className="cover-image" src={imgUrl} alt={book.title} />
       <div className="metadata">
         <h4 className="book-title">{book.title}</h4>
-        <div className="">
-          <span className="author">Author: {book.authorName ? <b>{book.authorName}</b> : '---'}</span>
-          <span className="seller">Seller: {book.seller ? <b>{book.seller}</b> : '---'}</span>
+        {book.subtitle && <h6 className="book-subtitle">{book.subtitle}</h6>}
+        <div className="sub-metadata">
+          <span className="author">Author: {book.authorName ? <b>{book.authorName}</b> : '---'} {book.sellerName}</span>
           <span className="price"><b>₹{book.price}</b></span>
         </div>
         <span className="description">{description}</span>
-        <span className="tags">{book.subject?.join(', ')}</span>
+        {/* {book.subject && <div className="categories">{
+          book.subject.map((value, _) => <span className="category">{value}</span>)
+        }</div>} */}
       </div>
     </div>
   )
@@ -52,9 +54,13 @@ export function SearchBar() {
 
     try {
       const response = await axios.get(`/api/books`, {
-        params: { query, limit: 8 }
+        params: {
+          query,
+          limit: 8,
+          fields: ['title', 'subtitle', 'description', 'coverImage', 'authorName', 'price']
+        }
       })
-      // console.log(response.data)
+
       setBooks(response.data)
     } catch (error) {
       console.error('Failed to fetch books:', error)
@@ -94,7 +100,6 @@ export function SearchBar() {
           if (books) setShowSearchResults(true)
         }}
       />
-      { console.log(books) ?? ''}
       {showSearchResults && books &&
         <div className="search-results-list">
           {(books.map((book, key) => <SearchResultItem book={book} key={key} />))}

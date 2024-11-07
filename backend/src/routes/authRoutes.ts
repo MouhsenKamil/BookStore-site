@@ -1,5 +1,5 @@
 import express from 'express'
-import { register, login, logout, refresh } from '../controllers/authController.ts'
+import { register, login, logout, refresh, verify } from '../controllers/authController.ts'
 import { rateLimiter } from '../middlewares/rateLimiter.ts'
 import { IsAuthenticated } from '../middlewares/authMiddleware.ts'
 import { emailPasswordValidators, nameInBodyExists } from '../middlewares/validators.ts'
@@ -38,6 +38,12 @@ router.get(
     ONE_MINUTE,
   ),
   refresh
+)
+
+router.get(
+  '/verify',
+  redirectToLoginIfNotAuthenticated,
+  verify
 )
 
 router.post(

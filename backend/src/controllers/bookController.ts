@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { Book } from '../models/Book.ts'
+import { Book, IBook } from '../models/Book.ts'
 import { logEvents } from '../middlewares/logger.ts'
 
 import { HttpError } from '../utils/exceptions.ts'
@@ -18,50 +18,53 @@ export async function addBook(req: Request, res: Response) {
 
 
 export async function getBooks(req: Request, res: Response) {
-  const { query, limit = '8', fields = '' } = req.query
-  const queryObj = query ? { title: { $regex: query, $options: 'i' } } : {}
-  
+  const { query, limit = '8', fields = [] } = req.query
+
+  // Regex to implement fuzzy search
+  const searchRegex = new RegExp((query as string).split('').join(".*"), 'i')
+  const queryObj = query ? { title: { $regex: searchRegex } } : {}
+
   const limitInt = parseInt(limit as string)
 
-  let fieldsStr = fields as string
-  let fieldsArr = fieldsStr.includes(',') ? fieldsStr.trim().split(',') : []
+  let projectionObj = (fields instanceof Array && fields.length > 0)
+    ? Object.fromEntries(fields.map(elem => [elem, 1])) : {}
 
-  let projectionObj: Record<string, 1 | -1> | null = (fieldsArr.length > 0)
-    ? Object.fromEntries(fieldsArr.map(elem => [elem, 1]))
-    : {}
+  try {
+    let resBooks
 
-  console.log('projection obj: ', JSON.stringify(projectionObj))
-
-  const resBooks = await Book.aggregate([
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'seller',
-        foreignField: '_id',
-        as: 'resBooks',
-      },
-    },
-    // { $unwind: '$resBooks' },
-    { $match: queryObj },
-    { $limit: limitInt },
-    {
-      $project: {
-        _id: 0,
-        resBooks: {
-          name: 1
+    if (projectionObj.seller !== undefined)
+      resBooks = await Book.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            localField: "seller",
+            foreignField: "_id",
+            as: "resBooks",
+          },
         },
-        // $getField: {
-        //   field: "name",
-        //   input: '$resBooks'
-        // },
-        ...projectionObj
-      }
-    }
-  ]).catch(err => {
-    throw new HttpError('Error while fetching books', { cause: err })
-  })
+        // { $unwind: { path: "$resBooks", preserveNullAndEmptyArrays: true } },
+        { $unwind: "$resBooks" },
+        { $match: queryObj },
+        { $limit: limitInt },
+        {
+          $project: {
+            _id: 0,
+            ...projectionObj,
+            sellerName: "$resBooks.name",
+          }
+        },
+      ])
 
-  res.status(200).json(resBooks)
+    else
+      resBooks = await Book.find(
+        queryObj, { _id: 0, ...projectionObj }, { limit: limitInt }
+      )
+
+    res.status(200).json(resBooks)
+
+  } catch (err) {
+    throw new HttpError('Error while fetching books', { cause: err as Error })
+  }
 }
 
 
