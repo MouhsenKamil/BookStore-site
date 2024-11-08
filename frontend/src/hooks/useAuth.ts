@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
-import axios from "axios"
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 
-interface ClientIDData {
+interface User {
   name: string
   email: string
   type: string
@@ -10,31 +10,40 @@ interface ClientIDData {
 
 
 interface UseAuthState {
-  user: ClientIDData | null
+  user: User | null
   loading: boolean
   error: string | null
 }
 
 
-
 export function useAuth() {
-  const [clientData, setClientData] = useState<ClientIDData>({} as ClientIDData)
-  const [authState, setAuthState] = useState(false)
+  const [authState, setAuthState] = useState<UseAuthState>({
+    user: null, loading: true, error: null
+  })
 
   useEffect(() => {
     async function fetchAuthData() {
-      const res = await axios.get<ClientIDData>("/api/auth/verify", {
-        withCredentials: true, // Include cookies for authentication
-      })
-      setClientData(res.data)
-      setAuthState({
-        res.data, 
-      })
+      try {
+        const response = await axios.get<User>('/api/auth/verify', {
+          withCredentials: true
+        })
 
+        setAuthState({
+          user: response.data,
+          loading: false,
+          error: null,
+        })
+      } catch (error: any) {
+        setAuthState({
+          user: null,
+          loading: false,
+          error: error.response?.data?.message || error.message || 'Something went wrong',
+        })
+      }
     }
 
     fetchAuthData()
   }, [])
 
-  return clientData
+  return authState
 }

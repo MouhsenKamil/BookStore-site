@@ -1,13 +1,18 @@
-nav ul {
+.navbar {
   margin: 0 auto;
   padding: 0;
-  width: fit-content;
+  width: calc(100vw - 4rem);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   list-style-type: none;
   gap: 1em;
 }
 
-nav {
-  width: calc(100vw - 4rem);
+.search-bar-container {
+  width: 50%;
+}
+
+.navbar img {
+  height: 3em;
 }

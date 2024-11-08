@@ -6,14 +6,8 @@ import { IBookWithSellerName } from "../../../../backend/src/models/Book.tsx"
 import './SearchBar.css'
 
 
-interface SearchResultItem {
-  book: IBookWithSellerName
-}
-
-
-function SearchResultItem(props: SearchResultItem) {
-  const { book } = props
-  let description = book.description ?? 'No description'
+function SearchResultItem({ book }: { book: IBookWithSellerName }) {
+  let description = book.description ?? ''
 
   if (description.length > 150)
     description = description.substring(0, 150)
@@ -24,16 +18,12 @@ function SearchResultItem(props: SearchResultItem) {
     <div className="search-result-item">
       <img className="cover-image" src={imgUrl} alt={book.title} />
       <div className="metadata">
-        <h4 className="book-title">{book.title}</h4>
-        {book.subtitle && <h6 className="book-subtitle">{book.subtitle}</h6>}
-        <div className="sub-metadata">
-          <span className="author">Author: {book.authorName ? <b>{book.authorName}</b> : '---'} {book.sellerName}</span>
-          <span className="price"><b>₹{book.price}</b></span>
-        </div>
-        <span className="description">{description}</span>
-        {/* {book.subject && <div className="categories">{
-          book.subject.map((value, _) => <span className="category">{value}</span>)
-        }</div>} */}
+        <h4 className="heading book-title">{book.title}</h4>
+        {book.subtitle && <h6 className="heading book-subtitle">{book.subtitle}</h6>}
+        <span className="author">
+          Author: {book.authorName ? <b>{book.authorName}</b> : '---'} {book.sellerName}
+        </span>
+        {/* {description && <span className="description">{description}</span>} */}
       </div>
     </div>
   )
@@ -46,7 +36,7 @@ export function SearchBar() {
   const [books, setBooks] = useState<IBookWithSellerName[]>([])
   const [searchTerm, setSearchTerm] = useState('')
 
-  const fetchBooks = async (query: string = '') => {
+  async function fetchBooks(query: string = '') {
     if (!query) {
       setBooks([])
       return
@@ -57,7 +47,7 @@ export function SearchBar() {
         params: {
           query,
           limit: 8,
-          fields: ['title', 'subtitle', 'description', 'coverImage', 'authorName', 'price']
+          fields: ['title', 'subtitle', 'coverImage', 'authorName']
         }
       })
 
@@ -67,26 +57,36 @@ export function SearchBar() {
     }
   }
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value
     setSearchTerm(value)
     fetchBooks(value)
-  }
-
-  function closeSearchResultsAtOutsideClick(e: MouseEvent) {
-    if (showSearchResults && !resultsListRef.current?.contains(e.target as HTMLDivElement))
-      setShowSearchResults(false)
+    if (!showSearchResults) setShowSearchResults(true)
   }
 
   useEffect(() => {
-    // console.log('rendering search results')
-    if (!books) fetchBooks()
+    console.log('rendering search results')
+    if (!books.length) fetchBooks()
+
+    function closeSearchResultsAtOutsideClick(e: MouseEvent) {
+      console.log('clicking outside', showSearchResults, books.length)
+      if (showSearchResults && !resultsListRef.current?.contains(e.target as Node))
+        setShowSearchResults(false)
+      else
+        console.log(resultsListRef.current?.contains(e.target as Node))
+    }
+
     document.addEventListener("mousedown", closeSearchResultsAtOutsideClick)
+    const listener = () => {
+      console.log("clicked ", showSearchResults)
+    }
+    document.addEventListener("mousedown", listener)
 
     return () => {
       document.removeEventListener("mousedown", closeSearchResultsAtOutsideClick)
+      document.removeEventListener("mousedown", listener)
     }
-  })
+  }, [])
 
   return (
     <div className="search-bar-container" ref={resultsListRef}>
@@ -96,11 +96,12 @@ export function SearchBar() {
         placeholder="Search Books..."
         value={searchTerm}
         onChange={handleSearchChange}
-        onClick={() => {
-          if (books) setShowSearchResults(true)
-        }}
+        onClick={() => { setShowSearchResults(true) }}
+        // onFocus={() => setShowSearchResults(true)}
+        // onBlur={() => setShowSearchResults(false)}
       />
-      {showSearchResults && books &&
+      {/* {showSearchResults ? 'hi': 'hello'} */}
+      {showSearchResults && 
         <div className="search-results-list">
           {(books.map((book, key) => <SearchResultItem book={book} key={key} />))}
         </div>

@@ -1,7 +1,3 @@
-.search-bar-container {
-  width: 60vw;
-}
-
 div.heading {
   padding: 0.5em 0;
   font-weight: bold;
@@ -11,9 +7,5 @@ div.heading {
 @media only screen and (max-width: 800px) {
   div.heading {
     font-size: 2.6em;
-  }
-
-  .search-bar-container {
-    width: 90%;
   }
 }

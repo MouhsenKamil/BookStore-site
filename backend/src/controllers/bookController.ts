@@ -21,7 +21,7 @@ export async function getBooks(req: Request, res: Response) {
   const { query, limit = '8', fields = [] } = req.query
 
   // Regex to implement fuzzy search
-  const searchRegex = new RegExp((query as string).split('').join(".*"), 'i')
+  const searchRegex = new RegExp((query as string).replace('/', '\\/').split('').join(".*"), 'i')
   const queryObj = query ? { title: { $regex: searchRegex } } : {}
 
   const limitInt = parseInt(limit as string)

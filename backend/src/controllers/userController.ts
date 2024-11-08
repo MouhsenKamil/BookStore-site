@@ -9,7 +9,9 @@ import { updateTokensInCookies } from '../utils/authUtils.ts'
 
 export async function getUsers(req: Request, res: Response) {
   const { query, limit = '0', fields = '' } = req.query
-  const query_obj = query ? { name: { $regex: query, $options: 'i' } } : {}
+  const query_obj = query
+    ? { name: { $regex: (query as string).replace('/', '\\/'), $options: 'i' } }
+    : {}
 
   let projection_obj: Record<string, 1 | -1> | null = null
   let fields_arr = (fields as string).trim().split(',')

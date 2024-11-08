@@ -1,31 +1,27 @@
-import { Link } from 'react-router-dom'
+import { Link, redirect } from 'react-router-dom'
+
+import { SearchBar } from '../SearchBar/SearchBar'
+
 import { useAuth } from '../../hooks/useAuth'
 
 import './NavBar.css'
-
 
 export default function NavBar() {
   const auth = useAuth()
 
   return (
-    <header>
-      <nav>
-        <ul>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/cart">Cart</Link></li>
-          {auth
-            ? <>
-              <li><Link to="/login">Login</Link></li>
-              <li><Link to="/register">Register</Link></li>
-            </>
-            : <li>
-              <Link to="/profile">
-                <img src="" alt="" />
-              </Link>
-            </li>
-          }
-        </ul>
-      </nav>
-    </header>
+    <div className='navbar'>
+      <img
+        className='site-navbar-logo'
+        src="src/assets/bookstore-navbar-logo.png"
+        alt="Bookstore site"
+        onClick={() => redirect('/')}
+      />
+      <SearchBar />
+      {auth
+        ? <img className='user-profile-icon' src="src/assets/user-profile-icon.png" alt="User" />
+        : <Link to="/login">Login / Register</Link>
+      }
+    </div>
   )
 }
