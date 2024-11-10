@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose"
+import mongoose, { Document, Schema, ValidatorProps } from "mongoose"
 
 
 export enum UserType {
@@ -12,29 +12,30 @@ export interface IUser {
   email: string
   passwordHash: string
   type: UserType
+}
+
+export interface IBlockableUser extends IUser {
   blocked: boolean
+}
+
+export const UserSchemaObj = {
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  passwordHash: { type: String, required: true },
+  type: { type: String, enum: UserType, default: UserType.CUSTOMER,
+    validate: {
+      validator: (val: string) => Object.values(UserType).includes(val as UserType),
+      message: (props: ValidatorProps) => `${props.value} is not a valid user type.`
+    }
+  },
 }
 
 export type UserDoc = IUser & Document
 
 export const User = mongoose.model<UserDoc>(
   'users',
-  new Schema<UserDoc>({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    passwordHash: { type: String, required: true },
-    type: { type: String, enum: UserType, default: UserType.CUSTOMER,
-      validate: {
-        validator: (val: string) => {
-          console.log(val)
-          console.log(Object.values(UserType))
-          return Object.values(UserType).includes(val as UserType)
-        },
-        message: props => `${props.value} is not a valid user type.`
-      }
-    },
-    blocked: { type: Boolean, required: true, default: false },
-  }, {
+  new Schema<UserDoc>(UserSchemaObj, {
     timestamps: { createdAt: true, updatedAt: false },
-  })
+  }),
+  'users'
 )

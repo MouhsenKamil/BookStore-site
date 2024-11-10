@@ -25,12 +25,15 @@ export const BookSchema = new Schema<BookDoc>({
   authorName: { type: [String], required: true },
   title: { type: String, required: true },
   subtitle: String,
-  lang: { type: [String], required: true, default: ['eng']},
+  lang: { type: [String], required: true, default: ['eng'], validate: {
+    validator: (val: string) => val.length > 0,
+    message: 'Language code must not be empty'
+  }},
   subject: { type: [String], required: true },
   coverImage: String,
   description: String,
-  price: { type: Number, required: true },
-  unitsInStock: { type: Number, required: true, min: 0, default: 0 },
+  price: { type: Number, required: true, min: 1 },
+  unitsInStock: { type: Number, required: true, min: 0, default: 1 },
   seller: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
 }, {
   timestamps: { createdAt: true, updatedAt: false }

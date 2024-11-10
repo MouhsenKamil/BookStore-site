@@ -2,9 +2,11 @@ import mongoose, { Schema, Document, Types } from 'mongoose'
 
 
 export enum OrderStatus {
+  PACKAGING = 'packaging',
   ON_DELIVERY = 'on_delivery',
   DELIVERED = 'delivered',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
+  ABORTED = 'aborted'
 }
 
 
@@ -42,8 +44,11 @@ export const Order = mongoose.model<OrderDoc>(
         unitPrice: { type: Number, required: true },
       },
     ],
-    deliveredBy: { type: Date, required: true },
-    status: { type: String, enum: OrderStatus, default: OrderStatus.ON_DELIVERY },
+    deliveredBy: { type: Date, required: true, validate: {
+      validator: (val: Date) => val > (new Date()),
+      message: "delivery date can't be nearly equal to current time."
+    }},
+    status: { type: String, enum: OrderStatus, default: OrderStatus.PACKAGING },
     address: { type: String, required: true },
     totalAmount: {
       type: Number, required: true, default: function () {

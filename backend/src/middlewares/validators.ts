@@ -10,7 +10,9 @@ export const emailPasswordValidators = [
 
 export const nameInBodyExists = checkRequestAttrs({obj: 'body', must: ['name']})
 export const queryInParamExists = checkRequestAttrs({obj: 'query', must: ['query']})
-
+export const restrictEditingSensibleInfo = checkRequestAttrs(
+  { obj: 'body', mustNot: ['email', 'type', 'passwordHash'] }
+)
 
 type CheckRequestAttrsProps = {
   obj: 'body' | 'params' | 'query'

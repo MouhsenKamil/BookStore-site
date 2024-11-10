@@ -47,7 +47,7 @@ app.get('/', (req: Request, res: Response) => {
 
 // Return 404 on unknown routes
 app.use((req: Request, res: Response, next: NextFunction) => {
-  res.status(404).json({ message: "Sorry can't find that!" })
+  res.status(404).json({ error: "Sorry can't find that!" })
 })
 
 app.use(errorHandler) // Error handling middleware

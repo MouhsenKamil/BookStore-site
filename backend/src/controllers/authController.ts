@@ -3,10 +3,8 @@ import bcrypt from 'bcryptjs'
 
 import { logEvents } from '../middlewares/logger.ts'
 
-import { ForceReLogin, HttpError, NewUserError } from '../utils/exceptions.ts'
-import { createUserUtil } from '../utils/userUtils.ts'
+import { ForceReLogin, HttpError } from '../utils/exceptions.ts'
 
-import { User } from '../models/User.ts'
 import {
   clearRefreshTokenFromCookies,
   getAccessToken,
@@ -15,18 +13,39 @@ import {
   setRefreshTokenToCookies,
   updateTokensInCookies
 } from '../utils/authUtils.ts'
+import { User, UserDoc, UserType } from '../models/User.ts'
+import { Customer } from '../models/Customer.ts'
+import { Seller } from '../models/Seller.ts'
+import { createCustomer } from './customerController.ts'
+import { createSeller } from './sellerController.ts'
 
 
 export async function register(req: Request, res: Response) {
-  const newUser = await createUserUtil(req, res)
-    .catch(err => {
-      if (err instanceof NewUserError) throw err
-      throw new HttpError('Error while registering user', { cause: err })
+  // const newUser = await createUserUtil(req, res)
+  //   .catch(err => {
+  //     if (err instanceof NewUserError) throw err
+  //     throw new HttpError('Error occurred while registering user', { cause: err })
+  //   })
+
+  const { type: userType } = req.__userAuth
+  let newUser
+
+  if (userType === UserType.CUSTOMER)
+    newUser = await createCustomer(req, res)
+
+  else if (userType === UserType.SELLER)
+    newUser = await createSeller(req, res)
+
+  else
+    throw new HttpError(`Unknown user type: ${userType}`, {
+      statusCode: 400,
+      debugMsg: `Got '${userType}' as user type while trying to register user`
     })
 
   const accessToken = await getAccessToken(newUser)
   setAccessTokenToCookies(res, accessToken)
   setRefreshTokenToCookies(res, await getRefreshToken(req, newUser, accessToken))
+
   // res.sendStatus(204)
   res.status(308).location('/')
 }
@@ -116,11 +135,50 @@ export async function verify(req: Request, res: Response) {
   const user = await User.findById(
     req.__userAuth.id, { _id: 0, passwordHash: 0, blocked: 0 }
   ).catch(err => {
-    throw new ForceReLogin("Unable to veify and geti's ")
+    throw new ForceReLogin("Unable to veify and geti's ", { cause: err })
   })
 
   if (!user)
     return // Unreachable code
 
-  res.status(200).json(user.toJSON())
+  res.status(200).json({ userData: user.toJSON() })
+}
+
+
+export async function changePassword(req: Request, res: Response) {
+  const { oldPasswordHash, newPasswordHash } = req.body
+  const { id: userId, type: userType } = req.__userAuth
+
+  const userDoc = await User.findById(userId)
+
+  if (!userDoc)
+    throw new HttpError(req.__userAuth.type + ' not found', { statusCode: 404 })
+
+  if (userDoc.passwordHash !== oldPasswordHash)
+    throw new HttpError(
+      'old password is not matching with the current password', { statusCode: 401 }
+    )
+
+  let updatedUser
+
+  if (userType === UserType.CUSTOMER)
+    updatedUser = await Customer.findByIdAndUpdate(
+      userDoc.id, { passwordHash: newPasswordHash }, { runValidators: true, new: true }
+    )
+
+  else if (userType === UserType.SELLER)
+    updatedUser = await Seller.findByIdAndUpdate(
+      userDoc.id, { passwordHash: newPasswordHash }, { runValidators: true, new: true }
+    )
+
+  else
+    return // Unreachable code
+
+  // .catch(err => {
+  //   throw new HttpError('Error occurred while updating password', { cause: err as Error })
+  // })
+
+  await updateTokensInCookies(req, res, updatedUser as UserDoc)
+  logEvents(`${userType} ${userId} has changed their password`)
+  res.sendStatus(204)
 }

@@ -6,11 +6,11 @@ import { clearTokensInCookies } from '../utils/authUtils'
 
 
 export default function errorHandler(err: HttpError, req: Request, res: Response, next: NextFunction) {
-  const message = (err instanceof BackendError) ? err.message: 'Internal Server Error'
+  const error = (err instanceof BackendError) ? err.message: 'Internal Server Error'
   const statusCode = err.statusCode ?? 500
 
   let logMsg = (
-    `${err.name}: ${message} ${req.method} ${req.url} ` +
+    `${err.name}: ${error} ${req.method} ${req.url} ` +
     `${req.headers.origin ?? 'Unknown-Origin'} ${req.socket.remoteAddress}\n`
   )
 
@@ -23,7 +23,7 @@ export default function errorHandler(err: HttpError, req: Request, res: Response
 
   // Handle 'Redirect' errors to forcefully logout clients and let them re-log
   if (!(err instanceof ForceReLogin))
-    res.status(statusCode).json({ message })
+    res.status(statusCode).json({ error })
 
   else {
     clearTokensInCookies(res)

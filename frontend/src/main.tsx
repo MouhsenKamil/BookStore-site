@@ -2,7 +2,7 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 
 
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom"
 import App from "./components/App/App.tsx"
 import ErrorPage from "./components/ErrorPage/ErrorPage.tsx"
 import Book from "./components/Book/Book.tsx"
@@ -12,6 +12,7 @@ import Page404 from "./components/ErrorPage/404/404.tsx"
 import Home from "./components/Home/Home.tsx"
 
 import "./index.css"
+import { Logout } from "./components/Logout/Logout.tsx"
 
 const router = createBrowserRouter([
   {
@@ -21,10 +22,17 @@ const router = createBrowserRouter([
     children: [
       {path: "", element: <Home />},
       {path: "books/:bookId", Component: Book},
-      {path: "login", element: <Login />},
-      {path: "register", element: <Register />},
       {path: '*', element: <Page404 />}
     ],
+  },
+  {
+    path: "/account",
+    element: <div><Outlet /></div>,
+    children: [
+      {path: "login", element: <Login />},
+      {path: "register", element: <Register />},
+      {path: "logout", element: <Logout />}
+    ]
   },
 ])
 

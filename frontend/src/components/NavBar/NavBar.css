@@ -16,3 +16,7 @@
 .navbar img {
   height: 3em;
 }
+
+.navbar .img-icon {
+  cursor: pointer;
+}

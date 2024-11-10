@@ -8,20 +8,20 @@ import { BookArchive } from '../models/BooksArchive.ts'
 export async function getOrdersOfUser(req: Request, res: Response) {
   const orders = await Order.find({ user: req.params.userId })
     .catch((err) => {
-      throw new HttpError('Error while fetching order', { cause: err })
+      throw new HttpError('Error occurred while fetching order', { cause: err })
     })
 
   if (!orders)
     throw new HttpError("User haven't ordered anything yet", { statusCode: 404 })
 
-  res.status(200).json(orders)
+  res.status(200).json({ total: orders.length, results: orders })
 }
 
 
 export async function getOrderById(req: Request, res: Response) {
   const order = await Order.findById(req.params.orderId)
     .catch((err) => {
-      throw new HttpError('Error while fetching order', { cause: err })
+      throw new HttpError('Error occurred while fetching order', { cause: err })
     })
 
   if (!order)
@@ -37,7 +37,7 @@ export async function updateOrderStatus(req: Request, res: Response) {
     req.params.orderId, { status: status }, { new: true, runValidators: true }
   )
   .catch((err) => {
-    throw new HttpError('Error while updating order', { cause: err })
+    throw new HttpError('Error occurred while updating order', { cause: err })
   })
 
   if (!updatedOrder)
@@ -55,7 +55,7 @@ export async function updateOrderStatus(req: Request, res: Response) {
 
     await originalBookObj.deleteOne()
       .catch(err => {
-        throw new HttpError('Error while removing sold out book', { cause: err })
+        throw new HttpError('Error occurred while removing sold out book', { cause: err })
       })
   })
 
@@ -66,7 +66,7 @@ export async function updateOrderStatus(req: Request, res: Response) {
 export async function cancelOrder(req: Request, res: Response) {
   const cancelledOrder = await Order.findById(req.params.orderId)
     .catch(err => {
-      throw new HttpError('Error while cancelling order', { cause: err })
+      throw new HttpError('Error occurred while cancelling order', { cause: err })
     })
 
   if (!cancelledOrder)
@@ -74,7 +74,7 @@ export async function cancelOrder(req: Request, res: Response) {
 
   if (cancelledOrder.status === OrderStatus.DELIVERED)
     throw new HttpError(
-      "Cannot cancel an order that's already delivered", { statusCode: 406 }
+      "Cannot cancel an order that's already delivered", { statusCode: 409 }
     )
 
   // Load the archive copies and move it back to the 'book' collection

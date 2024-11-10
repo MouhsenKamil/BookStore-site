@@ -7,13 +7,13 @@ export async function getWishlistOfUser(req: Request, res: Response) {
   const { userid } = req.params
   const wishlist = await Wishlist.find({ user: userid })
     .catch(err => {
-      throw new HttpError('Error while fetching wishlist', { cause: err })
+      throw new HttpError('Error occurred while fetching wishlist', { cause: err })
     })
 
   if (!wishlist)
     throw new HttpError('Wishlist is empty', { statusCode: 404 })
 
-  res.status(201).json(wishlist)
+  res.status(201).json({ total: wishlist.length, results: wishlist})
 }
 
 
@@ -29,7 +29,7 @@ export async function addBookToWishlist(req: Request, res: Response) {
 
   await updatedWishlist.save()
     .catch(err => {
-      throw new HttpError('Error while adding book to wishlist', { cause: err })
+      throw new HttpError('Error occurred while adding book to wishlist', { cause: err })
     })
 
   res.status(201).json({ message: 'Book has been added to wishlist' })
@@ -48,7 +48,7 @@ export async function deleteBookInWishlist(req: Request, res: Response) {
 
   await deletedWishlist.save()
     .catch(err => {
-      throw new HttpError('Error while adding book to wishlist', { cause: err })
+      throw new HttpError('Error occurred while adding book to wishlist', { cause: err })
     })
 
   res.sendStatus(204)
@@ -58,7 +58,7 @@ export async function deleteBookInWishlist(req: Request, res: Response) {
 export async function clearWishlist(req: Request, res: Response) {
   const deletedWishlist = await Wishlist.findOneAndDelete({ user: req.params.userId })
     .catch(err => {
-      throw new HttpError('Error while clearing wishlist', { cause: err })
+      throw new HttpError('Error occurred while clearing wishlist', { cause: err })
     })
 
   if (!deletedWishlist)

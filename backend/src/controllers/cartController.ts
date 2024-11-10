@@ -23,7 +23,7 @@ export async function getCartOfUser(req: Request, res: Response) {
   const { userId } = req.params
   const cart = await Cart.find({ user: userId })
     .catch(err => {
-      throw new HttpError(`Error while fetching cart`, { cause: err })
+      throw new HttpError(`Error occurred while fetching cart`, { cause: err })
     })
 
   if (!cart)
@@ -47,7 +47,7 @@ export async function addBookToCart(req: Request, res: Response) {
 
   await updatedCart.save()
     .catch(err => {
-      throw new HttpError(`Error while adding book to cart`, { cause: err })
+      throw new HttpError(`Error occurred while adding book to cart`, { cause: err })
     })
   res.sendStatus(204)
 }
@@ -65,7 +65,7 @@ export async function deleteBookInCart(req: Request, res: Response) {
 
   await updatedCart.save()
     .catch(err => {
-      throw new HttpError(`Error while deleting book from cart`, { cause: err })
+      throw new HttpError(`Error occurred while deleting book from cart`, { cause: err })
     })
 
   res.sendStatus(204)
@@ -96,7 +96,7 @@ export async function checkout(req: Request, res: Response) {
 
   await order.save()
     .catch(err => {
-      throw new HttpError('Error while processing checkout', { cause: err })
+      throw new HttpError('Error occurred while processing checkout', { cause: err })
     })
 
   cart.books.forEach(async (book) => {
@@ -126,7 +126,7 @@ export async function checkout(req: Request, res: Response) {
 export async function clearCart(req: Request, res: Response) {
   const deletedCart = await Cart.findOneAndDelete({ user: req.params.userId })
     .catch(err => {
-      throw new HttpError('Error while deleting cart', { cause: err })
+      throw new HttpError('Error occurred while deleting cart', { cause: err })
     })
 
   if (!deletedCart)

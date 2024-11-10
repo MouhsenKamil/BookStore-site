@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react"
 import axios from "axios"
 
 import { IBookWithSellerName } from "../../../../backend/src/models/Book.tsx"
@@ -6,13 +6,23 @@ import { IBookWithSellerName } from "../../../../backend/src/models/Book.tsx"
 import './SearchBar.css'
 
 
+// interface SearchResultItemProps {
+//   data: IBookWithSellerName[]
+//   index: number
+//   style: React.CSSProperties
+// }
+
+
+// function SearchResultItem(props: SearchResultItemProps) {
 function SearchResultItem({ book }: { book: IBookWithSellerName }) {
   let description = book.description ?? ''
 
   if (description.length > 150)
     description = description.substring(0, 150)
 
-  let imgUrl = book.coverImage ? `/api/static${book.coverImage}` : 'src/assets/cover-image-placeholder.png'
+  let imgUrl = book.coverImage
+    ? `/api/static${book.coverImage}`
+    : 'src/assets/cover-image-placeholder.png'
 
   return (
     <div className="search-result-item">
@@ -51,7 +61,7 @@ export function SearchBar() {
         }
       })
 
-      setBooks(response.data)
+      setBooks(response.data.results)
     } catch (error) {
       console.error('Failed to fetch books:', error)
     }
@@ -69,7 +79,7 @@ export function SearchBar() {
     if (!books.length) fetchBooks()
 
     function closeSearchResultsAtOutsideClick(e: MouseEvent) {
-      console.log('clicking outside', showSearchResults, books.length)
+      // console.log('clicking outside', showSearchResults, books.length)
       if (showSearchResults && !resultsListRef.current?.contains(e.target as Node))
         setShowSearchResults(false)
       else
@@ -77,14 +87,14 @@ export function SearchBar() {
     }
 
     document.addEventListener("mousedown", closeSearchResultsAtOutsideClick)
-    const listener = () => {
-      console.log("clicked ", showSearchResults)
-    }
-    document.addEventListener("mousedown", listener)
+    // const listener = () => {
+    //   console.log("clicked ", showSearchResults)
+    // }
+    // document.addEventListener("mousedown", listener)
 
     return () => {
       document.removeEventListener("mousedown", closeSearchResultsAtOutsideClick)
-      document.removeEventListener("mousedown", listener)
+      // document.removeEventListener("mousedown", listener)
     }
   }, [])
 

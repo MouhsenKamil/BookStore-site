@@ -10,27 +10,35 @@ export async function addBook(req: Request, res: Response) {
 
   const newBook = new Book(req.body)
   await newBook.save().catch(err => {
-    throw new HttpError('Error while adding book', { cause: err })
+    throw new HttpError('Error occurred while adding book', { cause: err })
   })
-  res.status(201).json(newBook)
+  res.status(201).json({ message: 'Book created', bookId: newBook._id })
   logEvents(`Seller ${req.body.seller} added a book ${newBook._id}`)
 }
 
 
 export async function getBooks(req: Request, res: Response) {
-  const { query, limit = '8', fields = [] } = req.query
+  const {
+    query, limit = '8', fields = [], sort = 'title', order = 'asc', ...otherQueries
+  } = req.query
 
   // Regex to implement fuzzy search
   const searchRegex = new RegExp((query as string).replace('/', '\\/').split('').join(".*"), 'i')
-  const queryObj = query ? { title: { $regex: searchRegex } } : {}
+  const queryObj = query ? { title: { $regex: searchRegex }, ...otherQueries } : otherQueries
+  const limitInt = +limit
 
-  const limitInt = parseInt(limit as string)
+  const orderStr = (order as string).toLowerCase()
+
+  if (!['asc', 'desc'].includes(orderStr))
+    throw new HttpError(`Invalid value for sort order: ${order}`, { statusCode: 400 })
+
+  const orderInt = (orderStr === 'asc') ? 1: -1
 
   let projectionObj = (fields instanceof Array && fields.length > 0)
     ? Object.fromEntries(fields.map(elem => [elem, 1])) : {}
 
   try {
-    let resBooks
+    let resBooks: IBook[]
 
     if (projectionObj.seller !== undefined)
       resBooks = await Book.aggregate([
@@ -46,11 +54,10 @@ export async function getBooks(req: Request, res: Response) {
         { $unwind: "$resBooks" },
         { $match: queryObj },
         { $limit: limitInt },
+        { $sort: { [sort as string]: orderInt }},
         {
           $project: {
-            _id: 0,
-            ...projectionObj,
-            sellerName: "$resBooks.name",
+            _id: 0, ...projectionObj, sellerName: "$resBooks.name",
           }
         },
       ])
@@ -60,10 +67,10 @@ export async function getBooks(req: Request, res: Response) {
         queryObj, { _id: 0, ...projectionObj }, { limit: limitInt }
       )
 
-    res.status(200).json(resBooks)
+    res.status(200).json({ total: resBooks.length, results: resBooks })
 
   } catch (err) {
-    throw new HttpError('Error while fetching books', { cause: err as Error })
+    throw new HttpError('Error occurred while fetching books', { cause: err as Error })
   }
 }
 
@@ -73,7 +80,7 @@ export async function getBookById(req: Request, res: Response) {
 
   const book = await Book.findById(bookId)
     .catch(err => {
-      throw new HttpError(`Error while fetching book`, { cause: err })
+      throw new HttpError(`Error occurred while fetching book`, { cause: err })
     })
 
   if (!book)
@@ -90,7 +97,7 @@ export async function updateBook(req: Request, res: Response) {
     bookId, req.body, { runValidators: true, new: true }
   )
   .catch(err => {
-    throw new HttpError(`Error while updating book`, { cause: err })
+    throw new HttpError(`Error occurred while updating book`, { cause: err })
   })
 
   if (!updatedBook)
@@ -104,7 +111,7 @@ export async function deleteBook(req: Request, res: Response) {
   const { bookId } = req.params
   const deletedBook = await Book.findByIdAndDelete(bookId)
     .catch(err => {
-      throw new HttpError(`Error while deleting book`, { cause: err })
+      throw new HttpError(`Error occurred while deleting book`, { cause: err })
     })
 
   if (!deletedBook)

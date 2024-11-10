@@ -5,6 +5,7 @@ import env from '../config/env.ts'
 
 import { HttpError, ForceReLogin } from '../utils/exceptions.ts'
 import { User, UserType } from '../models/User.ts'
+
 import {
   hashAccessToken, updateTokensInCookies, verifyAccessToken, verifyRefreshToken
 } from '../utils/authUtils.ts'
@@ -82,7 +83,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
         )
 
       // Issue new both the 'access' and 'refresh' tokens for client
-      const user = await User.findById(_decodedRT.id, { type: 1 })
+      const user = await User.findById(_decodedRT.id)
 
       if (!user)
         throw new HttpError(
@@ -93,8 +94,8 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
         )
 
       req.__userAuth = {
-        id: user._id as string,
-        type: user.type
+        id: _decodedRT.id,
+        type: _decodedRT.type
       }
 
       // Update the cookies with the new access and refresh tokens

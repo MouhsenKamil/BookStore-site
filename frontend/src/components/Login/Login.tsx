@@ -10,6 +10,7 @@ interface LoginFormInputs {
   password: string
 }
 
+
 export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>()
 

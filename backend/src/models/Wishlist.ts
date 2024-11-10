@@ -3,9 +3,7 @@ import mongoose, { Types, Schema, Document } from "mongoose"
 
 export interface IWishlist {
   user: Types.ObjectId
-  books: {
-    id: Types.ObjectId
-  }[]
+  books: Types.ObjectId[]
 }
 
 type WishlistDoc = IWishlist & Document

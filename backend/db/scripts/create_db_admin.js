@@ -1,4 +1,6 @@
-db.createCollection('users')
+db.createCollection('customers')
+db.createCollection('sellers')
+db.createCollection('admins')
 db.createCollection('books')
 db.createCollection('orders')
 db.createCollection('carts')

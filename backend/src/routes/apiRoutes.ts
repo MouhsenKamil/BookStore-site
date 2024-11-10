@@ -5,7 +5,7 @@ import authRoutes from './authRoutes'
 import adminRoutes from './adminRoutes'
 import bookRoutes from './bookRoutes'
 import sellerRoutes from './sellerRoutes'
-import customerRoutes from './userRoutes'
+import customerRoutes from './customerRoutes'
 
 
 const router = express.Router()

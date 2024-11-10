@@ -14,7 +14,7 @@ export type CartDoc = ICart & Document
 export const Cart = mongoose.model<CartDoc>(
   'carts',
   new Schema<CartDoc>({
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    user: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
     books: [{
       id: { type: Schema.Types.ObjectId, ref: 'Book', required: true },
       quantity: { type: Number, required: true },

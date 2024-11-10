@@ -1,11 +1,15 @@
 import { Request, Response } from "express"
 import { UserDoc, UserType } from "../models/User"
+import mongoose from "mongoose"
 
 import bcrypt from 'bcryptjs'
 import jwt, { TokenExpiredError } from 'jsonwebtoken'
 
 import env from '../config/env.ts'
 import { HttpError, ForceReLogin } from "./exceptions.ts"
+import { Customer } from "../models/Customer.ts"
+import { Seller } from "../models/Seller.ts"
+import { Admin } from "../models/Admin.ts"
 
 
 // Client ID token util
@@ -108,6 +112,7 @@ export async function verifyAccessToken(accessToken: string): Promise<AccessToke
 // Refresh Token utils
 export interface RefreshToken {
   id: string
+  type: UserType
   passwordHash: string
   userIP: string
   userAgent: string
@@ -125,7 +130,11 @@ export async function getRefreshToken(req: Request, user: UserDoc, accessToken: 
   const accessTokenHash = hashAccessToken(accessToken)
 
   return jwt.sign(
-    { id: user._id, userIP, userAgent, accessTokenHash },
+    {
+      id: user._id,
+      type: user.type,
+      userIP, userAgent, accessTokenHash
+    },
     env.REFRESH_TOKEN_SECRET,
     { expiresIn: '7d' },
   )
@@ -170,7 +179,7 @@ export async function verifyRefreshToken(refreshToken: string): Promise<RefreshT
 
       // Exit out if there's any other error while parsing refresh token
       throw new HttpError('Internal server error', {
-        debugMsg: 'Error occured while validating refresh token',
+        debugMsg: 'Error occurred while validating refresh token',
         cause: err as Error
       })
     })
