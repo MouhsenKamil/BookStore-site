@@ -5,3 +5,18 @@
   align-items: center;
   flex-grow: 1;
 }
+
+footer {
+  width: 100%;
+  background-color: black;
+}
+
+footer ul {
+  list-style-type: none;
+}
+
+footer .other-hyperlinks > * {
+  margin-left: 0;
+  width: fit-content;
+  text-align: left;
+}

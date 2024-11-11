@@ -1,4 +1,4 @@
-import { Link, redirect } from 'react-router-dom'
+import { Link, useNavigate,  } from 'react-router-dom'
 import axios from 'axios'
 
 import { SearchBar } from '../SearchBar/SearchBar'
@@ -10,6 +10,7 @@ import './NavBar.css'
 
 export default function NavBar() {
   const auth = useAuth()
+  const navigate = useNavigate()
 
   return (
     <div className='navbar'>
@@ -17,7 +18,7 @@ export default function NavBar() {
         className='img-icon site-navbar-logo'
         src="src/assets/bookstore-navbar-logo.png"
         alt="Bookstore site"
-        onClick={() => redirect('/')}
+        onClick={() => navigate('/')}
       />
       <SearchBar />
       {auth.user !== null
@@ -27,10 +28,12 @@ export default function NavBar() {
             alt="User"
             onClick={async () => {
               await axios.post('/api/auth/logout')
-              redirect('/')
+              navigate('/')
             }}
           />
-        : <Link to="/login">Login / Register</Link>
+        : <button>
+          <Link to="/account/login">Login / Register</Link>
+        </button>
       }
     </div>
   )

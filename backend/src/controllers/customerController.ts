@@ -39,6 +39,7 @@ export async function createCustomer(req: Request, res: Response) {
 export async function getCustomers(req: Request, res: Response) {
   const { query, limit = '0', fields = '', sort = 'name', order = 'asc' } = req.query
   const queryObj = query
+    // ? { name: { $regex: (query as string).replace('/', '\\/'), $options: 'i' } }
     ? { name: { $regex: (query as string).replace('/', '\\/'), $options: 'i' } }
     : {}
 
@@ -49,11 +50,12 @@ export async function getCustomers(req: Request, res: Response) {
 
   const orderInt = (orderStr === 'asc') ? 1: -1
 
-  let projection_obj: Record<string, 1 | -1> | null = null
   let fields_arr = (fields as string).trim().split(',')
 
-  if (fields_arr.length > 0)
-    projection_obj = Object.fromEntries(fields_arr.map(elem => [elem, 1]))
+  let projectionObj: Record<string, 1 | -1> = Object.fromEntries(
+    fields_arr.map(elem => [elem, 1])
+  )
+  projectionObj.id = projectionObj.id ?? 0
 
   const limitInt = +limit
 
@@ -61,7 +63,7 @@ export async function getCustomers(req: Request, res: Response) {
     { $match: queryObj },
     { $limit: limitInt },
     { $sort: { [sort as string]: orderInt }},
-    { $project: { ...projection_obj, _id: 0, passwordHash: 0 }}
+    { $project: { ...projectionObj, passwordHash: 0 }}
   ]).catch(err => {
     throw new HttpError('Error occurred while fetching users', { cause: err })
   })
@@ -72,7 +74,7 @@ export async function getCustomers(req: Request, res: Response) {
 
 export async function getCustomerById(req: Request, res: Response) {
   const { userId } = req.params
-  const user = await Customer.findById(userId, { passwordHash: 0 })
+  const user = await Customer.findById(userId, { _id: 0, passwordHash: 0 })
     .catch(err => {
       throw new HttpError("Error occurred while fetching user's details", { cause: err })
     })

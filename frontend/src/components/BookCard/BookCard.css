@@ -1,6 +1,7 @@
 .book-card {
-  padding: 1em;
+  padding: 0 1em;
   width: fit-content;
+  margin: auto 0;
 }
 
 .book-info {
@@ -9,7 +10,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
 }
 
 .book-actions {
@@ -20,6 +21,14 @@
 }
 
 .book-card .book-title {
-  width: fit-content;
   margin: 0;
+  width: fit-content;
+}
+
+.book-card img {
+  width: 11em;
+}
+
+.book-card img, .book-card .book-title {
+  cursor: pointer;
 }

@@ -19,7 +19,7 @@ export async function getOrdersOfUser(req: Request, res: Response) {
 
 
 export async function getOrderById(req: Request, res: Response) {
-  const order = await Order.findById(req.params.orderId)
+  const order = await Order.findById(req.params.orderId, { _id: 0 })
     .catch((err) => {
       throw new HttpError('Error occurred while fetching order', { cause: err })
     })

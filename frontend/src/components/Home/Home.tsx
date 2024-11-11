@@ -17,7 +17,7 @@ export default function Home() {
       const response = await axios.get(`/api/books`, {
         params: {
           query,
-          fields: ["title", "subtitle", "coverImage", "authorName"],
+          fields: ["_id", "title", "coverImage"],
           ...params,
         }
       })

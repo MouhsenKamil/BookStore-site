@@ -21,7 +21,8 @@ const passwordValidationFuncs: { [key: string]:[ (val: string) => boolean, strin
   hasASpecialChar: [(val) => /[~`!@#$%^&*(){}[\];:"\",.<>\/?_+=-]/.test(val), 'Password must contain at least one special character']
 }
 
-export default function Register() {
+export default function Register(props: { parent: 'user' | 'seller' }) {
+  const { parent: parentEndpoint } = props
   const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormInputs>()
   const [registrationError, setRegistrationError] = useState<string>('')
 
@@ -34,6 +35,7 @@ export default function Register() {
         name: data.name,
         email: data.email,
         password: data.password,
+        type: parentEndpoint === 'user' ? 'customer': 'seller'
       })
 
       console.log(registerRes.data)
@@ -124,7 +126,7 @@ export default function Register() {
         <button type="submit">Register</button>
         <p className='registration-err'>{registrationError}</p>
       </form>
-      <p>Already have an account? <a href="/login">Login</a></p>
+      <p>Already have an account? <a href={`/accounts/${parentEndpoint}/login`}>Login</a></p>
     </>
   )
 }

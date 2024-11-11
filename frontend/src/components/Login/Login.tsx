@@ -11,7 +11,8 @@ interface LoginFormInputs {
 }
 
 
-export default function Login() {
+export default function Login(props: { parent: 'user' | 'seller' }) {
+  const { parent: parentEndpoint } = props
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>()
 
   const onSubmit = async (data: LoginFormInputs) => {
@@ -46,11 +47,11 @@ export default function Login() {
         />
         {errors.password && <p className='error-msg'>{errors.password.message}</p>}
 
-        <Link to='/forgot-password'>Forgot Password?</Link>
+        <Link to='/account/forgot-password'>Forgot Password?</Link>
 
         <button type="submit">Login</button>
       </form>
-      <p>Don't have an account? <a href="/register">Register</a></p>
+      <p>Don't have an account? <Link to={`/account/${parentEndpoint}/register`}>Register</Link></p>
     </>
   )
 }

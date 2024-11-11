@@ -27,7 +27,7 @@ export async function register(req: Request, res: Response) {
   //     throw new HttpError('Error occurred while registering user', { cause: err })
   //   })
 
-  const { type: userType } = req.__userAuth
+  const { type: userType } = req.body
   let newUser
 
   if (userType === UserType.CUSTOMER)

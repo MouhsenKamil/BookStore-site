@@ -1,8 +1,9 @@
 import { Request, Response } from 'express'
-import { Book, IBook } from '../models/Book.ts'
+import { Book, IBook, IBookWithSellerName } from '../models/Book.ts'
 import { logEvents } from '../middlewares/logger.ts'
 
 import { HttpError } from '../utils/exceptions.ts'
+import { Seller } from '../models/Seller.ts'
 
 
 export async function addBook(req: Request, res: Response) {
@@ -19,11 +20,12 @@ export async function addBook(req: Request, res: Response) {
 
 export async function getBooks(req: Request, res: Response) {
   const {
-    query, limit = '8', fields = [], sort = 'title', order = 'asc', ...otherQueries
+    query, limit = '1', fields = [], sort = 'title', order = 'asc', ...otherQueries
   } = req.query
 
   // Regex to implement fuzzy search
-  const searchRegex = new RegExp((query as string).replace('/', '\\/').split('').join(".*"), 'i')
+  // const searchRegex = new RegExp((query as string).replace('/', '\\/').split('').join(".*"), 'i')
+  const searchRegex = new RegExp((query as string).replace('/', '\\/'), 'i')
   const queryObj = query ? { title: { $regex: searchRegex }, ...otherQueries } : otherQueries
   const limitInt = +limit
 
@@ -36,6 +38,8 @@ export async function getBooks(req: Request, res: Response) {
 
   let projectionObj = (fields instanceof Array && fields.length > 0)
     ? Object.fromEntries(fields.map(elem => [elem, 1])) : {}
+
+    // projectionObj.id = projectionObj.id ?? 0
 
   try {
     let resBooks: IBook[]
@@ -57,14 +61,16 @@ export async function getBooks(req: Request, res: Response) {
         { $sort: { [sort as string]: orderInt }},
         {
           $project: {
-            _id: 0, ...projectionObj, sellerName: "$resBooks.name",
+            ...projectionObj,
+            sellerName: "$resBooks.name",
+            id: '_id'
           }
         },
       ])
 
     else
       resBooks = await Book.find(
-        queryObj, { _id: 0, ...projectionObj }, { limit: limitInt }
+        queryObj, projectionObj, { limit: limitInt }
       )
 
     res.status(200).json({ total: resBooks.length, results: resBooks })
@@ -78,7 +84,7 @@ export async function getBooks(req: Request, res: Response) {
 export async function getBookById(req: Request, res: Response) {
   const { bookId } = req.params
 
-  const book = await Book.findById(bookId)
+  const book = await Book.findById(bookId, { _id: 0 })
     .catch(err => {
       throw new HttpError(`Error occurred while fetching book`, { cause: err })
     })
@@ -86,7 +92,15 @@ export async function getBookById(req: Request, res: Response) {
   if (!book)
     throw new HttpError('Book not found', { statusCode: 404 })
 
-  res.status(200).json(book)
+  const seller = await Seller.findById(book.seller)
+    .catch(err => {
+      throw new HttpError(`Error occurred while fetching book`, { cause: err })
+    })
+
+  let resObj = (book.toObject() as unknown) as IBookWithSellerName
+  resObj.sellerName = seller?.name || ''
+
+  res.status(200).json(resObj)
 }
 
 

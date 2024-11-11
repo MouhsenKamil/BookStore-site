@@ -2,7 +2,7 @@ import express from 'express'
 import { register, login, logout, refresh, verify, changePassword } from '../controllers/authController.ts'
 import { rateLimiter } from '../middlewares/rateLimiter.ts'
 import { IsAuthenticated } from '../middlewares/authMiddleware.ts'
-import { emailPasswordValidators, nameInBodyExists } from '../middlewares/validators.ts'
+import { checkRequestAttrs, emailPasswordValidators } from '../middlewares/validators.ts'
 
 
 const router = express.Router()
@@ -25,7 +25,7 @@ router.post(
     ONE_MINUTE,
   ),
   ...emailPasswordValidators,
-  nameInBodyExists,
+  checkRequestAttrs({obj: 'body', must: ['name', 'type']}),
   register
 )
 
