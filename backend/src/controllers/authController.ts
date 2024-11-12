@@ -18,6 +18,7 @@ import { Customer } from '../models/Customer.ts'
 import { Seller } from '../models/Seller.ts'
 import { createCustomer } from './customerController.ts'
 import { createSeller } from './sellerController.ts'
+import { Admin } from '../models/Admin.ts'
 
 
 export async function register(req: Request, res: Response) {
@@ -52,10 +53,27 @@ export async function register(req: Request, res: Response) {
 
 
 export async function login(req: Request, res: Response) {
-  const { email, password } = req.body
+  const { email, password, type: userType } = req.body
 
-  const user = await User.findOne({ email })
-  if (!user)
+  // const user = await User.findOne({ email })
+  // if (!user)
+  //   throw new HttpError('Invalid email id', {
+  //     statusCode: 401,
+  //     debugMsg: `Email id ${email} not registered`
+  //   })
+
+  let user
+
+  if (userType === UserType.CUSTOMER)
+    user = await Customer.findOne({ email })
+
+  else if (userType === UserType.SELLER)
+    user = await Seller.findOne({ email })
+
+  else if (userType === UserType.ADMIN)
+    user = await Admin.findOne({ email })
+
+  else
     throw new HttpError('Invalid email id', {
       statusCode: 401,
       debugMsg: `Email id ${email} not registered`
@@ -140,23 +158,35 @@ export async function verify(req: Request, res: Response) {
 
   if (!user)
     return // Unreachable code
+    // authentication is required to run this code. Thus no need to
+    // check whether user exists or not
 
   res.status(200).json({ userData: user.toJSON() })
 }
 
 
 export async function changePassword(req: Request, res: Response) {
-  const { oldPasswordHash, newPasswordHash } = req.body
   const { id: userId, type: userType } = req.__userAuth
-
+  
   const userDoc = await User.findById(userId)
-
+  
   if (!userDoc)
     throw new HttpError(req.__userAuth.type + ' not found', { statusCode: 404 })
+  
+  const { oldPassword, newPassword } = req.body
+
+  const [oldPasswordHash, newPasswordHash] = await Promise.all([
+    bcrypt.hash(oldPassword, 12), bcrypt.hash(newPassword, 12)
+  ])
 
   if (userDoc.passwordHash !== oldPasswordHash)
     throw new HttpError(
       'old password is not matching with the current password', { statusCode: 401 }
+    )
+
+  if (oldPassword === newPassword)
+    throw new HttpError(
+      'New password cannot be same as old password', { statusCode: 409 }
     )
 
   let updatedUser
@@ -172,7 +202,10 @@ export async function changePassword(req: Request, res: Response) {
     )
 
   else
-    return // Unreachable code
+    throw new HttpError(`Unknown user type: ${userType}`, {
+      statusCode: 400,
+      debugMsg: `Got '${userType}' as user type while trying to register user`
+    })
 
   // .catch(err => {
   //   throw new HttpError('Error occurred while updating password', { cause: err as Error })

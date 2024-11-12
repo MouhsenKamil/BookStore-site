@@ -27,6 +27,7 @@ function createLogger(logFileName: string, logParentDirPath?: string) {
 const userEventsLogger = createLogger('user-events.log')
 const serverErrorsLogger = createLogger('server-errors.log')
 const mongoDBErrorLogger = createLogger('mongodb-errors.log')
+// const contactUsLogger = createLogger('contact-us.log')
 
 
 export function logEventsToFile(message: string) {
@@ -53,6 +54,12 @@ export function logMongoDBErrors(err: Error) {
   mongoDBErrorLogger.write(message)
   console.error(message)
 }
+
+// export function logContactUsContent(name: string, email: string, message: string) {
+//   let msgRes = `EMAIL FROM SITE: ${name} (${email})\n${message}\n---`
+//   console.log(msgRes)
+//   // contactUsLogger.write(msgRes)
+// }
 
 // export async function loggerMiddleware(req: Request, res: Response, next: NextFunction) {
 //   let logFile = (req.__userAuth && req.__userAuth.type === UserType.ADMIN)

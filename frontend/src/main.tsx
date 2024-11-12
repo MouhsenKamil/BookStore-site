@@ -11,8 +11,19 @@ import Page404 from "./components/ErrorPage/404/404.tsx"
 import Home from "./components/Home/Home.tsx"
 import ForgotPassword from "./components/ForgotPassword/ForgotPassword.tsx"
 import AboutUs from "./components/AboutUs/AboutUs.tsx"
+import ContactUs from "./components/ContactUs/ContactUs.tsx"
+import SearchResults from "./components/SearchResults/SearchResults.tsx"
+
+import Profile from "./components/Profile/Profile.tsx"
+import Cart from "./components/Customer/Cart/Cart.tsx"
+import Orders from "./components/Customer/Orders/Orders.tsx"
+
 
 import "./index.css"
+import AHome from "./components/Admin/AHome/AHome.tsx"
+import ABooks from "./components/Admin/ABooks/ABooks.tsx"
+import ACustomers from "./components/Admin/ACustomers/ACustomers.tsx"
+import ASellers from "./components/Admin/ASellers/ASellers.tsx"
 
 
 const router = createBrowserRouter([
@@ -22,7 +33,9 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {path: "", element: <Home />},
+      {path: "search", element: <SearchResults />},
       {path: 'about-us', element: <AboutUs />},
+      {path: 'contact-us', element: <ContactUs />},
       {path: "book/:bookId", element: <Book />},
       {path: '*', element: <Page404 />},
       {
@@ -31,7 +44,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: 'user',
-            element: <Outlet />,
+            // element: <Outlet />,
             children: [
               {path: "login", element: <Login parent='user' />},
               {path: "register", element: <Register parent='user' />},
@@ -40,13 +53,43 @@ const router = createBrowserRouter([
           },
           {
             path: 'seller',
-            element: <Outlet />,
+            // element: <Outlet />,
             children: [
               {path: "login", element: <Login parent='seller' />},
               {path: "register", element: <Register parent='seller' />},
               {path: "forgot-password", element: <ForgotPassword parent='seller' />},
             ]
+          },
+          {
+            path: 'admin',
+            // element: <Outlet />,
+            children: [
+              {path: "login", element: <Login parent='admin' />},
+            ]
           }
+        ]
+      },
+      {
+        path: 'seller',
+        children: [
+          {path: 'profile', element: <Profile />}
+        ]
+      },
+      {
+        path: 'user',
+        children: [
+          {path: 'profile', element: <Profile />},
+          {path: 'cart', element: <Cart />},
+          {path: 'orders', element: <Orders />}
+        ]
+      },
+      {
+        path: 'admin',
+        children: [
+          {path: '/', element: <AHome />}
+          {path: 'books', element: <ABooks />}
+          {path: 'customers', element: <ACustomers />}
+          {path: 'sellers', element: <ASellers />}
         ]
       },
     ],

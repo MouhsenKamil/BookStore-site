@@ -9,6 +9,9 @@ import { Seller } from '../models/Seller.ts'
 export async function addBook(req: Request, res: Response) {
   req.body.seller = req.body.seller ?? req.__userAuth.id
 
+  console.log(JSON.stringify(req.body))
+  return
+
   const newBook = new Book(req.body)
   await newBook.save().catch(err => {
     throw new HttpError('Error occurred while adding book', { cause: err })
@@ -46,6 +49,8 @@ export async function getBooks(req: Request, res: Response) {
 
     if (projectionObj.seller !== undefined)
       resBooks = await Book.aggregate([
+        { $match: queryObj },
+        { $limit: limitInt },
         {
           $lookup: {
             from: "users",
@@ -56,8 +61,6 @@ export async function getBooks(req: Request, res: Response) {
         },
         // { $unwind: { path: "$resBooks", preserveNullAndEmptyArrays: true } },
         { $unwind: "$resBooks" },
-        { $match: queryObj },
-        { $limit: limitInt },
         { $sort: { [sort as string]: orderInt }},
         {
           $project: {

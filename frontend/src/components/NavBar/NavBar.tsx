@@ -2,14 +2,13 @@ import { Link, useNavigate,  } from 'react-router-dom'
 import axios from 'axios'
 
 import { SearchBar } from '../SearchBar/SearchBar'
-
 import { useAuth } from '../../hooks/useAuth'
 
 import './NavBar.css'
 
 
 export default function NavBar() {
-  const auth = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
 
   return (
@@ -20,8 +19,8 @@ export default function NavBar() {
         alt="Bookstore site"
         onClick={() => navigate('/')}
       />
-      <SearchBar />
-      {auth.user !== null
+      {(!user || user.type === 'customer') && <SearchBar />}
+      {user !== null
         ? <img
             className='img-icon user-profile-icon'
             src="src/assets/user-profile-icon.png"
@@ -32,7 +31,7 @@ export default function NavBar() {
             }}
           />
         : <button>
-          <Link to="/account/login">Login / Register</Link>
+          <Link to="/account/user/login">Login / Register</Link>
         </button>
       }
     </div>

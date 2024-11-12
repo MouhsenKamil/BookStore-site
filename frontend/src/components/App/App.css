@@ -9,10 +9,13 @@
 footer {
   width: 100%;
   background-color: black;
+  text-align: left;
+  padding: 1em 2em;
 }
 
-footer ul {
-  list-style-type: none;
+footer .other-hyperlinks {
+  display: flex;
+  flex-direction: column;
 }
 
 footer .other-hyperlinks > * {

@@ -35,11 +35,11 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
         name: data.name,
         email: data.email,
         password: data.password,
-        type: parentEndpoint === 'user' ? 'customer': 'seller'
+        type: parentEndpoint === 'user' ? 'customer': parentEndpoint
       })
-
       console.log(registerRes.data)
     } catch (err) {
+      console.error(err)
       setRegistrationError((err as Error).message)
     }
   }
@@ -110,21 +110,8 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
           <p className='error-msg'>{errors.confirmPassword.message}</p>
         )}
 
-        {/* <div className='account-type'>
-          <b>Are you a:</b>
-          <label>
-            <input type="radio" id="rb-customer" value='customer' {...register('type', { required: true })} checked />
-            Customer
-          </label>
-          /
-          <label>
-            <input type="radio" id="rb-seller" value='seller' {...register('type', { required: true })} />
-            Seller
-          </label>
-        </div> */}
-
         <button type="submit">Register</button>
-        <p className='registration-err'>{registrationError}</p>
+        {registrationError && <p className='registration-err error-msg'>{registrationError}</p>}
       </form>
       <p>Already have an account? <a href={`/accounts/${parentEndpoint}/login`}>Login</a></p>
     </>

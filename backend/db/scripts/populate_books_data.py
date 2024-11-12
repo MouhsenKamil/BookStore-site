@@ -83,7 +83,7 @@ async def main():
 
     obj['lang'] = res.get('language', MISSING)
 
-    obj['subject'] = [i for i in res.get('subject', []) if not IGNORE_CHARS_IN_SUBJECT_REGEX.match(i)]
+    obj['categories'] = [i for i in res.get('subject', []) if not IGNORE_CHARS_IN_SUBJECT_REGEX.match(i)]
 
     cover_key = res.get("cover_edition_key", MISSING)
 

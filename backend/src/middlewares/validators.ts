@@ -3,10 +3,10 @@ import { body } from 'express-validator'
 import { HttpError } from '../utils/exceptions'
 
 
-export const emailPasswordValidators = [
-  body('email').isEmail().withMessage('Valid email is required'),
-  body('password').notEmpty().withMessage('Password field is required'),
-]
+export const emailValidator = body('email').isEmail().withMessage('Valid email is required')
+export const passwordValidator = body('password').notEmpty().withMessage('Password field is required')
+
+export const emailPasswordValidators = [emailValidator, passwordValidator]
 
 export const nameInBodyExists = checkRequestAttrs({obj: 'body', must: ['name']})
 export const queryInParamExists = checkRequestAttrs({obj: 'query', must: ['query']})

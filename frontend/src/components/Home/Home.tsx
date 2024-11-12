@@ -33,8 +33,8 @@ export default function Home() {
     const [newListings, lowStock, scienceFiction, literature] = await Promise.all([
       fetchBooks("", { sort: "createdAt", limit: 8 }),
       fetchBooks("", { sort: "unitsInStock", limit: 8, order: "asc" }),
-      fetchBooks("", { subject: { $in: ['Science Fiction'] }, limit: 8 }),
-      fetchBooks("", { subject: { $in: ['Literature'] }, limit: 8 }),
+      fetchBooks("", { categories: { $in: ['Science Fiction'] }, limit: 8 }),
+      fetchBooks("", { categories: { $in: ['Literature'] }, limit: 8 }),
     ])
 
     setNewBooks(newListings)

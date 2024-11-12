@@ -1,6 +1,6 @@
 .navbar {
   margin: 0 auto;
-  padding: 1rem 0.5rem;
+  padding: 1rem;
   width: calc(100vw - 4rem);
   display: flex;
   align-items: center;

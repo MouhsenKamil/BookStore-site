@@ -1,32 +1,46 @@
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 
 import './Login.css'
+import { titleCase } from '../../utils/stringUtils'
+import { useState } from 'react'
 
 
 interface LoginFormInputs {
   email: string
   password: string
+  type: 'customer' | 'seller' | 'admin'
 }
 
 
-export default function Login(props: { parent: 'user' | 'seller' }) {
+export default function Login(props: { parent: 'user' | 'seller' | 'admin' }) {
+  const [loginErr, setLoginErr] = useState('')
+
   const { parent: parentEndpoint } = props
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>()
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
-      await axios.post('/api/auth/login', data)
-    } catch (error) {
-      console.error('Login failed:', error)
+      data.type = parentEndpoint === 'user' ? 'customer': parentEndpoint
+      const response = await axios.post('/api/auth/login', data)
+      if (response.status !== 308)
+        setLoginErr(response.data)
+  
+    } catch (err) {
+      console.error(err)
+      setLoginErr((err as AxiosError).message)
     }
   }
 
   return (
     <>
       <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
-        <div className='form-heading'>Log in to Bookstore</div>
+        <div className='form-heading'>
+          Login {
+            (parentEndpoint === 'user') ? 'to Bookstore': ' as ' + titleCase(parentEndpoint)
+          }
+        </div>
         <input
           type="email"
           placeholder="Email"
@@ -46,12 +60,17 @@ export default function Login(props: { parent: 'user' | 'seller' }) {
           {...register('password', { required: 'Password is required' })}
         />
         {errors.password && <p className='error-msg'>{errors.password.message}</p>}
+        {loginErr && <p className='login-err error-msg'>{loginErr}</p>}
 
-        <Link to='/account/forgot-password'>Forgot Password?</Link>
+        <Link to={`/account/${parentEndpoint}/forgot-password`}>Forgot Password?</Link>
 
         <button type="submit">Login</button>
       </form>
-      <p>Don't have an account? <Link to={`/account/${parentEndpoint}/register`}>Register</Link></p>
+      <p>
+        Don't have {(parentEndpoint === 'seller') ? 'a seller': 'an'} account?
+        &nbsp;
+        <Link to={`/account/${parentEndpoint}/register`}>Register</Link>
+      </p>
     </>
   )
 }

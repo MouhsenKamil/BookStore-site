@@ -190,9 +190,7 @@ export async function addCreditCard(req: Request, res: Response) {
 
 export async function getCreditCardsOfUser(req: Request, res: Response) {
   const creditCards = await Customer.aggregate([
-    {
-      $match: { _id: req.params.userId }
-    },
+    { $match: { _id: req.params.userId }},
     {
       $lookup: {
         from: "users",
@@ -201,9 +199,7 @@ export async function getCreditCardsOfUser(req: Request, res: Response) {
         as: "creditCardsInfo"
       }
     },
-    {
-      $project: { _id: 0, creditCards: 0 }
-    }
+    { $project: { _id: 0, creditCards: 0 }}
   ])
 
   res.status(200).json({ total: creditCards.length, results: creditCards })

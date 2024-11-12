@@ -6,13 +6,12 @@ export interface IBook {
   title: string
   subtitle: string | null
   lang: Array<string>
-  subject: Array<string>
+  categories: Array<string>
   coverImage: string | null
   description: string | null
   price: number
   unitsInStock: number
   seller: Types.ObjectId
-  createdAt: Date
 }
 
 export interface IBookWithSellerName extends IBook {
@@ -29,7 +28,7 @@ export const BookSchema = new Schema<BookDoc>({
     validator: (val: string) => val.length > 0,
     message: 'Language code must not be empty'
   }},
-  subject: { type: [String], required: true },
+  categories: { type: [String], required: true },
   coverImage: String,
   description: String,
   price: { type: Number, required: true, min: 1 },
