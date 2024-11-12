@@ -2,10 +2,10 @@ import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import axios, { AxiosError } from 'axios'
 
-import './Login.css'
 import { titleCase } from '../../utils/stringUtils'
 import { useState } from 'react'
 
+import './Login.css'
 
 interface LoginFormInputs {
   email: string

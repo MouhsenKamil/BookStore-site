@@ -24,6 +24,7 @@ import AHome from "./components/Admin/AHome/AHome.tsx"
 import ABooks from "./components/Admin/ABooks/ABooks.tsx"
 import ACustomers from "./components/Admin/ACustomers/ACustomers.tsx"
 import ASellers from "./components/Admin/ASellers/ASellers.tsx"
+import SHome from "./components/Sellers/SHome/SHome.tsx"
 
 
 const router = createBrowserRouter([
@@ -72,7 +73,8 @@ const router = createBrowserRouter([
       {
         path: 'seller',
         children: [
-          {path: 'profile', element: <Profile />}
+          {path: '', element: <SHome />},
+          {path: 'profile', element: <Profile />},
         ]
       },
       {
@@ -86,10 +88,10 @@ const router = createBrowserRouter([
       {
         path: 'admin',
         children: [
-          {path: '/', element: <AHome />}
-          {path: 'books', element: <ABooks />}
-          {path: 'customers', element: <ACustomers />}
-          {path: 'sellers', element: <ASellers />}
+          {path: '', element: <AHome />},
+          {path: 'books', element: <ABooks />},
+          {path: 'customers', element: <ACustomers />},
+          {path: 'sellers', element: <ASellers />},
         ]
       },
     ],
