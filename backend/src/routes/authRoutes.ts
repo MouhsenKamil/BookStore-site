@@ -1,4 +1,5 @@
 import express from 'express'
+
 import { register, login, logout, refresh, verify, changePassword } from '../controllers/authController.ts'
 import { rateLimiter } from '../middlewares/rateLimiter.ts'
 import { IsAuthenticated } from '../middlewares/authMiddleware.ts'
@@ -9,11 +10,11 @@ const router = express.Router()
 const ONE_MINUTE = 60 * 1000
 
 const redirectToHomeIfAuthenticated = IsAuthenticated({
-  yes: { redirectTo: '/home' },
+  yes: { redirectTo: '/' },
 })
 
 const redirectToLoginIfNotAuthenticated = IsAuthenticated({
-  no: { redirectTo: '/login' },
+  no: { redirectTo: '/account/user/login' },
 })
 
 
@@ -31,7 +32,6 @@ router.post(
 
 router.get(
   '/refresh',
-  // authenticate,
   redirectToLoginIfNotAuthenticated,
   rateLimiter(
     'Too many requests from this IP, please try again after a minute',
@@ -40,18 +40,9 @@ router.get(
   refresh
 )
 
-router.get(
-  '/verify',
-  redirectToLoginIfNotAuthenticated,
-  verify
-)
+router.get('/verify', redirectToLoginIfNotAuthenticated, verify)
 
-router.post(
-  '/logout',
-  // authenticate,
-  redirectToLoginIfNotAuthenticated,
-  logout
-)
+router.post('/logout', redirectToLoginIfNotAuthenticated, logout)
 
 router.post(
   '/login',

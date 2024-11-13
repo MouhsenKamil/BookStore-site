@@ -1,8 +1,9 @@
 import { useForm, SubmitHandler } from 'react-hook-form'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 import './Register.css'
-import { useState } from 'react'
 
 
 interface RegisterFormInputs {
@@ -25,19 +26,23 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
   const { parent: parentEndpoint } = props
   const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormInputs>()
   const [registrationError, setRegistrationError] = useState<string>('')
+  const navigate = useNavigate()
 
   // Watch password field to compare it with confirmPassword
   const password = watch('password', '')
 
   const onSubmit: SubmitHandler<RegisterFormInputs> = async (data) => {
     try {
-      const registerRes = await axios.post('/api/auth/register', {
+      const response = await axios.post('/api/auth/register', {
         name: data.name,
         email: data.email,
         password: data.password,
         type: parentEndpoint === 'user' ? 'customer': parentEndpoint
       })
-      console.log(registerRes.data)
+
+      if (response.status === 200)
+        navigate('/')
+
     } catch (err) {
       console.error(err)
       setRegistrationError((err as Error).message)

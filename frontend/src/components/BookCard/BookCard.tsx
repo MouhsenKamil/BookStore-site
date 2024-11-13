@@ -1,25 +1,10 @@
 import { MouseEvent } from "react"
 import { useNavigate } from "react-router-dom"
-// import axios from "axios"
+import axios from "axios"
 
 import { IBookWithSellerName } from "../../types/book"
 
 import './BookCard.css'
-
-
-const onAddToWishlist = async (event: MouseEvent<HTMLButtonElement>) => {
-  
-}
-
-
-const onAddToCart = async (event: MouseEvent<HTMLButtonElement>) => {
-  console.log('clicked add to cart')
-}
-
-
-// const onBuy = async (event: MouseEvent<HTMLButtonElement>) => {
-//   console.log('clicked buy now')
-// }
 
 
 export default function BookCard(props: { book: IBookWithSellerName }) {
@@ -27,7 +12,37 @@ export default function BookCard(props: { book: IBookWithSellerName }) {
   const navigate = useNavigate()
 
   function goToBookPage() {
-    navigate(`/book/${book.id}`)
+    navigate(`/book/${book._id}`)
+  }
+
+  const onAddToWishlist = async (event: MouseEvent<HTMLButtonElement>) => {
+    const response = await axios.post('/api/customer/@me/wishlist/add', {
+      bookId: book._id,
+    })
+
+    let messsage
+
+    if (response.status === 201)
+      messsage = 'Book is now added to the wishlist'
+    else
+      messsage = response.data.messsage
+  
+    alert(messsage)
+  }
+
+  const onAddToCart = async (event: MouseEvent<HTMLButtonElement>) => {
+    const response = await axios.post('/api/customer/@me/cart/add/', {
+      bookId: book._id, quantity: 1
+    })
+
+    let messsage
+
+    if (response.status === 201)
+      messsage = 'Book is now added to the cart'
+    else
+      messsage = response.data.messsage
+  
+    alert(messsage)
   }
 
   return (
@@ -41,15 +56,11 @@ export default function BookCard(props: { book: IBookWithSellerName }) {
           onClick={goToBookPage}
         />
         <h3 className="book-title" onClick={goToBookPage}>{book.title}</h3>
-        {/* {book.subtitle && <h5>{book.subtitle}</h5>} */}
-        {/* <span>by <b>{book.authorName}</b></span> */}
-        {/* {book.description && <p>{book.description?.substring(0, 30)}</p>} */}
       </div>
       <span>₹{book.price ? book.price.toFixed(2): '---'}</span>
       <div className="book-actions">
         <button title="Add to Wishlist" onClick={onAddToWishlist}>❤️</button>
         <button title="Add to Cart" onClick={onAddToCart}>🛒</button>
-        {/* <button onClick={onBuy}>Buy Now</button> */}
       </div>
     </div>
   )

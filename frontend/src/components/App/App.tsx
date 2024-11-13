@@ -2,13 +2,13 @@ import { Link, Outlet } from 'react-router-dom'
 
 import NavBar from '../NavBar/NavBar.tsx'
 
-import { useAuth } from '../../hooks/useAuth.ts'
+import { useAuth } from '../../hooks/useAuth.tsx'
 
 import './App.css'
 
 
 export default function App() {
-  const { user } = useAuth()
+  const { user } = useAuth().authState
 
   return (
     <>

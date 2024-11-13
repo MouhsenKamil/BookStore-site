@@ -21,7 +21,7 @@ import { checkRequestAttrs, queryInParamExists, restrictEditingSensibleInfo } fr
 import { parseMeInParams, verifyUserIdParamByUserAuth } from '../middlewares/userMiddleware.ts'
 
 
-const routerWithUserId = express.Router()
+const routerWithUserId = express.Router({ mergeParams: true })
 
 routerWithUserId.use(
   checkRequestAttrs({ obj: 'params', must: ['userId'] }),
@@ -60,7 +60,7 @@ routerWithUserId.delete(
 
 
 // admin only route
-const adminRoutesWithUserId = express.Router()
+const adminRoutesWithUserId = express.Router({ mergeParams: true })
 
 adminRoutesWithUserId.use(restrictToRoles(UserType.ADMIN))
 adminRoutesWithUserId.patch('/block', blockCustomer)

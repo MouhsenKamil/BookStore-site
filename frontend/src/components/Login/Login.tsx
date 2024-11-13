@@ -1,11 +1,13 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import axios, { AxiosError } from 'axios'
 
 import { titleCase } from '../../utils/stringUtils'
 import { useState } from 'react'
+import { useAuth } from '../../hooks/useAuth'
 
 import './Login.css'
+
 
 interface LoginFormInputs {
   email: string
@@ -16,17 +18,24 @@ interface LoginFormInputs {
 
 export default function Login(props: { parent: 'user' | 'seller' | 'admin' }) {
   const [loginErr, setLoginErr] = useState('')
+  const { fetchAuthData } = useAuth()
+  const navigate = useNavigate()
 
   const { parent: parentEndpoint } = props
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>()
+  const { register, handleSubmit, formState: { errors }} = useForm<LoginFormInputs>()
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
       data.type = parentEndpoint === 'user' ? 'customer': parentEndpoint
       const response = await axios.post('/api/auth/login', data)
-      if (response.status !== 308)
-        setLoginErr(response.data)
+
+      if (response.status !== 200) {
+        setLoginErr(response.data.message)
+        return
+      }
   
+      fetchAuthData()
+      navigate(response.data.url)
     } catch (err) {
       console.error(err)
       setLoginErr((err as AxiosError).message)

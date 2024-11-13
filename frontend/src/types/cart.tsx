@@ -1,13 +1,18 @@
 import { IBook } from "./book"
 
+
+export interface IBookInCart {
+  _id: string
+  title: string
+  price: number
+  unitsInStock: number
+  coverImage: string
+}
+
+
 export interface ICart {
   user: string
-  books: {
-    id: number
-    name: string
-    quantity: number
-    unitPrice: number
-  }[]
+  books: IBookInCart[]
 }
 
 export interface ICartWithBook {

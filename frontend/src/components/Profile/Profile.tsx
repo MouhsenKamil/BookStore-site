@@ -9,7 +9,7 @@ import './Profile.css'
 
 
 export default function Profile() {
-  const { user } = useAuth()
+  const { user } = useAuth().authState
   const [userObj, setUserObj] = useState<IExtendedUser>({} as IExtendedUser)
 
   async function fetchProfile() {

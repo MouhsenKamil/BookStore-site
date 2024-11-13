@@ -1,9 +1,19 @@
 import { Request, Response } from 'express'
+
 import { Book, IBook, IBookWithSellerName } from '../models/Book.ts'
 import { logEvents } from '../middlewares/logger.ts'
-
 import { HttpError } from '../utils/exceptions.ts'
 import { Seller } from '../models/Seller.ts'
+import { BookArchive } from '../models/BooksArchive.ts'
+import { getRandInt } from '../utils/funcUtils.ts'
+import { Order, PaymentMethod } from '../models/Order.ts'
+
+
+interface bookPurchaseFormData {
+  quantity: number
+  address: string
+  paymentMethod: PaymentMethod
+}
 
 
 export async function addBook(req: Request, res: Response) {
@@ -66,7 +76,6 @@ export async function getBooks(req: Request, res: Response) {
           $project: {
             ...projectionObj,
             sellerName: "$resBooks.name",
-            id: '_id'
           }
         },
       ])
@@ -136,3 +145,62 @@ export async function deleteBook(req: Request, res: Response) {
 
   res.sendStatus(204)
 }
+
+
+export async function purchaseBook(req: Request, res: Response) {
+  const { quantity, address, paymentMethod }: bookPurchaseFormData = req.body
+  const { bookId, userId } = req.params
+
+  const currentDate = new Date()
+  const deliveredByDate = new Date(
+    currentDate.getTime() + getRandInt(1, 7) * (24 * 60 * 60) // Delivery time: 1-7 days (random)
+  )
+
+  const order = new Order({
+    user: userId,
+    books: [{
+      id: bookId,
+      quantity,
+      // unitPrice: bookId,
+    }],
+    address: address,
+    paymentMethod: paymentMethod,
+    orderTime: currentDate,
+    deliveredBy: deliveredByDate
+  })
+
+  await order.save()
+    .catch(err => {
+      throw new HttpError('Error occurred while processing checkout', { cause: err })
+    })
+
+  const originalBookObj = await Book.findById(bookId)
+  if (!originalBookObj)
+    return
+
+  // Pass the purchased books to archive
+  const archiveCopy = new BookArchive(originalBookObj.toJSON())
+
+  // Update the original book
+  await originalBookObj.updateOne({ $inc: { units_in_stock: -quantity }})
+
+  // Set the available quantity in it with the purchased quantity
+  await archiveCopy.updateOne({ $inc: { units_in_stock: quantity } })
+
+  res.status(201).json({
+    message: 'Order has been created successfully.',
+    orderId: order._id,
+    deliveredBy: deliveredByDate
+  })
+}
+
+
+// export async function addToCart(req: Request, res: Response) {
+//   const { bookId } = req.params
+//   const userId = req.__userAuth.id
+
+//   const cart = await Cart.findOneAndUpdate(
+//     { user: userId },
+//     {  }
+//   )
+// }

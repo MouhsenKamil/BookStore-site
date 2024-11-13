@@ -41,7 +41,7 @@ export function logEventsToFile(message: string) {
 }
 
 export function logEvents(message: string) {
-  userEventsLogger.write(message)
+  userEventsLogger.write(message + '\n')
 }
 
 export function logServerErrors(message: string) {

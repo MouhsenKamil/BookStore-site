@@ -1,4 +1,4 @@
-import { Link, useNavigate,  } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 import { SearchBar } from '../SearchBar/SearchBar'
@@ -8,7 +8,7 @@ import './NavBar.css'
 
 
 export default function NavBar() {
-  const { user } = useAuth()
+  const { user } = useAuth().authState
   const navigate = useNavigate()
 
   return (
@@ -20,14 +20,15 @@ export default function NavBar() {
         onClick={() => navigate('/')}
       />
       {(!user || user.type === 'customer') && <SearchBar />}
-      {user !== null
+      {(user !== null)
         ? <img
             className='img-icon user-profile-icon'
             src="src/assets/user-profile-icon.png"
             alt="User"
             onClick={async () => {
-              await axios.post('/api/auth/logout')
-              navigate('/')
+              const response = await axios.post('/api/auth/logout')
+              if (response.status === 200)
+                navigate(response.data.url)
             }}
           />
         : <button>

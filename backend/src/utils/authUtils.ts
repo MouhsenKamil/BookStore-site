@@ -173,14 +173,12 @@ export async function verifyRefreshToken(refreshToken: string): Promise<RefreshT
       if (err instanceof TokenExpiredError)
         // Logout user and redirect them to /login
         throw new ForceReLogin('Session expired', {
-          cause: err,
-          debugMsg: 'refresh token expired. Forcing client to re-login'
+          debugMsg: 'refresh token expired. Forcing client to re-login', cause: err
         })
 
       // Exit out if there's any other error while parsing refresh token
       throw new HttpError('Internal server error', {
-        debugMsg: 'Error occurred while validating refresh token',
-        cause: err as Error
+        debugMsg: 'Error occurred while validating refresh token', cause: err as Error
       })
     })
   })

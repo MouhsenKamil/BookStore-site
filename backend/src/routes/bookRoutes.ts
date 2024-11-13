@@ -4,17 +4,39 @@ import {
   getBooks,
   getBookById,
   updateBook,
-  deleteBook
+  deleteBook,
+  purchaseBook
 } from '../controllers/bookController.ts'
 import { authenticate, restrictToRoles } from '../middlewares/authMiddleware.ts'
 import { UserType } from '../models/User.ts'
 import { checkRequestAttrs, queryInParamExists } from '../middlewares/validators.ts'
 
 
+const routerWithBookId = express.Router({ mergeParams: true })
+
+
+routerWithBookId.get('/', getBookById)
+routerWithBookId.patch(
+  '/',
+  authenticate,
+  restrictToRoles(UserType.ADMIN),
+  updateBook
+)
+routerWithBookId.delete(
+  '/',
+  authenticate,
+  restrictToRoles(UserType.ADMIN),
+  deleteBook
+)
+routerWithBookId.post(
+  '/purchase',
+  authenticate,
+  restrictToRoles(UserType.CUSTOMER),
+  purchaseBook
+)
+
+
 const router = express.Router()
-
-const bookidParamChecker = checkRequestAttrs({obj: 'params', must: ['bookId']})
-
 
 router.put(
   '/',
@@ -22,25 +44,16 @@ router.put(
   restrictToRoles(UserType.ADMIN, UserType.SELLER),
   addBook
 )
-
 router.get(
   '/',
   queryInParamExists,
-  getBooks)
-router.get('/:bookId', bookidParamChecker, getBookById)
-router.patch(
-  '/:bookId',
-  authenticate,
-  restrictToRoles(UserType.ADMIN),
-  bookidParamChecker,
-  updateBook
+  getBooks
 )
-router.delete(
+
+router.use(
   '/:bookId',
-  authenticate,
-  restrictToRoles(UserType.ADMIN),
-  bookidParamChecker,
-  deleteBook
+  checkRequestAttrs({ obj: 'params', must: ['bookId'] }),
+  routerWithBookId
 )
 
 export default router

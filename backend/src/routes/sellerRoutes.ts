@@ -17,7 +17,7 @@ import { parseMeInParams, verifyUserIdParamByUserAuth } from '../middlewares/use
 import { UserType } from '../models/User.ts'
 
 
-const routerWithSellerId = express.Router()
+const routerWithSellerId = express.Router({ mergeParams: true })
 
 routerWithSellerId.use(
   checkRequestAttrs({ obj: 'params', must: ['sellerId'] }),
@@ -36,7 +36,7 @@ routerWithSellerId.get('/analytics', getSalesAnalytics)
 
 
 // admin only route
-const adminRoutesWithSellerId = express.Router()
+const adminRoutesWithSellerId = express.Router({ mergeParams: true })
 
 adminRoutesWithSellerId.use(restrictToRoles(UserType.ADMIN))
 adminRoutesWithSellerId.patch('/block', blockSeller)

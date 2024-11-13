@@ -2,6 +2,9 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom"
 
+import { AuthProvider } from "./hooks/useAuth.tsx"
+import "./index.css"
+
 import App from "./components/App/App.tsx"
 import ErrorPage from "./components/ErrorPage/ErrorPage.tsx"
 import Book from "./components/Book/Book.tsx"
@@ -17,14 +20,13 @@ import SearchResults from "./components/SearchResults/SearchResults.tsx"
 import Profile from "./components/Profile/Profile.tsx"
 import Cart from "./components/Customer/Cart/Cart.tsx"
 import Orders from "./components/Customer/Orders/Orders.tsx"
-
-
-import "./index.css"
 import AHome from "./components/Admin/AHome/AHome.tsx"
 import ABooks from "./components/Admin/ABooks/ABooks.tsx"
 import ACustomers from "./components/Admin/ACustomers/ACustomers.tsx"
 import ASellers from "./components/Admin/ASellers/ASellers.tsx"
 import SHome from "./components/Sellers/SHome/SHome.tsx"
+import Checkout from "./components/Customer/Checkout/Checkout.tsx"
+import AddBook from "./components/Sellers/AddBook/AddBook.tsx"
 
 
 const router = createBrowserRouter([
@@ -33,11 +35,22 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <ErrorPage />,
     children: [
+      {path: "checkout", element: <Checkout />},
       {path: "", element: <Home />},
+      {path: "home", element: <Home />},
       {path: "search", element: <SearchResults />},
       {path: 'about-us', element: <AboutUs />},
       {path: 'contact-us', element: <ContactUs />},
-      {path: "book/:bookId", element: <Book />},
+      {
+        path: "book/:bookId",
+        element: <Book />,
+        children: [
+          // {
+          //   path: 'purchase',
+          //   element: 
+          // }
+        ]
+      },
       {path: '*', element: <Page404 />},
       {
         path: "account",
@@ -75,6 +88,7 @@ const router = createBrowserRouter([
         children: [
           {path: '', element: <SHome />},
           {path: 'profile', element: <Profile />},
+          {path: 'add-a-book', element: <AddBook />},
         ]
       },
       {
@@ -100,6 +114,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>,
 )

@@ -155,8 +155,8 @@ export async function registerBook(req: Request, res: Response) {
 
 
 export async function getSalesAnalytics(req: Request, res: Response) {
-  const booksInStock = await Book.countDocuments({ seller: req.__userAuth.id })
-  const booksSold = await BookArchive.countDocuments({ seller: req.__userAuth.id })
+  const booksInStock = await Book.find({ seller: req.__userAuth.id })
+  const booksSold = await BookArchive.find({ seller: req.__userAuth.id })
 
   res.status(200).json({ booksInStock, booksSold })
 }

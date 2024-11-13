@@ -6,7 +6,51 @@ import { BookArchive } from '../models/BooksArchive.ts'
 
 
 export async function getOrdersOfUser(req: Request, res: Response) {
-  const orders = await Order.find({ user: req.params.userId })
+  const orders = await Order.aggregate([
+    {
+      $match: { user: req.params.userId }
+    },
+    {
+      $lookup: {
+        from: 'books',
+        localField: 'books.id',
+        foreignField: '_id',
+        as: 'bookDetails'
+      }
+    },
+    { $unwind: '$bookDetails' },
+    {
+      $project: {
+        _id: 0,
+        user: 0,
+        "bookDetails.quantity": 1,
+        "bookDetails.id": "bookDetails._id",
+        "bookDetails.unitPrice": "bookDetails.price",
+        "bookDetails.title": 1,
+        "bookDetails.unitsInStock": 1,
+        "bookDetails.coverImage": 1
+      }
+    },
+    {
+      $group: {
+        books: {
+          $push: {
+            quantity: "$bookDetails.quantity",
+            id: "$bookDetails._id",
+            title: "$bookDetails.title",
+            price: "$bookDetails.price",
+            unitsInStock: "$bookDetails.unitsInStock",
+            coverImage: "$bookDetails.coverImage",
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        "bookDetails": 0
+      }
+    }
+  ])
     .catch((err) => {
       throw new HttpError('Error occurred while fetching order', { cause: err })
     })

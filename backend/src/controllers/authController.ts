@@ -2,17 +2,8 @@ import { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 
 import { logEvents } from '../middlewares/logger.ts'
-
 import { ForceReLogin, HttpError } from '../utils/exceptions.ts'
-
-import {
-  clearRefreshTokenFromCookies,
-  getAccessToken,
-  getRefreshToken,
-  setAccessTokenToCookies,
-  setRefreshTokenToCookies,
-  updateTokensInCookies
-} from '../utils/authUtils.ts'
+import { clearRefreshTokenFromCookies, updateTokensInCookies } from '../utils/authUtils.ts'
 import { User, UserDoc, UserType } from '../models/User.ts'
 import { Customer } from '../models/Customer.ts'
 import { Seller } from '../models/Seller.ts'
@@ -43,12 +34,10 @@ export async function register(req: Request, res: Response) {
       debugMsg: `Got '${userType}' as user type while trying to register user`
     })
 
-  const accessToken = await getAccessToken(newUser)
-  setAccessTokenToCookies(res, accessToken)
-  setRefreshTokenToCookies(res, await getRefreshToken(req, newUser, accessToken))
+  await updateTokensInCookies(req, res, newUser)
 
   // res.sendStatus(204)
-  res.status(308).location('/')
+  res.status(200).json({ message: 'User registered successfully' })
 }
 
 
@@ -88,8 +77,8 @@ export async function login(req: Request, res: Response) {
 
   // Issue access and refresh token to the user
   await updateTokensInCookies(req, res, user)
-  // res.sendStatus(204)
-  res.status(308).location('/')
+
+  res.status(200).json({ message: 'Redirect to continue', url: '/' })
 
   logEvents(`User ${email} logged in`)
 }
@@ -145,7 +134,7 @@ export async function refresh(req: Request, res: Response) {
 
 export function logout(req: Request, res: Response) {
   clearRefreshTokenFromCookies(res)
-  res.sendStatus(204)
+  res.send(200).json({ message: "Logged out successfully", url: '/' })
 }
 
 

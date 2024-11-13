@@ -47,7 +47,7 @@ export class RenewAccessToken extends BackendError {
 
 export class Redirect extends HttpError {
   constructor(message: string, path: string, options: HttpErrorOptionsProp = {}) {
-    options.statusCode = options.statusCode ?? 308
+    options.statusCode = options.statusCode ?? 200
     super(message, options)
     Object.setPrototypeOf(this, ForceReLogin.prototype)
   }
@@ -56,7 +56,7 @@ export class Redirect extends HttpError {
 
 export class ForceReLogin extends Redirect {
   constructor(message: string, options: HttpErrorOptionsProp = {}) {
-    options.statusCode = options.statusCode ?? 308
+    options.statusCode = options.statusCode ?? 200
     super(message, '/login', options)
     Object.setPrototypeOf(this, ForceReLogin.prototype)
   }

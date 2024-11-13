@@ -68,7 +68,7 @@ export default function AddBook() {
         type="text"
         {...register("categories", {
           required: "At least one category is required",
-          setValueAs: (v) => v.split(",").map((item: string) => item.trim()),
+          setValueAs: (v: string) => v.split(",").map((item: string) => item.trim()),
         })}
         placeholder="Categories (comma-separated)"
       />
@@ -94,7 +94,7 @@ export default function AddBook() {
       />
       {errors.price && <p className="error-msg">{errors.price.message}</p>}
 
-      <label>Units in Stock</label>
+      <label>Units Stocked: </label>
       <input
         type="number"
         {...register("unitsInStock", {

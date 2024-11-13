@@ -5,7 +5,7 @@ export interface ICart {
   books: {
     id: Types.ObjectId
     quantity: number
-    unitPrice: number
+    // unitPrice: number
   }[]
 }
 
@@ -18,7 +18,7 @@ export const Cart = mongoose.model<CartDoc>(
     books: [{
       id: { type: Schema.Types.ObjectId, ref: 'Book', required: true },
       quantity: { type: Number, required: true },
-      unitPrice: { type: Number, required: true }
+      // unitPrice: { type: Number, required: true }
     }]
   })
 )

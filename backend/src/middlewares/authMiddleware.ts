@@ -50,6 +50,11 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
         throw new ForceReLogin('Invalid Token, re-login to continue', {
           debugMsg: 'Password reset has occurred. Forcing user to re-login to continue further'
         })
+
+      req.__userAuth = {
+        id: _decodedAT.id,
+        type: _decodedAT.type
+      }
     })
     .catch(async (err) => {
       if (!(err instanceof TokenExpiredError)) throw err
@@ -129,12 +134,16 @@ export function IsAuthenticated(props: IsAuthenticatedProps) {
     try {
       await authenticate(req, res, (...args) => {})
       if (yes !== undefined && Object.keys(yes).length !== 0) {
-        res.status(yes.statusCode ?? 308).location(yes.redirectTo)
+        res.status(yes.statusCode ?? 200).json({
+          messsage: 'Redirect to continue', url: yes.redirectTo
+        })
         return
       }
-    } catch {
+    } catch (err) {
       if (no !== undefined && Object.keys(no).length !== 0) {
-        res.status(no.statusCode ?? 308).location(no.redirectTo)
+        res.status(no.statusCode ?? 401).json({
+          messsage: 'Redirect to continue', url: no.redirectTo
+        })
         return
       }
     }

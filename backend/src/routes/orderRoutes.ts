@@ -9,7 +9,7 @@ import {
 import { checkRequestAttrs } from '../middlewares/validators.ts'
 
 
-const routeWithOrderId = express.Router()
+const routeWithOrderId = express.Router({ mergeParams: true })
 
 routeWithOrderId.use(checkRequestAttrs({obj: 'params', must: ['orderId']}))
 

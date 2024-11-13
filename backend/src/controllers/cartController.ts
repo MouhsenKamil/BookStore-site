@@ -1,27 +1,72 @@
-import { Types } from 'mongoose'
 import { Request, Response } from 'express'
 import { Cart } from '../models/Cart.ts'
 import { Order, PaymentMethod } from '../models/Order.ts'
 import { Book } from '../models/Book.ts'
 import { HttpError } from '../utils/exceptions.ts'
 import { BookArchive } from '../models/BooksArchive.ts'
+import { getRandInt } from '../utils/funcUtils.ts'
 
 
 interface cartPurchaseFormData {
-  userId: Types.ObjectId
-  cartId: Types.ObjectId
-  address: string
+  homeNo: string
+  street: string
+  pinCode: number
+  city: string
+  state: string
+  country: string
+  phoneNo: number
   paymentMethod: PaymentMethod
-}
-
-function getRandInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1) ) + min;
 }
 
 
 export async function getCartOfUser(req: Request, res: Response) {
   const { userId } = req.params
-  const cart = await Cart.find({ user: userId })
+
+  const cart = await Cart.aggregate([
+    {
+      $match: { user: userId }
+    },
+    {
+      $lookup: {
+        from: 'books',
+        localField: 'books.id',
+        foreignField: '_id',
+        as: 'bookDetails'
+      }
+    },
+    { $unwind: '$bookDetails' },
+    {
+      $project: {
+        _id: 0,
+        user: 0,
+        "bookDetails.quantity": 1,
+        "bookDetails.id": "bookDetails._id",
+        "bookDetails.unitPrice": "bookDetails.price",
+        "bookDetails.title": 1,
+        "bookDetails.unitsInStock": 1,
+        "bookDetails.coverImage": 1
+      }
+    },
+    {
+      $group: {
+        books: {
+          $push: {
+            quantity: "$bookDetails.quantity",
+            _id: "$bookDetails._id",
+            title: "$bookDetails.title",
+            price: "$bookDetails.price",
+            unitsInStock: "$bookDetails.unitsInStock",
+            coverImage: "$bookDetails.coverImage",
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        "bookDetails": 0
+      }
+    }
+  ])
     .catch(err => {
       throw new HttpError(`Error occurred while fetching cart`, { cause: err })
     })
@@ -34,11 +79,11 @@ export async function getCartOfUser(req: Request, res: Response) {
 
 
 export async function addBookToCart(req: Request, res: Response) {
-  const bookId = req.body.bookId
+  const { bookId, quantity } = req.body
 
   const updatedCart = await Cart.findOneAndUpdate(
     { user: req.__userAuth.id },
-    { $addToSet: { books: bookId } },
+    { $addToSet: { books: { id: bookId, quantity }}},
     { new: true, upsert: true }
   )
 
@@ -56,6 +101,7 @@ export async function addBookToCart(req: Request, res: Response) {
 export async function deleteBookInCart(req: Request, res: Response) {
   const { bookId } = req.body
   const { userId } = req.params
+
   const updatedCart = await Cart.findOneAndUpdate(
     { user: userId }, { $pull: { books: { id: bookId } } }, { new: true }
   )
@@ -73,7 +119,9 @@ export async function deleteBookInCart(req: Request, res: Response) {
 
 
 export async function checkout(req: Request, res: Response) {
-  const { address, paymentMethod }: cartPurchaseFormData = req.body
+  const {
+    homeNo, street, pinCode, city, state, country, phoneNo, paymentMethod
+  }: cartPurchaseFormData = req.body
   const { userId } = req.params
 
   const cart = await Cart.findOne({ user: userId })
@@ -88,7 +136,13 @@ export async function checkout(req: Request, res: Response) {
   const order = new Order({
     user: userId,
     books: cart.books,
-    address: address,
+    homeNo: homeNo,
+    street: street,
+    pinCode: pinCode,
+    city: city,
+    state: state,
+    country: country,
+    phoneNo: phoneNo,
     paymentMethod: paymentMethod,
     orderTime: currentDate,
     deliveredBy: deliveredByDate
@@ -101,7 +155,8 @@ export async function checkout(req: Request, res: Response) {
 
   cart.books.forEach(async (book) => {
     const originalBookObj = await Book.findById(book.id)
-    if (!originalBookObj) return
+    if (!originalBookObj)
+      return
 
     // Pass the purchased books to archive
     const archiveCopy = new BookArchive(originalBookObj.toJSON())
@@ -110,7 +165,7 @@ export async function checkout(req: Request, res: Response) {
     await originalBookObj.updateOne({ $inc: { units_in_stock: -book.quantity } })
 
     // Set the available quantity in it with the purchased quantity
-    archiveCopy.updateOne({ $inc: { units_in_stock: book.quantity } })
+    await archiveCopy.updateOne({ $inc: { units_in_stock: book.quantity } })
   })
 
   await cart.deleteOne()

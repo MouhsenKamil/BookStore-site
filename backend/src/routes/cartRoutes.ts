@@ -6,12 +6,23 @@ import {
   checkout,
   getCartOfUser,
 } from '../controllers/cartController.ts'
+import { checkRequestAttrs } from '../middlewares/validators.ts'
+
 
 const router = express.Router()
 
 router.get('/', getCartOfUser)
-router.post('/add', addBookToCart)
-router.patch('/delete', deleteBookInCart)
+router.post(
+  '/add',
+  checkRequestAttrs({ obj: 'body', must: ['bookId', 'quantity'] }),
+  addBookToCart
+)
+router.patch(
+  '/delete',
+  checkRequestAttrs({ obj: 'body', must: ['bookId'] }),
+  deleteBookInCart
+)
+
 router.post('/checkout', checkout) 
 router.delete('/clear', clearCart)
 
