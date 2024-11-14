@@ -16,7 +16,7 @@ router.use('/auth', authRoutes)
 router.use('/admin', adminRoutes)
 router.use('/books', bookRoutes)
 router.use('/seller', sellerRoutes)
-router.use('/customer', customerRoutes)
+router.use('/customers', customerRoutes)
 
 // router.post(
 //   '/contact-us',

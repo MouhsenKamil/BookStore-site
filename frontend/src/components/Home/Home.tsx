@@ -22,10 +22,9 @@ export default function Home() {
         }
       })
 
-      console.log(response.data.results)
       return response.data.results
     } catch (error) {
-      console.error("Failed to fetch books:", error)
+      console.error(error)
       return []
     }
   }

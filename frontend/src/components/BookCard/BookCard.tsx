@@ -16,7 +16,7 @@ export default function BookCard(props: { book: IBookWithSellerName }) {
   }
 
   const onAddToWishlist = async (event: MouseEvent<HTMLButtonElement>) => {
-    const response = await axios.post('/api/customer/@me/wishlist/add', {
+    const response = await axios.post('/api/customers/@me/wishlist/add', {
       bookId: book._id,
     })
 
@@ -31,7 +31,7 @@ export default function BookCard(props: { book: IBookWithSellerName }) {
   }
 
   const onAddToCart = async (event: MouseEvent<HTMLButtonElement>) => {
-    const response = await axios.post('/api/customer/@me/cart/add/', {
+    const response = await axios.post('/api/customers/@me/cart/add/', {
       bookId: book._id, quantity: 1
     })
 

@@ -11,7 +11,7 @@ export default function Cart() {
 
   async function removeFromCart(bookId: string) {
     try {
-      const response = await axios.patch("/api/customer/@me/cart/delete", { bookId })
+      const response = await axios.patch("/api/customers/@me/cart/delete", { bookId })
       if (response.status !== 204)
         throw new Error(response.data.error)
 
@@ -23,7 +23,7 @@ export default function Cart() {
 
   async function checkout() {
     try {
-      const response = await axios.post("/api/customer/@me/cart", {
+      const response = await axios.post("/api/customers/@me/cart", {
         books: cartBooks.forEach(book => {
           return { id: book._id, quantity: book.quantity }
         })
@@ -40,7 +40,7 @@ export default function Cart() {
 
   async function clearCart() {
     try {
-      const response = await axios.delete('/api/customer/@me/cart/clear')
+      const response = await axios.delete('/api/customers/@me/cart/clear')
       if (response.status !== 204)
         throw new Error(response.data.error)
 
@@ -81,7 +81,7 @@ export default function Cart() {
 
   async function fetchCart() {
     try {
-      const response = await axios.get(`/api/customer/@me/cart`)
+      const response = await axios.get(`/api/customers/@me/cart`)
       if (response.status !== 200)
         throw new Error(response.data.error)
       setCartBooks(response.data.books)

@@ -17,7 +17,7 @@ import orderRoutes from './orderRoutes.ts'
 import wishListRoutes from './wishlistRoutes.ts'
 import { authenticate, restrictToRoles } from '../middlewares/authMiddleware.ts'
 import { UserType } from '../models/User.ts'
-import { checkRequestAttrs, queryInParamExists, restrictEditingSensibleInfo } from '../middlewares/validators.ts'
+import { checkRequestAttrs, restrictEditingSensibleInfo } from '../middlewares/validators.ts'
 import { parseMeInParams, verifyUserIdParamByUserAuth } from '../middlewares/userMiddleware.ts'
 
 

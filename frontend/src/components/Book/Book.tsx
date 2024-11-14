@@ -44,7 +44,7 @@ export default function Book() {
     return <><h1>Book not found</h1><Link to='/'>Return to Home</Link></>
 
   const onAddToCart = async (_: MouseEvent<HTMLButtonElement>) => {
-    const response = await axios.post('/api/customer/@me/cart/add', {
+    const response = await axios.post('/api/customers/@me/cart/add', {
       bookId: book._id, quantity: getValues('quantity')
     })
 
@@ -56,7 +56,7 @@ export default function Book() {
   }
 
   const onAddToWishlist = async (_: MouseEvent<HTMLButtonElement>) => {
-    const response = await axios.post('/api/customer/@me/wishlist/add', {
+    const response = await axios.post('/api/customers/@me/wishlist/add', {
       bookId: book._id
     })
 
