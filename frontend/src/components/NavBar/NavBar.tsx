@@ -40,7 +40,6 @@ export default function NavBar() {
         onClick={() => navigate('/')}
       />
       {(!user || user.type === 'customer') && <SearchBar />}
-      {(!user || user.type === 'customer') && <SearchBar />}
       {(user !== null)
         ? <ProfilePic />
         : <button>
