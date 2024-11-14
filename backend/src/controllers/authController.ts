@@ -142,7 +142,7 @@ export async function verify(req: Request, res: Response) {
   const user = await User.findById(
     req.__userAuth.id, { _id: 0, passwordHash: 0, blocked: 0 }
   ).catch(err => {
-    throw new ForceReLogin("Unable to veify and geti's ", { cause: err })
+    throw new ForceReLogin("Unable to verify and get id's", { cause: err })
   })
 
   if (!user)

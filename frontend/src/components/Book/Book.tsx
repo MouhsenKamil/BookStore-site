@@ -41,23 +41,16 @@ export default function Book() {
   }, [bookId])
 
   if (book.error)
-    return (
-      <>
-        <h1>Book not found</h1><Link to='/'>Return to Home</Link>
-      </>
-    )
+    return <><h1>Book not found</h1><Link to='/'>Return to Home</Link></>
 
   const onAddToCart = async (_: MouseEvent<HTMLButtonElement>) => {
     const response = await axios.post('/api/customer/@me/cart/add', {
       bookId: book._id, quantity: getValues('quantity')
     })
 
-    let messsage
-
-    if (response.status === 201)
-      messsage = 'Book is now added to the cart'
-    else
-      messsage = response.data.messsage
+    let messsage = (response.status === 201)
+        ? 'Book is now added to the cart'
+        : response.data.messsage
 
     alert(messsage)
   }
@@ -67,17 +60,14 @@ export default function Book() {
       bookId: book._id
     })
 
-    let messsage
-
-    if (response.status === 201)
-      messsage = 'Book is added to the Wishlist'
-    else
-      messsage = response.data.messsage
+    let messsage = (response.status === 201)
+        ? 'Book is added to the Wishlist'
+        : response.data.messsage
 
     alert(messsage)
   }
 
-  const onSubmit = async (data: { quantity: number }) => {
+  async function onSubmit(data: { quantity: number }) {
     try {
       const response = await axios.post(`/api/book/${book._id}/purchase`, data)
 
@@ -85,7 +75,7 @@ export default function Book() {
         throw new Error("Failed to send purchase request")
 
       navigate(
-        `/book/${bookId}/checkout?method=bookOnly&bookId=${bookId}&quantity=${data.quantity}`
+        `/user/checkout?method=bookOnly&bookId=${bookId}&quantity=${data.quantity}`
       )
     } catch (err) {
       console.error(err);

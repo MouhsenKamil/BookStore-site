@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import axios, { AxiosError } from 'axios'
 
@@ -20,6 +20,7 @@ export default function Login(props: { parent: 'user' | 'seller' | 'admin' }) {
   const [loginErr, setLoginErr] = useState('')
   const { fetchAuthData } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const { parent: parentEndpoint } = props
   const { register, handleSubmit, formState: { errors }} = useForm<LoginFormInputs>()
@@ -29,16 +30,29 @@ export default function Login(props: { parent: 'user' | 'seller' | 'admin' }) {
       data.type = parentEndpoint === 'user' ? 'customer': parentEndpoint
       const response = await axios.post('/api/auth/login', data)
 
+      console.log(JSON.stringify(response))
+
       if (response.status !== 200) {
-        setLoginErr(response.data.message)
+        setLoginErr(response.data.error)
         return
       }
   
       fetchAuthData()
-      navigate(response.data.url)
+
+      let uri = Object.fromEntries(new URLSearchParams(decodeURI(location.search)))
+      let redirectTo = uri.from || response.data.url || '/'
+
+      navigate(redirectTo)
     } catch (err) {
       console.error(err)
-      setLoginErr((err as AxiosError).message)
+      let msg = 'An error occured. Please try again.'
+
+      if (err instanceof AxiosError)
+        msg = err.response?.data.error
+      else if (err instanceof Error)
+        msg = err.message
+
+      setLoginErr(msg)
     }
   }
 

@@ -8,39 +8,49 @@ import { IBookInCart } from "../../../types/cart"
 export default function Cart() {
   const navigate = useNavigate()
   const [cartBooks, setCartBooks] = useState<IBookInCart[]>([])
-  const [bookAndQuantities, setBookAndQuantities] = useState<{[key: string]: number}>({})
 
   async function removeFromCart(bookId: string) {
     try {
       const response = await axios.patch("/api/customer/@me/cart/delete", { bookId })
       if (response.status !== 204)
-        alert(response.status)
-      else {
-        setCartBooks(cartBooks.filter(book => book._id !== bookId))
-        let tempBookAndQuantities = {...bookAndQuantities}
-        delete tempBookAndQuantities[bookId]
-        setBookAndQuantities(tempBookAndQuantities)
-      }
+        throw new Error(response.data.error)
+
+      setCartBooks(cartBooks.filter(book => book._id !== bookId))
     } catch (error) {
       console.error(error)
     }
   }
 
   async function checkout() {
-    navigate(`/checkout?method=cart`)
+    try {
+      const response = await axios.post("/api/customer/@me/cart", {
+        books: cartBooks.forEach(book => {
+          return { id: book._id, quantity: book.quantity }
+        })
+      })
+
+      if (response.status !== 204)
+        throw new Error(response.data.error)
+
+      navigate(`/user/checkout?method=cart`)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   async function clearCart() {
     try {
       const response = await axios.delete('/api/customer/@me/cart/clear')
-    } catch (err) {
+      if (response.status !== 204)
+        throw new Error(response.data.error)
 
+      setCartBooks([])
+    } catch (err) {
+      console.error(err)
     }
   }
 
   function BookListItem({ book }: { book: IBookInCart }) {
-    const [quantity, setQuantity] = useState(1)
-
     return (
       <div className="book">
         <img
@@ -54,9 +64,9 @@ export default function Cart() {
           <div className="price">{book.price}</div>
           <input
             type="number" name="quantity" id="quantity" min={0} max={book.unitsInStock}
-            defaultValue={1} onChange={e => {
-              setQuantity(parseInt(e.target.value))
-              setBookAndQuantities({ ...bookAndQuantities, [book._id]: quantity })
+            value={book.quantity} onChange={e => {
+              book.quantity = +e.target.value
+              setCartBooks([...cartBooks.filter(_book => _book._id !== book._id), book])
             }}
           />
           <button className="remove-from-cart-btn" onClick={() => {

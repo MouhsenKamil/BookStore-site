@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
@@ -11,6 +12,25 @@ export default function NavBar() {
   const { user } = useAuth().authState
   const navigate = useNavigate()
 
+  useEffect(() => {
+    console.log('from navbar', JSON.stringify(user))
+  }, [])
+
+  function ProfilePic() {
+    return (
+      <img
+        className='img-icon user-profile-icon'
+        src="src/assets/user-profile-icon.png"
+        alt="User"
+        onClick={async () => {
+          const response = await axios.post('/api/auth/logout')
+          if (response.status === 200)
+            navigate(response.data.url)
+        }}
+      />
+    )
+  }
+
   return (
     <div className='navbar'>
       <img
@@ -20,17 +40,9 @@ export default function NavBar() {
         onClick={() => navigate('/')}
       />
       {(!user || user.type === 'customer') && <SearchBar />}
+      {(!user || user.type === 'customer') && <SearchBar />}
       {(user !== null)
-        ? <img
-            className='img-icon user-profile-icon'
-            src="src/assets/user-profile-icon.png"
-            alt="User"
-            onClick={async () => {
-              const response = await axios.post('/api/auth/logout')
-              if (response.status === 200)
-                navigate(response.data.url)
-            }}
-          />
+        ? <ProfilePic />
         : <button>
           <Link to="/account/user/login">Login / Register</Link>
         </button>

@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function fetchAuthData() {
     try {
-      const response = await axios.get<{ userData: User}>('/api/auth/verify', {
+      const response = await axios.get<{ userData: User }>('/api/auth/verify', {
         withCredentials: true
       })
 
@@ -40,7 +40,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading: false,
         error: null,
       })
-
     } catch (error: any) {
       setAuthState({
         user: null,
@@ -48,6 +47,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         error: error.response?.data?.message || error.message || 'Something went wrong',
       })
     }
+
+    console.log(authState.user === null ? "user login detected" : 'user have not logged in')
   }
 
   useEffect(() => {

@@ -5,11 +5,17 @@ import axios from "axios"
 import { IBook } from "../../../types/book"
 
 
+interface IAnalyticsProps {
+  booksInStock: IBook[]
+  booksSold: IBook[]
+}
+
+
 export default function SHome() {
   const navigate = useNavigate()
-
-  const [booksInStock, setBooksInStock] = useState<IBook[]>([])
-  const [booksSold, setBooksSold] = useState<IBook[]>([])
+  const [analytics, setAnalytics] = useState<IAnalyticsProps>({
+    booksInStock: [], booksSold: []
+  })
 
   useEffect(() => {
     async function getAnalytics() {
@@ -17,8 +23,7 @@ export default function SHome() {
       if (response.status !== 200)
         alert("Can't fetch details")
 
-      setBooksInStock(response.data.booksInStock)
-      setBooksSold(response.data.booksSold)
+      setAnalytics(response.data)
     }
 
     getAnalytics()
@@ -26,10 +31,10 @@ export default function SHome() {
 
   return (
     <div className="seller-analytics">
-      <p className="books-in-stock">Books in stock: ${booksInStock.length}</p>
-      <p className="sold-books">Books that are sold: ${booksSold.length}</p>
+      <p className="books-in-stock">Total Books in stock: {analytics.booksInStock.length}</p>
+      <p className="sold-books">Total Books that are sold: {analytics.booksSold.length}</p>
       <p className="stocked-books-count">
-        Total books stocked: ${booksInStock.length + booksSold.length}
+        Total books stocked: ${analytics.booksInStock.length + analytics.booksSold.length}
       </p>
       <button onClick={() => navigate('/seller/@dd-a-book')}>Add a Book</button>
     </div>

@@ -1,9 +1,10 @@
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import { useNavigate, useLocation } from 'react-router-dom'
+import axios, { AxiosError } from 'axios'
 
 import './Register.css'
+import { useAuth } from '../../hooks/useAuth'
 
 
 interface RegisterFormInputs {
@@ -23,10 +24,12 @@ const passwordValidationFuncs: { [key: string]:[ (val: string) => boolean, strin
 }
 
 export default function Register(props: { parent: 'user' | 'seller' }) {
+  const { fetchAuthData } = useAuth()
   const { parent: parentEndpoint } = props
   const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormInputs>()
   const [registrationError, setRegistrationError] = useState<string>('')
   const navigate = useNavigate()
+  const location = useLocation()
 
   // Watch password field to compare it with confirmPassword
   const password = watch('password', '')
@@ -40,12 +43,29 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
         type: parentEndpoint === 'user' ? 'customer': parentEndpoint
       })
 
-      if (response.status === 200)
-        navigate('/')
+      console.log(JSON.stringify(response))
 
+      if (response.status !== 200) {
+        setRegistrationError(response.data.error)
+        return
+      }
+  
+      fetchAuthData()
+
+      let uri = Object.fromEntries(new URLSearchParams(decodeURI(location.search)))
+      let redirectTo = uri.from || response.data.url || '/'
+
+      navigate(redirectTo)
     } catch (err) {
       console.error(err)
-      setRegistrationError((err as Error).message)
+      let msg = 'An error occured. Please try again.'
+
+      if (err instanceof AxiosError)
+        msg = err.response?.data.error
+      else if (err instanceof Error)
+        msg = err.message
+
+      setRegistrationError(msg)
     }
   }
 

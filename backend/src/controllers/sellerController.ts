@@ -50,9 +50,9 @@ export async function getSellers(req: Request, res: Response) {
 
   const orderInt = (orderStr === 'asc') ? 1: -1
 
-  let fields_arr = (fields as string).trim().split(',')
+  let fieldsArr = (fields as string).trim().split(',')
   let projectionObj: Record<string, 1 | -1> = Object.fromEntries(
-    fields_arr.map(elem => [elem, 1])
+    fieldsArr.map(elem => [elem, 1])
   )
   projectionObj.id = projectionObj.id ?? 0
 

@@ -7,6 +7,7 @@ export interface IBookInCart {
   price: number
   unitsInStock: number
   coverImage: string
+  quantity: number
 }
 
 

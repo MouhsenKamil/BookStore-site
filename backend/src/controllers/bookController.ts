@@ -6,13 +6,11 @@ import { HttpError } from '../utils/exceptions.ts'
 import { Seller } from '../models/Seller.ts'
 import { BookArchive } from '../models/BooksArchive.ts'
 import { getRandInt } from '../utils/funcUtils.ts'
-import { Order, PaymentMethod } from '../models/Order.ts'
+import { ICheckoutFormData, Order } from '../models/Order.ts'
 
 
-interface bookPurchaseFormData {
+interface IBookPurchaseFormData extends ICheckoutFormData {
   quantity: number
-  address: string
-  paymentMethod: PaymentMethod
 }
 
 
@@ -148,7 +146,7 @@ export async function deleteBook(req: Request, res: Response) {
 
 
 export async function purchaseBook(req: Request, res: Response) {
-  const { quantity, address, paymentMethod }: bookPurchaseFormData = req.body
+  const { quantity, ...checkoutProps }: IBookPurchaseFormData = req.body
   const { bookId, userId } = req.params
 
   const currentDate = new Date()
@@ -163,10 +161,9 @@ export async function purchaseBook(req: Request, res: Response) {
       quantity,
       // unitPrice: bookId,
     }],
-    address: address,
-    paymentMethod: paymentMethod,
     orderTime: currentDate,
-    deliveredBy: deliveredByDate
+    deliveredBy: deliveredByDate,
+    ...checkoutProps
   })
 
   await order.save()

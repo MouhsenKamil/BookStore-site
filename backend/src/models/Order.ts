@@ -15,8 +15,18 @@ export enum PaymentMethod {
   CARD = 'card'
 }
 
+export interface ICheckoutFormData {
+  homeNo: string
+  street: string
+  pinCode: number
+  city: string
+  state: string
+  country: string
+  phoneNo: number
+  paymentMethod: PaymentMethod
+}
 
-export interface IOrder {
+export interface IOrder extends ICheckoutFormData {
   user: Types.ObjectId
   books: {
     id: Types.ObjectId
@@ -26,14 +36,6 @@ export interface IOrder {
   orderTime: Date
   deliveredBy: Date
   status: OrderStatus
-  homeNo: string
-  street: string
-  pinCode: number
-  city: string
-  state: string
-  country: string
-  phoneNo: number
-  paymentMethod: PaymentMethod
 }
 
 export type OrderDoc = IOrder & Document

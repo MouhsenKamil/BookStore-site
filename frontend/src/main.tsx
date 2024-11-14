@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client"
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom"
 
 import { AuthProvider } from "./hooks/useAuth.tsx"
-import "./index.css"
 
 import App from "./components/App/App.tsx"
 import ErrorPage from "./components/ErrorPage/ErrorPage.tsx"
@@ -27,6 +26,10 @@ import ASellers from "./components/Admin/ASellers/ASellers.tsx"
 import SHome from "./components/Sellers/SHome/SHome.tsx"
 import Checkout from "./components/Customer/Checkout/Checkout.tsx"
 import AddBook from "./components/Sellers/AddBook/AddBook.tsx"
+import { AuthChecker } from "./AuthChecker.tsx"
+import { CSuccess } from "./components/Customer/Checkout/CSuccess/CSuccess.tsx"
+
+import "./index.css"
 
 
 const router = createBrowserRouter([
@@ -41,16 +44,7 @@ const router = createBrowserRouter([
       {path: "search", element: <SearchResults />},
       {path: 'about-us', element: <AboutUs />},
       {path: 'contact-us', element: <ContactUs />},
-      {
-        path: "book/:bookId",
-        element: <Book />,
-        children: [
-          // {
-          //   path: 'purchase',
-          //   element: 
-          // }
-        ]
-      },
+      {path: "book/:bookId", element: <Book />},
       {path: '*', element: <Page404 />},
       {
         path: "account",
@@ -85,6 +79,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'seller',
+        element: <AuthChecker redirectPath='/account/seller/login' userType="seller" />,
         children: [
           {path: '', element: <SHome />},
           {path: 'profile', element: <Profile />},
@@ -93,19 +88,24 @@ const router = createBrowserRouter([
       },
       {
         path: 'user',
+        element: <AuthChecker redirectPath='/account/user/login' userType="customer" />,
         children: [
           {path: 'profile', element: <Profile />},
           {path: 'cart', element: <Cart />},
-          {path: 'orders', element: <Orders />}
+          {path: 'orders', element: <Orders />},
+          {path: "checkout", element: <Checkout />},
+          {path: "checkout/success", element: <CSuccess />}
         ]
       },
       {
         path: 'admin',
+        element: <AuthChecker redirectPath='/account/admin/login' userType="admin" />,
         children: [
           {path: '', element: <AHome />},
           {path: 'books', element: <ABooks />},
           {path: 'customers', element: <ACustomers />},
           {path: 'sellers', element: <ASellers />},
+          {path: 'books', element: <ABooks />},
         ]
       },
     ],

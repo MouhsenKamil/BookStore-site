@@ -1,23 +1,23 @@
 import { Request, Response } from 'express'
 import { Cart } from '../models/Cart.ts'
-import { Order, PaymentMethod } from '../models/Order.ts'
+import { ICheckoutFormData, Order } from '../models/Order.ts'
 import { Book } from '../models/Book.ts'
 import { HttpError } from '../utils/exceptions.ts'
 import { BookArchive } from '../models/BooksArchive.ts'
 import { getRandInt } from '../utils/funcUtils.ts'
 
 
-interface cartPurchaseFormData {
-  homeNo: string
-  street: string
-  pinCode: number
-  city: string
-  state: string
-  country: string
-  phoneNo: number
-  paymentMethod: PaymentMethod
-}
 
+
+export async function updatedCart(req: Request, res: Response) {
+  const { userId } = req.params
+
+  const updatedCart = await Cart.findOneAndUpdate(
+    { user: userId }, { $set: { books: req.body.books } }, { new: true, upsert: true }
+  )
+
+  res.sendStatus(204)
+}
 
 export async function getCartOfUser(req: Request, res: Response) {
   const { userId } = req.params
@@ -119,9 +119,7 @@ export async function deleteBookInCart(req: Request, res: Response) {
 
 
 export async function checkout(req: Request, res: Response) {
-  const {
-    homeNo, street, pinCode, city, state, country, phoneNo, paymentMethod
-  }: cartPurchaseFormData = req.body
+  const checkoutProps: ICheckoutFormData = req.body
   const { userId } = req.params
 
   const cart = await Cart.findOne({ user: userId })
@@ -136,16 +134,9 @@ export async function checkout(req: Request, res: Response) {
   const order = new Order({
     user: userId,
     books: cart.books,
-    homeNo: homeNo,
-    street: street,
-    pinCode: pinCode,
-    city: city,
-    state: state,
-    country: country,
-    phoneNo: phoneNo,
-    paymentMethod: paymentMethod,
     orderTime: currentDate,
-    deliveredBy: deliveredByDate
+    deliveredBy: deliveredByDate,
+    ...checkoutProps
   })
 
   await order.save()

@@ -5,6 +5,7 @@ import {
   clearCart,
   checkout,
   getCartOfUser,
+  updatedCart,
 } from '../controllers/cartController.ts'
 import { checkRequestAttrs } from '../middlewares/validators.ts'
 
@@ -17,6 +18,7 @@ router.post(
   checkRequestAttrs({ obj: 'body', must: ['bookId', 'quantity'] }),
   addBookToCart
 )
+router.patch('/update', updatedCart)
 router.patch(
   '/delete',
   checkRequestAttrs({ obj: 'body', must: ['bookId'] }),

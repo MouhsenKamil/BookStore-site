@@ -7,7 +7,7 @@ import {
   blockCustomer,
   unblockCustomer,
   // becomeSeller,
-  getCustomers,
+  // getCustomers,
   addCreditCard,
   deleteCreditCard,
 } from '../controllers/customerController.ts'
@@ -76,7 +76,6 @@ const router = express.Router()
 router.use(authenticate, restrictToRoles(UserType.ADMIN, UserType.CUSTOMER))
 router.use('/:userId', routerWithUserId)
 
-router.get('/', restrictToRoles(UserType.ADMIN), queryInParamExists, getCustomers)
 // router.post(
 //   '/',
 //   rateLimiter(

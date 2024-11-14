@@ -5,9 +5,11 @@ export enum UserType {
 }
 
 export interface IUser {
+  _id: string
   name: string
   email: string
   type: UserType
+  blocked: boolean
 }
 
 export interface IBlockableUser extends IUser {

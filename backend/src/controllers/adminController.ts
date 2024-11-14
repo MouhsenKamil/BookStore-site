@@ -9,10 +9,11 @@ export async function getSiteAnalytics(req: Request, res: Response) {
   const totalCustomers = await Customer.countDocuments()
   const totalSellers = await Seller.countDocuments()
 
-  const totalBooks = await Book.countDocuments({ unitsInStock: { $gt: 0 } })
+  const totalBooks = await Book.find({ unitsInStock: { $gt: 0 } })
+  const totalBooksSold = await Book.find({})
   const totalOrders = await Order.countDocuments()
 
   res.status(200).json({
-    totalUsers: totalCustomers, totalSellers, totalCustomers, totalBooks, totalOrders
+    totalSellers, totalCustomers, totalBooks, totalBooksSold, totalOrders
   })
 }

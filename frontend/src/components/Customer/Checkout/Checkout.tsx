@@ -1,4 +1,7 @@
+import axios from "axios"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
+import { useLocation, useNavigate } from "react-router-dom"
 
 
 export enum PaymentMethod {
@@ -19,17 +22,55 @@ interface CheckoutFormInputs {
   cardHolderName?: string
   expiryDate?: string
   cvv?: number
+  quantity?: number
 }
+
 
 
 export default function Checkout() {
   const { register, handleSubmit, watch, formState: { errors }} = useForm<CheckoutFormInputs>()
+  const [submitURL, setSubmitURL] = useState('')
+  const navigate = useNavigate()
+  const location = useLocation()
+  const searchParams = Object.fromEntries(new URLSearchParams(location.search))
+
+  useEffect(() => {
+    if (!searchParams.method)
+      throw new Error('Required url parameter: method')
+
+    else if (searchParams.method === "cart")
+      setSubmitURL('/api/customer/@me/cart/checkout')
+
+    else if (searchParams.method === "bookOnly")
+      setSubmitURL(`/api/books/${searchParams.bookId}/purchase`)
+
+    else
+      throw new Error("checkout method must be either 'cart' or 'bookOnly'")
+
+  }, [])
 
   const paymentMethod = watch("paymentMethod")
 
-  const onSubmit = (data: CheckoutFormInputs) => {
-    console.log("Form Data:", data)
-    alert("Checkout Successful!")
+  async function onSubmit(data: CheckoutFormInputs) {
+    try {
+      if (submitURL.includes("books"))
+        data = {
+          ...data,
+          quantity: +searchParams.quantity,
+        }
+
+      const response = await axios.post(submitURL, data)
+      if (response.status !== 200)
+        throw new Error(response.data.error)
+
+      navigate(
+        '/user/checkout/success?orderId='
+        + response.data.orderId
+        + '&deliverBy' + response.data.deliverBy
+      )
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   return (

@@ -48,7 +48,6 @@ const router = express.Router()
 router.use(authenticate, restrictToRoles(UserType.SELLER, UserType.ADMIN))
 router.use('/:sellerId', routerWithSellerId)
 
-router.get('/', restrictToRoles(UserType.ADMIN), queryInParamExists, getSellers)
 // router.post(
 //   '/',
 //   rateLimiter(
