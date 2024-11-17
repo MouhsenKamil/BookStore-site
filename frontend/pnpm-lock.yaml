@@ -14,6 +14,9 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
+      rc-slider:
+        specifier: ^11.1.7
+        version: 11.1.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1104,6 +1107,19 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
+  rc-slider@11.1.7:
+    resolution: {integrity: sha512-ytYbZei81TX7otdC0QvoYD72XSlxvTihNth5OeZ6PMXyEDq/vHdWFulQmfDGyXK1NwKwSlKgpvINOa88uT5g2A==}
+    engines: {node: '>=8.x'}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-dom: '>=16.9.0'
+
+  rc-util@5.43.0:
+    resolution: {integrity: sha512-AzC7KKOXFqAdIBqdGWepL9Xn7cm3vnAmjlHqUnoQaTMZYhM4VlXGLkkHHxj/BZ7Td0+SOPKB4RGPboBVKT9htw==}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-dom: '>=16.9.0'
+
   react-credit-card-input@1.1.5:
     resolution: {integrity: sha512-G157pMMrh8CZ4Xi2ICoXrOuI9Xpl3i8AwVTZNgRWehQ8VfTwu5/TxaqlFQTbZQv3XI+g6AMCiIlgITQNDP8Jig==}
     peerDependencies:
@@ -1124,6 +1140,9 @@ packages:
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
+
+  react-is@18.3.1:
+    resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
   react-phone-number-input@3.4.9:
     resolution: {integrity: sha512-RG40GTjfJwBR5whpEkQMvMMKcbqQSlXiKfiTp2mYoULkTYwxFn04iAVplRizWi3yLPL0fQiL4U+YU+9MIQGZog==}
@@ -2325,6 +2344,21 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
+  rc-slider@11.1.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@babel/runtime': 7.26.0
+      classnames: 2.5.1
+      rc-util: 5.43.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  rc-util@5.43.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@babel/runtime': 7.26.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-is: 18.3.1
+
   react-credit-card-input@1.1.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)):
     dependencies:
       credit-card-type: 6.3.0
@@ -2344,6 +2378,8 @@ snapshots:
       react: 18.3.1
 
   react-is@16.13.1: {}
+
+  react-is@18.3.1: {}
 
   react-phone-number-input@3.4.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

@@ -15,7 +15,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
   const cookies = req.cookies as { [key: string]: string | undefined }
 
   // Unauthorized access or new user registration if there are no cookies
-  if (Object.keys(cookies).length === 0)
+  if (!Object.keys(cookies).length)
     throw new HttpError('Unauthorized', {
       statusCode: 401,
       debugMsg: 'Cookies were empty while trying to authenticate user'
@@ -39,22 +39,24 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
 
   await verifyAccessToken(accessToken)
     .then(async (_decodedAT) => {
-      const user = await User.findById(_decodedAT.id, { _id: 0, passwordHash: 1 })
+      const user = await User.findOne(
+        { _id: _decodedAT.id, passwordHash: _decodedAT.passwordHash }
+      )
 
       if (!user)
         throw new HttpError('Invalid session for unknown user', {
-          statusCode: 401, debugMsg: 'user id mentioned in access token does not exist'
+          statusCode: 401,
+          debugMsg: "user mentioned in access token does not exist. It's either due to invalid " +
+                    "user id or password in the access token"
         })
 
-      if (_decodedAT.passwordHash !== user.passwordHash)
-        throw new ForceReLogin('Invalid Token, re-login to continue', {
-          debugMsg: 'Password reset has occurred. Forcing user to re-login to continue further'
-        })
+      // if (_decodedAT.passwordHash !== user.passwordHash)
+      //   throw new ForceReLogin('Invalid Token, re-login to continue', {
+      //     statusCode: 401, 
+      //     debugMsg: 'Password reset has occurred. Forcing user to re-login to continue further'
+      //   })
 
-      req.__userAuth = {
-        id: _decodedAT.id,
-        type: _decodedAT.type
-      }
+      req.__userAuth = { id: _decodedAT.id, type: _decodedAT.type }
     })
     .catch(async (err) => {
       if (!(err instanceof TokenExpiredError)) throw err
@@ -88,20 +90,20 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
         )
 
       // Issue new both the 'access' and 'refresh' tokens for client
-      const user = await User.findById(_decodedRT.id)
+      const user = await User.findOne(
+        { _id: _decodedRT.id, passwordHash: _decodedRT.passwordHash }
+      )
 
       if (!user)
         throw new HttpError(
           'Invalid session for unknown user', {
             statusCode: 401,
-            debugMsg: 'user id mentioned in refresh token does not exist'
+            debugMsg: "user mentioned in refresh token does not exist. It's either " +
+                      "due to invalid user id or password in the refresh token"
           }
         )
 
-      req.__userAuth = {
-        id: _decodedRT.id,
-        type: _decodedRT.type
-      }
+      req.__userAuth = { id: _decodedRT.id, type: _decodedRT.type }
 
       // Update the cookies with the new access and refresh tokens
       await updateTokensInCookies(req, res, user)
@@ -129,21 +131,18 @@ type IsAuthenticatedProps = {
 
 export function IsAuthenticated(props: IsAuthenticatedProps) {
   const { yes, no } = props
+  const message = 'Redirect to continue'
 
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await authenticate(req, res, (...args) => {})
-      if (yes !== undefined && Object.keys(yes).length !== 0) {
-        res.status(yes.statusCode ?? 200).json({
-          messsage: 'Redirect to continue', url: yes.redirectTo
-        })
+      if (yes !== undefined && Object.keys(yes).length) {
+        res.status(yes.statusCode ?? 200).json({ message, url: yes.redirectTo })
         return
       }
     } catch (err) {
-      if (no !== undefined && Object.keys(no).length !== 0) {
-        res.status(no.statusCode ?? 401).json({
-          messsage: 'Redirect to continue', url: no.redirectTo
-        })
+      if (no !== undefined && Object.keys(no).length) {
+        res.status(no.statusCode ?? 401).json({ message, url: no.redirectTo })
         return
       }
     }
@@ -160,6 +159,7 @@ export function restrictToRoles(...roles: UserType[]) {
         debugMsg: `${req.__userAuth.type} user (id: ${req.__userAuth.id}) tried to access ` +
                   `this endpoint that's restricted to them.`
       })
+
     next()
   }
 }

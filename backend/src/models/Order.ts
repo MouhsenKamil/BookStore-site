@@ -38,7 +38,7 @@ export interface IOrder extends ICheckoutFormData {
   status: OrderStatus
 }
 
-export type OrderDoc = IOrder & Document
+type OrderDoc = IOrder & Document
 
 export const Order = mongoose.model<OrderDoc>(
   'orders',

@@ -9,13 +9,11 @@ import ErrorPage from "./components/ErrorPage/ErrorPage.tsx"
 import Book from "./components/Book/Book.tsx"
 import Login from "./components/Login/Login.tsx"
 import Register from "./components/Register/Register.tsx"
-import Page404 from "./components/ErrorPage/404/404.tsx"
+import Page404 from "./components/ErrorPage/404.tsx"
 import Home from "./components/Home/Home.tsx"
 import ForgotPassword from "./components/ForgotPassword/ForgotPassword.tsx"
 import AboutUs from "./components/AboutUs/AboutUs.tsx"
 import ContactUs from "./components/ContactUs/ContactUs.tsx"
-import SearchResults from "./components/SearchResults/SearchResults.tsx"
-
 import Profile from "./components/Profile/Profile.tsx"
 import Cart from "./components/Customer/Cart/Cart.tsx"
 import Orders from "./components/Customer/Orders/Orders.tsx"
@@ -26,10 +24,11 @@ import ASellers from "./components/Admin/ASellers/ASellers.tsx"
 import SHome from "./components/Sellers/SHome/SHome.tsx"
 import Checkout from "./components/Customer/Checkout/Checkout.tsx"
 import AddBook from "./components/Sellers/AddBook/AddBook.tsx"
-import { AuthChecker } from "./AuthChecker.tsx"
-import { CSuccess } from "./components/Customer/Checkout/CSuccess/CSuccess.tsx"
+import AuthChecker from "./components/AuthChecker.tsx"
+import CSuccess from "./components/Customer/Checkout/CSuccess/CSuccess.tsx"
 
 import "./index.css"
+import AdvancedBookSearch from "./components/AdvancedSearch/AdvancedSearch.tsx"
 
 
 const router = createBrowserRouter([
@@ -41,7 +40,7 @@ const router = createBrowserRouter([
       {path: "checkout", element: <Checkout />},
       {path: "", element: <Home />},
       {path: "home", element: <Home />},
-      {path: "search", element: <SearchResults />},
+      {path: "search", element: <AdvancedBookSearch />},
       {path: 'about-us', element: <AboutUs />},
       {path: 'contact-us', element: <ContactUs />},
       {path: "book/:bookId", element: <Book />},

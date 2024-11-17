@@ -7,13 +7,11 @@ import { BookArchive } from '../models/BooksArchive.ts'
 import { getRandInt } from '../utils/funcUtils.ts'
 
 
-
-
 export async function updatedCart(req: Request, res: Response) {
   const { userId } = req.params
 
   const updatedCart = await Cart.findOneAndUpdate(
-    { user: userId }, { $set: { books: req.body.books } }, { new: true, upsert: true }
+    { user: userId }, { books: req.body.books }, { new: true, upsert: true }
   )
 
   res.sendStatus(204)
@@ -71,8 +69,8 @@ export async function getCartOfUser(req: Request, res: Response) {
       throw new HttpError(`Error occurred while fetching cart`, { cause: err })
     })
 
-  if (!cart)
-    throw new HttpError('Cart is empty', { statusCode: 404 })
+  // if (!cart)
+  //   throw new HttpError('Cart is empty', { statusCode: 404 })
 
   res.status(200).json(cart)
 }

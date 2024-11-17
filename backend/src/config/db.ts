@@ -22,6 +22,7 @@ export async function connectDB({host, port, dbName, username, password}: connec
       family: 4, // use this in case mongoose.connect function takes a long time to connect
       user: username,
       pass: password,
+      autoIndex: false,
     }
   ).catch(err => {
     logMongoDBErrors(err)
@@ -33,3 +34,4 @@ export async function connectDB({host, port, dbName, username, password}: connec
     logMongoDBErrors(err)
   })
 }
+

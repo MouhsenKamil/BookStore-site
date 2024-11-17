@@ -1,5 +1,5 @@
 export interface IBook {
-  _id?: string
+  _id: string
   authorName: Array<string>
   title: string
   subtitle: string | null
@@ -8,7 +8,7 @@ export interface IBook {
   coverImage: string | null
   description: string | null
   price: number
-  unitsInStock?: number
+  unitsInStock: number
   seller: string
 }
 

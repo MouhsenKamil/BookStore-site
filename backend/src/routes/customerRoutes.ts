@@ -1,13 +1,10 @@
 import express from 'express'
 import {
-  // createUser,
   deleteCustomer,
   getCustomerById,
   updateCustomer,
   blockCustomer,
   unblockCustomer,
-  // becomeSeller,
-  // getCustomers,
   addCreditCard,
   deleteCreditCard,
 } from '../controllers/customerController.ts'

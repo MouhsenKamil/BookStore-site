@@ -11,7 +11,10 @@ type WishlistDoc = IWishlist & Document
 export const Wishlist = mongoose.model(
   "wishlists",
   new Schema<WishlistDoc>({
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    user: {
+      type: Schema.Types.ObjectId, ref: 'User',
+      required: true, unique: true, index: true
+    },
     books: [{ type: Schema.Types.ObjectId, ref: 'Book', required: true }]
   })
 )

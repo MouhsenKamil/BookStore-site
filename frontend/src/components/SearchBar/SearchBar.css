@@ -23,12 +23,14 @@
 }
 
 .search-result-item {
-  width: max(100%, 70em);
+  width: min(100%, 80em);
   display: flex;
   padding: 0.5em 1em;
   cursor: pointer;
   margin: auto 0;
   white-space: wrap;
+  border: 1px solid transparent;
+  border-top: 1px white;
   background-color: rgb(49, 49, 49);
 }
 
@@ -49,6 +51,7 @@
 .search-result-item .metadata > * {
   display: block;
   margin: 0 auto;
+  text-overflow: ellipsis;
 }
 
 .search-result-item .heading {
@@ -69,4 +72,14 @@
   overflow: hidden;
   height: 3em;
   text-overflow: ellipsis;
+}
+
+
+@media only screen and (max-width: 600px) {
+  .search-result-item .cover-image {
+    display: none;
+  }
+  .search-result-item .author {
+    display: none;
+  }
 }

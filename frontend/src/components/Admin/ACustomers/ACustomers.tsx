@@ -50,7 +50,7 @@ export default function ACustomers() {
   return (
     <div className="customers-list">
       <h1>Customer List</h1>
-      {customers.length === 0 ? (
+      {!customers.length ? (
         <p>No customers available.</p>
       ) : (
         <ul>

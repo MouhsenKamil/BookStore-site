@@ -6,8 +6,6 @@ import adminRoutes from './adminRoutes'
 import bookRoutes from './bookRoutes'
 import sellerRoutes from './sellerRoutes'
 import customerRoutes from './customerRoutes'
-// import { logContactUsContent } from '../middlewares/logger'
-// import { checkRequestAttrs, emailValidator } from '../middlewares/validators'
 
 
 const router = express.Router()
@@ -29,8 +27,8 @@ router.use('/customers', customerRoutes)
 // Static files endpoint
 router.use(
   '/static',
-  express.static(path.join(__dirname, '..', '..', 'public')),
-  express.static(path.join(__dirname, '..', '..', 'db', 'static'))
+  express.static(path.join(__dirname, '..', '..', 'db', 'static'), { maxAge: '1h' }),
+  express.static(path.join(__dirname, '..', '..', 'public'), { maxAge: '1h' })
 )
 
 // API entrypoint

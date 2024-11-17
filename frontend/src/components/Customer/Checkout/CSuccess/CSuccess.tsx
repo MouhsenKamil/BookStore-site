@@ -6,11 +6,11 @@ import { useLocation } from "react-router-dom"
 //   deliveredBy: Date
 // }
 
-export function CSuccess() {
+export default function CSuccess() {
   const location = useLocation()
   const checkoutSuccessData = Object.fromEntries(new URLSearchParams(location.search))
 
-  if (Object.keys(checkoutSuccessData).length === 0)
+  if (!Object.keys(checkoutSuccessData).length)
     throw new Error('Missing parameters: orderId, deliverBy')
 
   if (!checkoutSuccessData)

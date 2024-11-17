@@ -40,7 +40,7 @@ export default function ABooks() {
   return (
     <div className="book-list">
       <h1>Book List</h1>
-      {books.length === 0 ? (
+      {!books.length ? (
         <p>No books available.</p>
       ) : (
         <ul>

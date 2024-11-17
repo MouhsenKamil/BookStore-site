@@ -16,11 +16,11 @@ interface RegisterFormInputs {
 }
 
 const passwordValidationFuncs: { [key: string]:[ (val: string) => boolean, string] } = {
-  minLength: [(val) => val.length >= 8, 'Password must be at least 8 characters long'],
-  hasAnUpperCaseLetter: [(val) => /[A-Z]/.test(val), 'Password must contain at least one uppercase letter'],
-  hasALowerCaseLetter: [(val) => /[a-z]/.test(val), 'Password must contain at least one uppercase letter'],
-  hasANumber: [(val) => /[0-9]/.test(val), 'Password must contain at least one number'],
-  hasASpecialChar: [(val) => /[~`!@#$%^&*(){}[\];:"\",.<>\/?_+=-]/.test(val), 'Password must contain at least one special character']
+  minLength: [val => val.length >= 8, 'Password must be at least 8 characters long'],
+  hasAnUpperCaseLetter: [val => /[A-Z]/.test(val), 'Password must contain at least one uppercase letter'],
+  hasALowerCaseLetter: [val => /[a-z]/.test(val), 'Password must contain at least one uppercase letter'],
+  hasANumber: [val => /[0-9]/.test(val), 'Password must contain at least one number'],
+  hasASpecialChar: [val => /[~`!@#$%^&*(){}[\];:"\",.<>\/?_+=-]/.test(val), 'Password must contain at least one special character']
 }
 
 export default function Register(props: { parent: 'user' | 'seller' }) {

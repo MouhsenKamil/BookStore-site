@@ -31,10 +31,15 @@ export default function Home() {
 
   async function loadBooks() {
     const [newListings, lowStock, scienceFiction, literature] = await Promise.all([
-      fetchBooks("", { sort: "createdAt", limit: 8 }),
-      fetchBooks("", { sort: "unitsInStock", limit: 8, order: "asc" }),
-      fetchBooks("", { categories: { $in: ['Science Fiction'] }, limit: 8 }),
-      fetchBooks("", { categories: { $in: ['Literature'] }, limit: 8 }),
+      fetchBooks('', { sort: 'createdAt', limit: 8 }),
+      fetchBooks('', {
+        fields: ['_id', 'title', 'coverImage', 'unitsInStock'],
+        sort: 'unitsInStock',
+        limit: 8,
+        order: 'asc'
+      }),
+      fetchBooks('', { categories: ['Science Fiction'], limit: 8 }),
+      fetchBooks('', { categories: ['Literature'], limit: 8 }),
     ])
 
     setNewBooks(newListings)
@@ -52,14 +57,14 @@ export default function Home() {
     <div className="home-page">
       <button className="refresh-btn" onClick={() => setRefreshCount((val) => val + 1)}>Refresh</button>
 
-      {newBooks.length > 0 && <>
+      {newBooks.length && <>
         <h2 className="book-suggestions-title">New Listings</h2>
         <div className="book-list new-listing-books">{
           newBooks.map((book: any, key: number) => <BookCard key={key} book={book} />)
         }
         </div>
       </>}
-      {lowStockBooks.length > 0 && <>
+      {lowStockBooks.length && <>
         <h2 className="book-suggestions-title">Low on Stock (Get 'em Soon!)</h2>
         <div className="book-list low-on-stock-books">{
           lowStockBooks.map((book: any, key: number) => (
@@ -67,7 +72,7 @@ export default function Home() {
           ))}
         </div>
       </>}
-      {scienceFictionBooks.length > 0 && <>
+      {scienceFictionBooks.length && <>
         <h2 className="book-suggestions-title">Science Fiction</h2>
         <div className="book-list science-fiction-books">{
           scienceFictionBooks.map((book: any, key: number) => (
@@ -75,7 +80,7 @@ export default function Home() {
           ))}
         </div>
       </>}
-      {literatureBooks.length > 0 && <>
+      {literatureBooks.length && <>
         <h2 className="book-suggestions-title">Literature</h2>
         <div className="book-list literature-books">
           {

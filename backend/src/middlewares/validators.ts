@@ -43,18 +43,18 @@ export function checkRequestAttrs({obj, must=[], mustNot: mustNot=[]}: CheckRequ
     const reqObj = req[obj]
     const unnecessaryData = mustNot.filter(attr => reqObj[attr] !== undefined)
 
-    if (unnecessaryData.length > 0)
+    if (unnecessaryData.length)
       throw new HttpError(
-        `Unknown value${unnecessaryData.length > 1 ? 's': ''}: ${unnecessaryData}`, {
+        `Unknown value${unnecessaryData.length ? 's': ''}: ${unnecessaryData}`, {
           statusCode: 422,
           debugMsg: `unknown values from request's ${obj} - ${unnecessaryData}`
       })
 
     const requiredData = must.filter(attr => reqObj[attr] === undefined)
 
-    if (requiredData.length > 0)
+    if (requiredData.length)
       throw new HttpError(
-        `${requiredData} ${requiredData.length > 1 ? 'is': 'are'} required`, {
+        `${requiredData} ${requiredData.length ? 'is': 'are'} required`, {
           statusCode: 422,
           debugMsg: `missing values from reques's ${obj} - ${requiredData}`
       })

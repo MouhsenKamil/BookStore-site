@@ -124,7 +124,23 @@ export async function refresh(req: Request, res: Response) {
   //   }
   // )
 
-  const user = await User.findById(req.__userAuth.id)
+  let { id: userId, type: userType} = req.__userAuth
+  let user
+
+  if (userType === UserType.CUSTOMER)
+    user = await Customer.findById(userId)
+
+  else if (userType === UserType.SELLER)
+    user = await Seller.findById(userId)
+
+  else if (userType === UserType.ADMIN)
+    user = await Admin.findById(userId)
+
+  else
+    throw new HttpError(
+      `Invalid session. Unknown user type: ${userType}`, { statusCode: 404 }
+    )
+
   if (!user)
     throw new HttpError('Invalid session. User not found', { statusCode: 404 })
 
@@ -139,27 +155,66 @@ export function logout(req: Request, res: Response) {
 
 
 export async function verify(req: Request, res: Response) {
-  const user = await User.findById(
-    req.__userAuth.id, { _id: 0, passwordHash: 0, blocked: 0 }
-  ).catch(err => {
-    throw new ForceReLogin("Unable to verify and get id's", { cause: err })
-  })
+  let userType = req.__userAuth.type
+  let user
 
-  if (!user)
-    return // Unreachable code
-    // authentication is required to run this code. Thus no need to
-    // check whether user exists or not
+  try {
+    if (userType === UserType.CUSTOMER)
+      user = await Customer.findById(
+        req.__userAuth.id, { _id: 0, passwordHash: 0, blocked: 0 }
+      )
 
-  res.status(200).json({ userData: user.toJSON() })
+    else if (userType === UserType.SELLER)
+      user = await Seller.findById(
+        req.__userAuth.id, { _id: 0, passwordHash: 0, blocked: 0 }
+      )
+
+    else if (userType === UserType.ADMIN)
+      user = await Admin.findById(
+        req.__userAuth.id, { _id: 0, passwordHash: 0, blocked: 0 }
+      )
+
+    else
+      throw new HttpError(`Unknown user type: ${userType}`, {
+        statusCode: 400,
+        debugMsg: `Got '${userType}' as user type while trying to register user`
+      })
+
+    // const user = await User.findById(
+    //   req.__userAuth.id, { _id: 0, passwordHash: 0, blocked: 0 }
+    // )
+
+    if (!user)
+      return // Unreachable code
+      // authentication is required to run this code. Thus no need to
+      // check whether user exists or not
+
+    res.status(200).json({ userData: user.toJSON() })
+  } catch (err) {
+    throw new ForceReLogin("Unable to verify and get id's", { cause: err as Error })
+  }
 }
 
 
 export async function changePassword(req: Request, res: Response) {
   const { id: userId, type: userType } = req.__userAuth
+  let user
   
-  const userDoc = await User.findById(userId)
+  if (userType === UserType.CUSTOMER)
+    user = await Customer.findById(userId)
+
+  else if (userType === UserType.SELLER)
+    user = await Seller.findById(userId)
+
+  else
+    throw new HttpError(`Unknown user type: ${userType}`, {
+      statusCode: 400,
+      debugMsg: `Got '${userType}' as user type while trying to change password`
+    })
+
+  // const userDoc = await User.findById(userId)
   
-  if (!userDoc)
+  if (!user)
     throw new HttpError(req.__userAuth.type + ' not found', { statusCode: 404 })
   
   const { oldPassword, newPassword } = req.body
@@ -168,7 +223,7 @@ export async function changePassword(req: Request, res: Response) {
     bcrypt.hash(oldPassword, 12), bcrypt.hash(newPassword, 12)
   ])
 
-  if (userDoc.passwordHash !== oldPasswordHash)
+  if (user.passwordHash !== oldPasswordHash)
     throw new HttpError(
       'old password is not matching with the current password', { statusCode: 401 }
     )
@@ -178,29 +233,28 @@ export async function changePassword(req: Request, res: Response) {
       'New password cannot be same as old password', { statusCode: 409 }
     )
 
-  let updatedUser
+  // if (userType === UserType.CUSTOMER)
+  //   updatedUser = await Customer.findByIdAndUpdate(
+  //     user.id, { passwordHash: newPasswordHash }, { runValidators: true, new: true }
+  //   )
 
-  if (userType === UserType.CUSTOMER)
-    updatedUser = await Customer.findByIdAndUpdate(
-      userDoc.id, { passwordHash: newPasswordHash }, { runValidators: true, new: true }
-    )
+  // else if (userType === UserType.SELLER)
+  //   updatedUser = await Seller.findByIdAndUpdate(
+  //     user.id, { passwordHash: newPasswordHash }, { runValidators: true, new: true }
+  //   )
 
-  else if (userType === UserType.SELLER)
-    updatedUser = await Seller.findByIdAndUpdate(
-      userDoc.id, { passwordHash: newPasswordHash }, { runValidators: true, new: true }
-    )
+  // else
+  //   throw new HttpError(`Unknown user type: ${userType}`, {
+  //     statusCode: 400,
+  //     debugMsg: `Got '${userType}' as user type while trying to register user`
+  //   })
 
-  else
-    throw new HttpError(`Unknown user type: ${userType}`, {
-      statusCode: 400,
-      debugMsg: `Got '${userType}' as user type while trying to register user`
+  await user.updateOne({ passwordHash: newPasswordHash }, { new: true })
+    .catch(err => {
+      throw new HttpError('Error occurred while updating password', { cause: err as Error })
     })
 
-  // .catch(err => {
-  //   throw new HttpError('Error occurred while updating password', { cause: err as Error })
-  // })
-
-  await updateTokensInCookies(req, res, updatedUser as UserDoc)
+  await updateTokensInCookies(req, res, user)
   logEvents(`${userType} ${userId} has changed their password`)
   res.sendStatus(204)
 }

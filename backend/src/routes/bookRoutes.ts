@@ -5,7 +5,10 @@ import {
   getBookById,
   updateBook,
   deleteBook,
-  purchaseBook
+  purchaseBook,
+  suggestCategories,
+  suggestLanguages,
+  suggestAuthorNames
 } from '../controllers/bookController.ts'
 import { authenticate, restrictToRoles } from '../middlewares/authMiddleware.ts'
 import { UserType } from '../models/User.ts'
@@ -14,46 +17,22 @@ import { checkRequestAttrs, queryInParamExists } from '../middlewares/validators
 
 const routerWithBookId = express.Router({ mergeParams: true })
 
-
 routerWithBookId.get('/', getBookById)
-routerWithBookId.patch(
-  '/',
-  authenticate,
-  restrictToRoles(UserType.ADMIN),
-  updateBook
-)
-routerWithBookId.delete(
-  '/',
-  authenticate,
-  restrictToRoles(UserType.ADMIN),
-  deleteBook
-)
-routerWithBookId.post(
-  '/purchase',
-  authenticate,
-  restrictToRoles(UserType.CUSTOMER),
-  purchaseBook
-)
+routerWithBookId.patch('/', authenticate, restrictToRoles(UserType.ADMIN), updateBook)
+routerWithBookId.delete('/', authenticate, restrictToRoles(UserType.ADMIN), deleteBook)
+routerWithBookId.post('/purchase', authenticate, restrictToRoles(UserType.CUSTOMER), purchaseBook)
 
 
 const router = express.Router()
 
-router.put(
-  '/',
-  authenticate,
-  restrictToRoles(UserType.ADMIN, UserType.SELLER),
-  addBook
-)
-router.get(
-  '/',
-  queryInParamExists,
-  getBooks
-)
+router.put('/', authenticate, restrictToRoles(UserType.ADMIN, UserType.SELLER), addBook)
 
-router.use(
-  '/:bookId',
-  checkRequestAttrs({ obj: 'params', must: ['bookId'] }),
-  routerWithBookId
-)
+// endpoints for facilitating book search
+router.get('/', queryInParamExists, getBooks)
+router.get('/categories', queryInParamExists, suggestCategories)
+router.get('/langs', queryInParamExists, suggestLanguages)
+router.get('/author-names', queryInParamExists, suggestAuthorNames)
+
+router.use('/:bookId', checkRequestAttrs({ obj: 'params', must: ['bookId'] }), routerWithBookId)
 
 export default router

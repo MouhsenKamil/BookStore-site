@@ -50,7 +50,7 @@ export default function ASellers() {
   return (
     <div className="sellers-list">
       <h1>Seller List</h1>
-      {sellers.length === 0 ? (
+      {!sellers.length ? (
         <p>No sellers available.</p>
       ) : (
         <ul>

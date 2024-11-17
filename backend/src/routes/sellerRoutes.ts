@@ -10,7 +10,7 @@ import {
   blockSeller,
   unblockSeller,
 } from '../controllers/sellerController.ts'
-import { checkRequestAttrs, queryInParamExists, restrictEditingSensibleInfo } from '../middlewares/validators.ts'
+import { checkRequestAttrs, restrictEditingSensibleInfo } from '../middlewares/validators.ts'
 import { authenticate, restrictToRoles } from '../middlewares/authMiddleware.ts'
 import { parseMeInParams, verifyUserIdParamByUserAuth } from '../middlewares/userMiddleware.ts'
 

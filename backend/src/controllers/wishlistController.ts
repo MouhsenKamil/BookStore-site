@@ -4,16 +4,33 @@ import { HttpError } from '../utils/exceptions.ts'
 
 
 export async function getWishlistOfUser(req: Request, res: Response) {
-  const { userid } = req.params
-  const wishlist = await Wishlist.find({ user: userid })
+  const { userId } = req.params
+  const wishlist = await Wishlist.aggregate([
+    {
+      $match: { user: userId }
+    },
+    {
+      $lookup: {
+        from: "books",
+        localField: "books",
+        foreignField: "_id",
+        as: "bookDetails"
+      }
+    },
+    {
+      $project: {
+        user: 1,
+        "$bookDetails.seller": 0,
+        
+        books: "$bookDetails"
+      }
+    }
+  ])
     .catch(err => {
       throw new HttpError('Error occurred while fetching wishlist', { cause: err })
     })
 
-  if (!wishlist)
-    throw new HttpError('Wishlist is empty', { statusCode: 404 })
-
-  res.status(201).json({ total: wishlist.length, results: wishlist})
+  res.status(201).json(wishlist)
 }
 
 

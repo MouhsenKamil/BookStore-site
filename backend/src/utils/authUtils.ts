@@ -1,15 +1,19 @@
 import { Request, Response } from "express"
 import { UserDoc, UserType } from "../models/User"
-import mongoose from "mongoose"
+// import mongoose from "mongoose"
 
 import bcrypt from 'bcryptjs'
 import jwt, { TokenExpiredError } from 'jsonwebtoken'
 
 import env from '../config/env.ts'
 import { HttpError, ForceReLogin } from "./exceptions.ts"
-import { Customer } from "../models/Customer.ts"
-import { Seller } from "../models/Seller.ts"
-import { Admin } from "../models/Admin.ts"
+// import { Customer } from "../models/Customer.ts"
+// import { Seller } from "../models/Seller.ts"
+// import { Admin } from "../models/Admin.ts"
+
+
+const T_15_MINS =  15 * 60 * 1000
+const T_7_DAYS =  7 * 24 * 60 * 60 * 1000
 
 
 // Client ID token util
@@ -53,21 +57,20 @@ export async function getAccessToken(user: UserDoc) {
 
 
 export function setAccessTokenToCookies(res: Response, accessToken: string) {
-  const EXPIRE_IN_15_MINS =  15 * 60 * 1000
   const [header, payload, signature] = accessToken.split('.')
 
   res.cookie(env.ACCESS_TOKEN_HEADER_PAYLOAD_COOKIE_NAME, `${header}.${payload}`, {
     httpOnly: true, // accessible only by web server
     secure: true, // https
     sameSite: "lax",
-    maxAge: EXPIRE_IN_15_MINS
+    maxAge: T_15_MINS
   })
 
   res.cookie(env.ACCESS_TOKEN_SIGN_COOKIE_NAME, signature, {
     httpOnly: true, // accessible only by web server
     secure: true, // https
     sameSite: "lax",
-    maxAge: EXPIRE_IN_15_MINS
+    maxAge: T_15_MINS
   })
 }
 
@@ -142,13 +145,11 @@ export async function getRefreshToken(req: Request, user: UserDoc, accessToken: 
 
 
 export function setRefreshTokenToCookies(res: Response, refreshToken: string) {
-  const EXPIRE_IN_7_DAYS =  7 * 24 * 60 * 60 * 1000
-
   res.cookie(env.REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
     httpOnly: true, // Accessible only by web server
     secure: true, // https
     sameSite: "lax",
-    maxAge: EXPIRE_IN_7_DAYS
+    maxAge: T_7_DAYS
   })
 }
 

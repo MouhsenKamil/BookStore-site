@@ -97,7 +97,7 @@ export default function Cart() {
   return (
     <div className="customer-orders">
     <h3>Your cart has ${cartBooks.length} books</h3>{
-      (cartBooks.length === 0)
+      (!cartBooks.length)
         ? <h5>No items in cart. <Link to='/'>Start shopping for books now.</Link></h5>
         : <>
         <div className="cart-books-list">

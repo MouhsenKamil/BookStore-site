@@ -1,9 +1,11 @@
 import { useEffect, useState, useRef } from "react"
+import { useNavigate } from "react-router-dom"
 import axios from "axios"
 
 import { IBookWithSellerName } from "../../../../backend/src/models/Book.tsx"
 
 import './SearchBar.css'
+import CoverImage from "../CoverImage/CoverImage.tsx"
 
 
 // interface SearchResultItemProps {
@@ -15,18 +17,17 @@ import './SearchBar.css'
 
 // function SearchResultItem(props: SearchResultItemProps) {
 function SearchResultItem({ book }: { book: IBookWithSellerName }) {
-  let description = book.description ?? ''
+  const navigate = useNavigate()
+  // let description = book.description ?? ''
 
-  if (description.length > 150)
-    description = description.substring(0, 150)
-
-  let imgUrl = book.coverImage
-    ? `/api/static${book.coverImage}`
-    : 'src/assets/cover-image-placeholder.png'
+  // if (description.length > 150)
+  //   description = description.substring(0, 150)
 
   return (
-    <div className="search-result-item">
-      <img className="cover-image" src={imgUrl} alt={book.title} />
+    <div className="search-result-item" onClick={() => {
+      navigate(`/book/${book._id}`)
+    }}>
+      <CoverImage className="cover-image" src={`/api/static${book.coverImage}`} alt={book.title} />
       <div className="metadata">
         <h4 className="heading book-title">{book.title}</h4>
         {book.subtitle && <h6 className="heading book-subtitle">{book.subtitle}</h6>}
@@ -57,7 +58,7 @@ export function SearchBar() {
         params: {
           query,
           limit: 8,
-          fields: ['title', 'subtitle', 'coverImage', 'authorName']
+          fields: ['_id', 'title', 'subtitle', 'coverImage', 'authorName']
         }
       })
 

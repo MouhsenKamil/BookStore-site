@@ -17,6 +17,7 @@ function createLogger(logFileName: string, logParentDirPath?: string) {
   let logDirPath = logParentDirPath ?? logFileName.slice(0, -4)
   return createStream(logFilenameGenerator(logFileName), {
     interval: '1d',
+    size: '30M',
     maxSize: '30M',
     compress: 'gzip',
     path: path.join(__dirname, '..',  '..', 'logs', logParentDirPath ?? '', logDirPath),
@@ -30,29 +31,31 @@ const mongoDBErrorLogger = createLogger('mongodb-errors.log')
 // const contactUsLogger = createLogger('contact-us.log')
 
 
-export function logEventsToFile(message: string) {
-  const logItem = `${(new Date()).toISOString()} ${uuid()} ${message}\n`
-  // const logDir = path.join(__dirname, '..',  '..', 'logs', logFileName.slice(0, -4))
+// export function logEventsToFile(message: string) {
+//   const logMsg = `${(new Date()).toISOString()} ${uuid()} ${message}\n`
+//   // const logDir = path.join(__dirname, '..',  '..', 'logs', logFileName.slice(0, -4))
 
-  userEventsLogger.write(logItem)
-    // if (!fs.existsSync(logDir))
-    //   await fs.promises.mkdir(logDir, { recursive: true })
-    // await fs.promises.appendFile(path.join(logDir, logFileName), logItem)
-}
+//   userEventsLogger.write(logMsg)
+//     // if (!fs.existsSync(logDir))
+//     //   await fs.promises.mkdir(logDir, { recursive: true })
+//     // await fs.promises.appendFile(path.join(logDir, logFileName), logMsg)
+// }
 
 export function logEvents(message: string) {
-  userEventsLogger.write(message + '\n')
+  const logMsg = `${(new Date()).toISOString()} ${uuid()} ${message}\n`
+  userEventsLogger.write(logMsg)
 }
 
 export function logServerErrors(message: string) {
-  serverErrorsLogger.write(message)
-  console.error(message)
+  const logMsg = `${(new Date()).toISOString()} ${uuid()} ${message}\n`
+  serverErrorsLogger.write(logMsg)
+  console.error(logMsg)
 }
 
 export function logMongoDBErrors(err: Error) {
-  let message = `${err}\n${err.stack}`
-  mongoDBErrorLogger.write(message)
-  console.error(message)
+  const logMsg = `${(new Date()).toISOString()} ${uuid()} ${err}\n${err.stack}\n`
+  mongoDBErrorLogger.write(logMsg)
+  console.error(logMsg)
 }
 
 // export function logContactUsContent(name: string, email: string, message: string) {

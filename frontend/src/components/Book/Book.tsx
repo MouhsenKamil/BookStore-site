@@ -103,10 +103,22 @@ export default function Book() {
 
         <span><b>Seller: </b>{book.sellerName}</span>
 
-        {book.description && <p>{book.description?.substring(0, 30)}</p>}
+        {book.categories.length && (
+          <div className="book-categories">{(
+            book.categories.map(category => <span className="book-category">{category}</span>)
+          )}</div>
+        )}
 
-        {(book.unitsInStock === 0)
-          ? <><p className="pass-item">In stock:</p> {book.unitsInStock}</>
+        {book.lang.length && (
+          <div className="book-languages">{(
+            book.lang.map(lang => <span className="book-language">{lang}</span>)
+          )}</div>
+        )}
+
+        {book.description && <p>{book.description}</p>}
+
+        {book.unitsInStock
+          ? <><p className="pass-item">In stock:</p> <span>{book.unitsInStock}</span></>
           : <p className="err-item">Sold Out!</p>
         }
 
