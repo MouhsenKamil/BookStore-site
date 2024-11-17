@@ -27,7 +27,7 @@ export default function ACustomers() {
 
   async function deleteCustomer(customerId: string) {
     try {
-      const response = await axios.delete(`/api/customers/${customerId}`)
+      const response = await axios.delete(`/api/customer/${customerId}`)
       if (response.status !== 200)
         throw new Error(response.data.error)
       setCustomers(customers.filter(customer => customer._id !== customerId))
@@ -39,7 +39,7 @@ export default function ACustomers() {
   async function toggleBlockCustomer(customerId: string, currBlock: boolean) {
     try {
       const shouldBlock = currBlock ? 'unblock': 'block'
-      const response = await axios.patch(`/api/customers/${customerId}/${shouldBlock}`)
+      const response = await axios.patch(`/api/customer/${customerId}/${shouldBlock}`)
       if (response.status !== 200)
         throw new Error(response.data.error)
     } catch (error) {

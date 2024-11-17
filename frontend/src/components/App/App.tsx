@@ -20,7 +20,7 @@ export default function App() {
         <div className='other-hyperlinks'>
           {
             (!user || user.type === 'customer') &&
-              <span><Link to='/account/seller/regiser'>Become a Seller</Link></span>
+              <span><Link to='/account/seller/register'>Become a Seller</Link></span>
           }
           <span><Link to='/about-us'>About us</Link></span>
           <span><Link to='/contact-us'>Contact us</Link></span>

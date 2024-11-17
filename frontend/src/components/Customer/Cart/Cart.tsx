@@ -11,7 +11,9 @@ export default function Cart() {
 
   async function removeFromCart(bookId: string) {
     try {
-      const response = await axios.patch("/api/customers/@me/cart/delete", { bookId })
+      const response = await axios.patch(
+        "/api/customer/@me/cart/delete", { bookId }, {withCredentials: true}
+      )
       if (response.status !== 204)
         throw new Error(response.data.error)
 
@@ -23,11 +25,11 @@ export default function Cart() {
 
   async function checkout() {
     try {
-      const response = await axios.post("/api/customers/@me/cart", {
+      const response = await axios.post("/api/customer/@me/cart", {
         books: cartBooks.forEach(book => {
           return { id: book._id, quantity: book.quantity }
         })
-      })
+      }, {withCredentials: true})
 
       if (response.status !== 204)
         throw new Error(response.data.error)
@@ -40,7 +42,7 @@ export default function Cart() {
 
   async function clearCart() {
     try {
-      const response = await axios.delete('/api/customers/@me/cart/clear')
+      const response = await axios.delete('/api/customer/@me/cart/clear', {withCredentials: true})
       if (response.status !== 204)
         throw new Error(response.data.error)
 
@@ -81,12 +83,13 @@ export default function Cart() {
 
   async function fetchCart() {
     try {
-      const response = await axios.get(`/api/customers/@me/cart`)
+      const response = await axios.get(`/api/customer/@me/cart`, {withCredentials: true})
       if (response.status !== 200)
         throw new Error(response.data.error)
       setCartBooks(response.data.books)
     } catch (err) {
       console.error(err)
+      alert((err as Error).message)
     }
   }
 
@@ -96,7 +99,7 @@ export default function Cart() {
 
   return (
     <div className="customer-orders">
-    <h3>Your cart has ${cartBooks.length} books</h3>{
+    <h3>Your cart has {cartBooks.length} books</h3>{
       (!cartBooks.length)
         ? <h5>No items in cart. <Link to='/'>Start shopping for books now.</Link></h5>
         : <>

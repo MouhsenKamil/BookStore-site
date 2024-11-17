@@ -11,7 +11,7 @@ export default function Wishlist() {
 
   async function removeFromWishlist(bookId: string) {
     try {
-      const response = await axios.patch("/api/customers/@me/wishlist/delete", { bookId })
+      const response = await axios.patch("/api/customer/@me/wishlist/delete", { bookId })
       if (response.status !== 204)
         throw new Error(response.data.error)
 
@@ -23,7 +23,7 @@ export default function Wishlist() {
 
   async function clearWishlist() {
     try {
-      const response = await axios.delete('/api/customers/@me/wishlist/clear')
+      const response = await axios.delete('/api/customer/@me/wishlist/clear')
       if (response.status !== 204)
         throw new Error(response.data.error)
 
@@ -57,7 +57,7 @@ export default function Wishlist() {
 
   async function fetchWishlist() {
     try {
-      const response = await axios.get(`/api/customers/@me/wishlist`)
+      const response = await axios.get(`/api/customer/@me/wishlist`)
       if (response.status !== 200)
         throw new Error(response.data.error)
       setWishlistBooks(response.data.books)

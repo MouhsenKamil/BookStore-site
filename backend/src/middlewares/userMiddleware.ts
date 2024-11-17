@@ -11,10 +11,9 @@ export function verifyUserIdParamByUserAuth(paramName: string) {
       return
     }
 
-    console.log(JSON.stringify(req.params))
     const idFromParams = req.params[paramName]
 
-    if (idFromParams !== '@me' || idFromParams !== req.__userAuth.id)
+    if (idFromParams !== '@me' && idFromParams !== req.__userAuth.id)
       throw new HttpError('Forbidden', {
         statusCode: 403,
         debugMsg: 'user tried to interact with server as an another user via ' +

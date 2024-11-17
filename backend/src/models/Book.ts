@@ -5,7 +5,7 @@ import { Author } from './Author'
 
 export interface IBook {
   _id: string
-  authorName: Array<string>
+  authorNames: Array<string>
   title: string
   subtitle: string | null
   lang: Array<string>
@@ -24,7 +24,7 @@ export interface IBookWithSellerName extends IBook {
 export type BookDoc = IBook & Document
 
 export const BookSchema = new Schema<BookDoc>({
-  authorName: { type: [String], required: true },
+  authorNames: { type: [String], required: true },
   title: { type: String, required: true },
   subtitle: String,
   lang: { type: [String], required: true, default: ['eng'], validate: {
@@ -59,7 +59,7 @@ async function updateAuthorNames(authorNames: string[]) {
 
 
 BookSchema.post<BookDoc>('save', async function () {
-  await Promise.all([updateCategories(this.categories), updateAuthorNames(this.authorName)])
+  await Promise.all([updateCategories(this.categories), updateAuthorNames(this.authorNames)])
 })
 
 
@@ -72,8 +72,8 @@ BookSchema.post<BookDoc>(
     if (changes && changes.categories)
       promises.push(updateCategories(changes.categories))
 
-    if (changes && changes.authorName)
-      promises.push(updateAuthorNames(changes.authorName))
+    if (changes && changes.authorNames)
+      promises.push(updateAuthorNames(changes.authorNames))
 
     if (promises.length)
       await Promise.all(promises)

@@ -4,31 +4,29 @@
 
 .search-bar-container {
   position: relative;
-  display: inline-block;
-  width: calc(100% + 4rem);
+  /* display: inline-block; */
 }
 
 .search-bar-container input[type="text"] {
-  width: 100%;
+  width: max(50vw, 10em);
   padding: 1em 2em;
 }
 
 .search-results-list {
   position: absolute;
-  left: 1rem;
   z-index: 1;
+  left: 1rem;
   border: 1px solid transparent;
   border-bottom-left-radius: inherit;
   border-bottom-right-radius: inherit;
 }
 
 .search-result-item {
-  width: min(100%, 80em);
+  width: calc(50vw - 1rem);
   display: flex;
   padding: 0.5em 1em;
   cursor: pointer;
   margin: auto 0;
-  white-space: wrap;
   border: 1px solid transparent;
   border-top: 1px white;
   background-color: rgb(49, 49, 49);
@@ -46,17 +44,20 @@
 
 .search-result-item .metadata {
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .search-result-item .metadata > * {
-  display: block;
   margin: 0 auto;
+  display: inline-block;
+  width: calc(100%);
+  overflow: hidden;
   text-overflow: ellipsis;
 }
-
+/* 
 .search-result-item .heading {
   margin: 0;
-}
+} */
 
 .search-result-item .cover-image {
   height: 5em;
@@ -64,14 +65,6 @@
   padding-right: 5px;
   text-overflow: wrap;
   overflow-wrap: break-word;
-}
-
-.search-result-item .description {
-  white-space: wrap;
-  width: calc(90%);
-  overflow: hidden;
-  height: 3em;
-  text-overflow: ellipsis;
 }
 
 

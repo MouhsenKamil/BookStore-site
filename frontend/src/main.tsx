@@ -104,7 +104,6 @@ const router = createBrowserRouter([
           {path: 'books', element: <ABooks />},
           {path: 'customers', element: <ACustomers />},
           {path: 'sellers', element: <ASellers />},
-          {path: 'books', element: <ABooks />},
         ]
       },
     ],

@@ -3,7 +3,7 @@ import axios from 'axios'
 
 import { useAuth } from '../../hooks/useAuth'
 import { IExtendedUser } from '../../types/user'
-import { titleCase } from '../../utils/stringUtils'
+import { toTitleCase } from '../../utils/stringUtils'
 
 import './Profile.css'
 
@@ -31,7 +31,7 @@ export default function Profile() {
   return (
     <div className="seller-profile">
       <div className="form-heading">{userObj.name}</div>
-      <p>{titleCase(user?.type || '---')}</p>
+      <p>{toTitleCase(user?.type || '---')}</p>
       {
         Object.entries(userObj).map(([key, value]) => {
           return (

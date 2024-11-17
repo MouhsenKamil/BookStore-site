@@ -5,7 +5,8 @@ div.heading {
 }
 
 .home-page {
-  width: 90%;
+  width: 85%;
+  padding: 2em;
 }
 
 .book-suggestions-title {
@@ -14,14 +15,24 @@ div.heading {
 
 .book-list {
   display: flex;
-  max-width: 90vw;
-  overflow-x: scroll;
-  scrollbar-width: none;
+  align-items: center;
+  justify-content: center;
+  max-width: 93vw;
+  flex-wrap: wrap;
+  gap: 0.5em;
 }
 
 
 @media only screen and (max-width: 800px) {
   div.heading {
     font-size: 2.6em;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .book-list {
+    flex-direction: column;
+    max-width: auto;
+    gap: 1em;
   }
 }

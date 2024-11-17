@@ -19,10 +19,10 @@ export const Seller = mongoose.model<SellerDoc>(
     ...UserSchemaObj,
     blocked: { type: Boolean, required: true, default: false },
     passportNumber: { type: String, required: true, validate: {
-      validator: (val: string) => PHONE_NUMBER_REGEX.test(val)
+      validator: (val: string) => PASSPORT_NUMBER_REGEX.test(val)
     }},
     phoneNo: { type: String, required: true, validat: {
-      validator: (val: string) => PASSPORT_NUMBER_REGEX.test(val)
+      validator: (val: string) => PHONE_NUMBER_REGEX.test(val)
     }}
   }, {
     timestamps: { createdAt: true, updatedAt: false },

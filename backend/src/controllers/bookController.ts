@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { PipelineStage } from 'mongoose'
+import mongoose, { PipelineStage } from 'mongoose'
 
 import { Book, IBookWithSellerName } from '../models/Book.ts'
 import { logEvents } from '../middlewares/logger.ts'
@@ -261,7 +261,10 @@ export async function getBooks(req: Request, res: Response) {
 export async function getBookById(req: Request, res: Response) {
   const { bookId } = req.params
 
-  const book = await Book.findById(bookId, { _id: 0 })
+  if (!mongoose.Types.ObjectId.isValid(bookId))
+    throw new HttpError('Not a valid Book ID!', { statusCode: 404 })
+
+  const book = await Book.findById(bookId.trim(), { _id: 0 })
     .catch(err => {
       throw new HttpError(`Error occurred while fetching book`, { cause: err })
     })

@@ -35,14 +35,14 @@ export async function getCartOfUser(req: Request, res: Response) {
     { $unwind: '$bookDetails' },
     {
       $project: {
-        _id: 0,
-        user: 0,
         "bookDetails.quantity": 1,
         "bookDetails.id": "bookDetails._id",
         "bookDetails.unitPrice": "bookDetails.price",
         "bookDetails.title": 1,
         "bookDetails.unitsInStock": 1,
-        "bookDetails.coverImage": 1
+        "bookDetails.coverImage": 1,
+        _id: 0,
+        user: 0,
       }
     },
     {

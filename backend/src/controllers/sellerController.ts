@@ -21,7 +21,7 @@ export async function createSeller(req: Request, res: Response) {
     })
 
   const hashedPassword = await bcrypt.hash(req.body.password, 12)
-  req.body.password_hash = hashedPassword
+  req.body.passwordHash = hashedPassword
   delete req.body.password
 
   const newSeller = new Seller(req.body)
@@ -62,7 +62,7 @@ export async function getSellers(req: Request, res: Response) {
     { $match: queryObj },
     { $limit: limitInt },
     { $sort: { [sort as string]: orderInt }},
-    { $project: { ...projectionObj, _id: 0, passwordHash: 0 }}
+    { $project: { ...projectionObj, _id: 0, passwordHash: 0, __v: 0 }}
   ]).catch(err => {
     throw new HttpError('Error occurred while fetching sellers', { cause: err })
   })
@@ -72,8 +72,12 @@ export async function getSellers(req: Request, res: Response) {
 
 
 export async function getSellerById(req: Request, res: Response) {
-  const { userId } = req.params
-  const user = await Seller.findById(userId, { _id: 0, passwordHash: 0 })
+  let { sellerId } = req.params
+
+  if (sellerId === '@me')
+    sellerId = req.__userAuth.id
+
+  const user = await Seller.findById(sellerId, { _id: 0, passwordHash: 0 })
     .catch(err => {
       throw new HttpError("Error occurred while fetching seller's details", { cause: err })
     })
@@ -86,8 +90,13 @@ export async function getSellerById(req: Request, res: Response) {
 
 
 export async function updateSeller(req: Request, res: Response) {
+  let { sellerId } = req.params
+
+  if (sellerId === '@me')
+    sellerId = req.__userAuth.id
+
   await Seller.findByIdAndUpdate(
-    req.params.userId, req.body, { runValidators: true, new: true }
+    sellerId, req.body, { runValidators: true, new: true }
   ).catch(err => {
     throw new HttpError('Error occurred while updating seller', { cause: err })
   })
@@ -127,7 +136,11 @@ export async function deleteSeller(req: Request, res: Response) {
 
 
 export async function blockSeller(req: Request, res: Response) {
-  const { sellerId } = req.params
+  let { sellerId } = req.params
+
+  if (sellerId === '@me')
+    sellerId = req.__userAuth.id
+
   await Seller.findByIdAndUpdate(sellerId, { blocked: true }, { runValidators: true })
     .catch(err => {
       throw new HttpError('Error occurred while blocking the seller', { cause: err })
@@ -137,8 +150,13 @@ export async function blockSeller(req: Request, res: Response) {
 
 
 export async function unblockSeller(req: Request, res: Response) {
+  let { sellerId } = req.params
+
+  if (sellerId === '@me')
+    sellerId = req.__userAuth.id
+
   await Seller.findByIdAndUpdate(
-    req.params.sellerId, { blocked: false }, { runValidators: true }
+    sellerId, { blocked: false }, { runValidators: true }
   ).catch(err => {
       throw new HttpError('Error occurred while unblocking the seller', { cause: err })
     })

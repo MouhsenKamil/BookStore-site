@@ -63,7 +63,7 @@ export async function getCustomers(req: Request, res: Response) {
     { $match: queryObj },
     { $limit: limitInt },
     { $sort: { [sort as string]: orderInt }},
-    { $project: { ...projectionObj, passwordHash: 0 }}
+    { $project: { ...projectionObj, passwordHash: 0, __v: 0 }}
   ]).catch(err => {
     throw new HttpError('Error occurred while fetching users', { cause: err })
   })
@@ -73,7 +73,11 @@ export async function getCustomers(req: Request, res: Response) {
 
 
 export async function getCustomerById(req: Request, res: Response) {
-  const { userId } = req.params
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
   const user = await Customer.findById(userId, { _id: 0, passwordHash: 0 })
     .catch(err => {
       throw new HttpError("Error occurred while fetching user's details", { cause: err })
@@ -87,8 +91,13 @@ export async function getCustomerById(req: Request, res: Response) {
 
 
 export async function updateCustomer(req: Request, res: Response) {
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
   await Customer.findByIdAndUpdate(
-    req.params.userId, req.body, { runValidators: true, new: true }
+    userId, req.body, { runValidators: true, new: true }
   ).catch(err => {
     throw new HttpError('Error occurred while updating user', { cause: err })
   })
@@ -123,7 +132,11 @@ export async function updateCustomer(req: Request, res: Response) {
 
 
 export async function deleteCustomer(req: Request, res: Response) {
-  const { userId } = req.params
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
   const deletedUser = await Customer.findByIdAndDelete(userId)
     .catch(err => {
       throw new HttpError('Error occurred while deleting the user', { cause: err })
@@ -140,7 +153,11 @@ export async function deleteCustomer(req: Request, res: Response) {
 
 
 export async function blockCustomer(req: Request, res: Response) {
-  const { userId } = req.params
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
   await Customer.findByIdAndUpdate(userId, { blocked: true }, { runValidators: true })
     .catch(err => {
       throw new HttpError('Error occurred while blocking the user', { cause: err })
@@ -150,8 +167,13 @@ export async function blockCustomer(req: Request, res: Response) {
 
 
 export async function unblockCustomer(req: Request, res: Response) {
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
   await Customer.findByIdAndUpdate(
-    req.params.userId, { blocked: false }, { runValidators: true }
+    userId, { blocked: false }, { runValidators: true }
   ).catch(err => {
       throw new HttpError('Error occurred while unblocking the user', { cause: err })
     })
@@ -189,8 +211,13 @@ export async function addCreditCard(req: Request, res: Response) {
 
 
 export async function getCreditCardsOfUser(req: Request, res: Response) {
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
   const creditCards = await Customer.aggregate([
-    { $match: { _id: req.params.userId }},
+    { $match: { _id: userId }},
     {
       $lookup: {
         from: "users",

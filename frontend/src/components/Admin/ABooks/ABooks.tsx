@@ -47,7 +47,7 @@ export default function ABooks() {
           {books.map((book) => (
             <li key={book._id} className="book-item">
               <p>
-                <strong>{book.title}</strong> - {book.authorName}
+                <strong>{book.title}</strong> - {book.authorNames}
                 <strong>Units in Stock:</strong> {book.unitsInStock}
               </p>
               <button onClick={() => deleteBook(book._id as string)}>Delete</button>

@@ -5,7 +5,7 @@ import axios from 'axios'
 interface User {
   name: string
   email: string
-  type: string
+  type: 'customer' | 'admin' | 'seller'
 }
 
 
@@ -31,15 +31,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function fetchAuthData() {
     try {
-      const response = await axios.get<{ userData: User }>('/api/auth/verify', {
-        withCredentials: true
-      })
+      const response = await axios.get<{ userData: User }>(
+        '/api/auth/verify', { withCredentials: true }
+      )
 
       setAuthState({
         user: response.data.userData,
         loading: false,
         error: null,
       })
+
     } catch (error: any) {
       setAuthState({
         user: null,

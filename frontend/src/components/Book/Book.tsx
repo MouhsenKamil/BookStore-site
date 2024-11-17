@@ -1,141 +1,194 @@
-import { Link, useNavigate, useParams } from "react-router-dom"
-import { useForm } from "react-hook-form"
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
 import { useState, MouseEvent, useEffect } from "react"
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 
+import languages from "../../public/languages-iso-639-2.json"
 import { IBookWithSellerName } from "../../types/book"
+import CoverImage from "../CoverImage/CoverImage"
+
+import { toTitleCase } from "../../utils/stringUtils"
+
+import IntInput from "../IntInput/IntInput"
 
 import './Book.css'
 
 
-type bookStateType = IBookWithSellerName & Partial<{ error: string }>
+type bookStateType = IBookWithSellerName & { error?: string }
+
+interface TagsProps extends React.HTMLAttributes<HTMLDivElement> {
+  title: string
+  items: string[]
+}
+
+
+function TagsList(props: TagsProps) {
+  const { title, items, className = '', ...otherProps } = props
+
+  if (!items || !items.length)
+    return <></>
+
+  return (
+    <div className={"tags-list " + className} {...otherProps}>
+      <span className="tags-title">{title} </span>{(
+        items.map((item, key) => 
+          <span key={key} className="tags-item">{toTitleCase(item)}</span>
+      ))}
+    </div>
+  )
+}
 
 
 export default function Book() {
   const { bookId } = useParams()
-
   const navigate = useNavigate()
-  const { register, handleSubmit, getValues, formState: { errors } } = useForm<{quantity: number}>()
+  const location = useLocation()
+  const [book, setBook] = useState<bookStateType>({} as IBookWithSellerName)
+  const [quantity, setQuantity] = useState(1)
 
   if (!bookId || bookId === "undefined") {
     navigate('/')
     return
   }
 
-  const [book, setBook] = useState<bookStateType>({} as IBookWithSellerName)
-
-  async function getBook(bookId: string) {
-    try {
-      const response = await axios.get(`/api/books/${bookId}`)
-      console.log(response)
-      if (response.status === 200)
-        setBook(response.data)
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
   useEffect(() => {
-    if (bookId)
-      getBook(bookId)
+    async function getBook(bookId: string) {
+      try {
+        const response = await axios.get(`/api/books/${bookId}`)
+        if (response.status !== 200)
+          throw new Error(response.data.error)
+  
+        setBook(response.data)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    getBook(bookId)
   }, [bookId])
 
   if (book.error)
     return <><h1>Book not found</h1><Link to='/'>Return to Home</Link></>
 
   const onAddToCart = async (_: MouseEvent<HTMLButtonElement>) => {
-    const response = await axios.post('/api/customers/@me/cart/add', {
-      bookId: book._id, quantity: getValues('quantity')
-    })
+    try { 
+      const response = await axios.post(
+        '/api/customer/@me/cart/add', { bookId, quantity }, { withCredentials: true }
+      )
 
-    let messsage = (response.status === 201)
-        ? 'Book is now added to the cart'
-        : response.data.messsage
+      if (response.status !== 201)
+        throw new Error(response.data.error)
 
-    alert(messsage)
+    } catch (err) {
+      if ((err as AxiosError).response?.status === 401) {
+        navigate('/account/user/login?from=' + location.pathname)
+        return
+      }
+
+      alert((err as Error).message)
+    }
   }
 
   const onAddToWishlist = async (_: MouseEvent<HTMLButtonElement>) => {
-    const response = await axios.post('/api/customers/@me/wishlist/add', {
-      bookId: book._id
-    })
-
-    let messsage = (response.status === 201)
-        ? 'Book is added to the Wishlist'
-        : response.data.messsage
-
-    alert(messsage)
-  }
-
-  async function onSubmit(data: { quantity: number }) {
     try {
-      const response = await axios.post(`/api/book/${book._id}/purchase`, data)
+      const response = await axios.post(
+        '/api/customer/@me/wishlist/add', { bookId }, { withCredentials: true }
+      )
 
       if (response.status !== 201)
-        throw new Error("Failed to send purchase request")
+        throw new Error(response.data.error)
 
-      navigate(
-        `/user/checkout?method=bookOnly&bookId=${bookId}&quantity=${data.quantity}`
-      )
     } catch (err) {
-      console.error(err);
+      if ((err as AxiosError).response?.status === 401) {
+        navigate('/account/user/login?from=' + location.pathname)
+        return
+      }
+  
+      alert((err as Error).message)
+    }
+  }
+
+  const onBuy = async (_: MouseEvent<HTMLButtonElement>) =>  {
+    try {
+      const response = await axios.post(
+        `/api/books/${bookId}/purchase`, { quantity }, { withCredentials: true }
+      )
+
+      if (response.status !== 201) {
+        console.log(response.data.error)
+        throw new Error(response.data.error)
+      }
+
+      navigate(`/user/checkout?method=bookOnly&bookId=${bookId}&quantity=${quantity}`)
+    } catch (err) {
+      if ((err as AxiosError).response?.status === 401) {
+        navigate('/account/user/login?from=' + location.pathname)
+        return
+      }
+  
+      alert((err as Error).message)
     }
   }
 
   return (
-    <form className="book-display" onSubmit={handleSubmit(onSubmit)}>
-      <img
-        src={book.coverImage
-          ? `/api/static${book.coverImage}`
-          : 'src/assets/cover-image-placeholder.png'}
-        alt={book.title}
-        onClick={() => {
-          navigate(`/book/${book._id}`)
-        }}
-      />
+    <div className="book-display">
+      <CoverImage coverImg={book.coverImage} alt={book.title} />
 
       <div className="book-info">
-        <h3 className="book-title">{book.title}</h3>
-        {book.subtitle && <h5>{book.subtitle}</h5>}
+        <h1 className="book-title">{book.title}</h1>
+        {book.subtitle && <h5 className="book-subtitle">{book.subtitle}</h5>}
 
-        <span>by <b>{book.authorName}</b></span>
-        <span>₹{book.price ? book.price.toFixed(2) : '---'}</span>
+        <TagsList className="authors-publishers" title="Authors and Publishers" items={book.authorNames} />
+        <TagsList className="categories" title='Categories' items={book.categories} />
 
-        <span><b>Seller: </b>{book.sellerName}</span>
-
-        {book.categories.length && (
-          <div className="book-categories">{(
-            book.categories.map(category => <span className="book-category">{category}</span>)
-          )}</div>
-        )}
-
-        {book.lang.length && (
-          <div className="book-languages">{(
-            book.lang.map(lang => <span className="book-language">{lang}</span>)
-          )}</div>
-        )}
-
-        {book.description && <p>{book.description}</p>}
-
-        {book.unitsInStock
-          ? <><p className="pass-item">In stock:</p> <span>{book.unitsInStock}</span></>
-          : <p className="err-item">Sold Out!</p>
-        }
-
-        <input
-          type="number" id="quantity" {...register('quantity', {
-            required: true, min: 0, max: book.unitsInStock, value: 1
+        <TagsList className="languages" title="Languages" items={
+          (book.lang || []).map(langCode => {
+            const langObj = languages.find(elem => elem.code === langCode)
+            return langObj?.english.at(0) ?? langCode
           })}
         />
 
-        {errors.quantity && <p className="err-msg">{errors.quantity.message}</p>}
+        {book.description && <p className="book-desc">
+          <h4>Description</h4>
+          {book.description.trim().split(/(?:\r?\n\s*)+/).map(
+            paragraph => <p>{paragraph}</p>
+          )}
+        </p>}
+
+        <p><b>Seller: </b>{book.sellerName}</p>
+        <>
+          ₹ <h2 style={{display: "inline", color: 'orange'}}>
+            {book.price ? book.price.toFixed(2) : '---'}
+          </h2>
+        </>
+
+        {book.unitsInStock
+          ? <p className="stock-count">
+            <span className="pass-item">In Stock: </span>
+            <span>{book.unitsInStock}</span>
+          </p>
+          : <p className="stock-count"><span style={{color: "red"}}>Sold Out!</span></p>
+        }
+        {/* 
+        <label className="quantity-input">
+          Quantity: 
+          <input
+            type="number" id="quantity" name='quantity' required min={0}
+            max={book.unitsInStock} value={1}
+          />
+        </label>
+
+        {errors.quantity && <p className="err-msg">{errors.quantity.message}</p>} */}
+
+        <IntInput text="Quantity: " min={1} max={book.unitsInStock}
+          onValChange={val => { setQuantity(val) }}
+         />
 
         <div className="book-actions">
-          <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ❤️</button>
+          <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
           <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>
-          <button title="Buy" type="submit">Buy Now</button>
+          <button title="Buy" onClick={onBuy}>Buy Now</button>
         </div>
       </div>
-    </form>
+    </div>
   )
 }

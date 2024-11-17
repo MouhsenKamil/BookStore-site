@@ -39,7 +39,7 @@ export default function Checkout() {
       throw new Error('Required url parameter: method')
 
     else if (searchParams.method === "cart")
-      setSubmitURL('/api/customers/@me/cart/checkout')
+      setSubmitURL('/api/customer/@me/cart/checkout')
 
     else if (searchParams.method === "bookOnly")
       setSubmitURL(`/api/books/${searchParams.bookId}/purchase`)

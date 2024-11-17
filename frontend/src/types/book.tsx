@@ -1,6 +1,6 @@
 export interface IBook {
   _id: string
-  authorName: Array<string>
+  authorNames: Array<string>
   title: string
   subtitle: string | null
   lang: Array<string>

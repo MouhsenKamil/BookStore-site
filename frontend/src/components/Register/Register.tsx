@@ -12,6 +12,8 @@ interface RegisterFormInputs {
   email: string
   password: string
   confirmPassword: string
+  phoneNo?: number
+  passportNumber?: number
   type: 'customer' | 'seller'
 }
 
@@ -36,12 +38,22 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
 
   const onSubmit: SubmitHandler<RegisterFormInputs> = async (data) => {
     try {
-      const response = await axios.post('/api/auth/register', {
+      let dataObj: Omit<RegisterFormInputs, 'confirmPassword'> = {
         name: data.name,
         email: data.email,
         password: data.password,
         type: parentEndpoint === 'user' ? 'customer': parentEndpoint
-      })
+      }
+
+      if (parentEndpoint === "seller") {
+        dataObj = {
+          ...dataObj,
+          phoneNo: data.phoneNo,
+          passportNumber: data.passportNumber,
+        }
+      }
+
+      const response = await axios.post('/api/auth/register', dataObj)
 
       console.log(JSON.stringify(response))
 
@@ -72,7 +84,7 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
   return (
     <>
       <form className='register-form' onSubmit={handleSubmit(onSubmit)}>
-        <div className='form-heading'>Create an account</div>
+        <div className='form-heading'>{`Create ${(parentEndpoint === 'seller') ? 'a Seller': 'an'} account`}</div>
         <input
           type="text"
           placeholder="Name"
@@ -135,10 +147,24 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
           <p className='error-msg'>{errors.confirmPassword.message}</p>
         )}
 
+        {
+          (parentEndpoint === 'seller') && <>
+            <input type="tel" placeholder="Phone no."
+              {...register('phoneNo', { required: 'Please enter your phone number' })}
+            />
+            {errors.phoneNo && <p className='error-msg'>{errors.phoneNo.message}</p>}
+
+            <input type="string" placeholder="Passport no."
+              {...register('passportNumber', { required: 'Please enter your passportNumber' })}
+            />
+            {errors.passportNumber && <p className='error-msg'>{errors.passportNumber.message}</p>}
+          </>
+        }
+
         <button type="submit">Register</button>
         {registrationError && <p className='registration-err error-msg'>{registrationError}</p>}
       </form>
-      <p>Already have an account? <a href={`/accounts/${parentEndpoint}/login`}>Login</a></p>
+      <p>Already have an account? <a href={`/account/${parentEndpoint}/login`}>Login</a></p>
     </>
   )
 }

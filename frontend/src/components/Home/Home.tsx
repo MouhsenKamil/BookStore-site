@@ -5,19 +5,19 @@ import BookCard from "../BookCard/BookCard"
 
 import './Home.css'
 
+
 export default function Home() {
   const [newBooks, setNewBooks] = useState([])
   const [lowStockBooks, setLowStockBooks] = useState([])
   const [scienceFictionBooks, setScienceFictionBooks] = useState([])
   const [literatureBooks, setLiteratureBooks] = useState([])
-  const [refreshCount, setRefreshCount] = useState(0) // For triggering manual refresh
 
   async function fetchBooks(query: string = "", params: { [key: string]: any } = {}) {
     try {
       const response = await axios.get(`/api/books`, {
         params: {
           query,
-          fields: ["_id", "title", "coverImage"],
+          fields: ["_id", "title", "coverImage", "price"],
           ...params,
         }
       })
@@ -31,15 +31,15 @@ export default function Home() {
 
   async function loadBooks() {
     const [newListings, lowStock, scienceFiction, literature] = await Promise.all([
-      fetchBooks('', { sort: 'createdAt', limit: 8 }),
+      fetchBooks('', { sort: 'createdAt', limit: 16 }),
       fetchBooks('', {
         fields: ['_id', 'title', 'coverImage', 'unitsInStock'],
         sort: 'unitsInStock',
-        limit: 8,
+        limit: 16,
         order: 'asc'
       }),
-      fetchBooks('', { categories: ['Science Fiction'], limit: 8 }),
-      fetchBooks('', { categories: ['Literature'], limit: 8 }),
+      fetchBooks('', { categories: ['Science Fiction'], limit: 16 }),
+      fetchBooks('', { categories: ['Literature'], limit: 16 }),
     ])
 
     setNewBooks(newListings)
@@ -48,23 +48,20 @@ export default function Home() {
     setLiteratureBooks(literature)
   }
 
-  // Fetch books initially and when refreshCount changes
   useEffect(() => {
     loadBooks()
-  }, [refreshCount])
+  }, [])
 
   return (
     <div className="home-page">
-      <button className="refresh-btn" onClick={() => setRefreshCount((val) => val + 1)}>Refresh</button>
-
-      {newBooks.length && <>
+      {newBooks.length > 0 && <>
         <h2 className="book-suggestions-title">New Listings</h2>
         <div className="book-list new-listing-books">{
           newBooks.map((book: any, key: number) => <BookCard key={key} book={book} />)
         }
         </div>
       </>}
-      {lowStockBooks.length && <>
+      {lowStockBooks.length > 0 && <>
         <h2 className="book-suggestions-title">Low on Stock (Get 'em Soon!)</h2>
         <div className="book-list low-on-stock-books">{
           lowStockBooks.map((book: any, key: number) => (
@@ -72,7 +69,7 @@ export default function Home() {
           ))}
         </div>
       </>}
-      {scienceFictionBooks.length && <>
+      {scienceFictionBooks.length > 0 && <>
         <h2 className="book-suggestions-title">Science Fiction</h2>
         <div className="book-list science-fiction-books">{
           scienceFictionBooks.map((book: any, key: number) => (
@@ -80,7 +77,7 @@ export default function Home() {
           ))}
         </div>
       </>}
-      {literatureBooks.length && <>
+      {literatureBooks.length > 0 && <>
         <h2 className="book-suggestions-title">Literature</h2>
         <div className="book-list literature-books">
           {

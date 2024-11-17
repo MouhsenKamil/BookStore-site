@@ -19,13 +19,17 @@ export default function SHome() {
 
   useEffect(() => {
     async function getAnalytics() {
-      const response = await axios.get("/api/seller/@me/analytics")
-      if (response.status !== 200)
-        alert("Can't fetch details")
+      try {
+        const response = await axios.get("/api/seller/@me/analytics", { withCredentials: true })
+        if (response.status !== 200)
+          throw new Error(response.data.error)
 
-      setAnalytics(response.data)
+        setAnalytics(response.data)
+      } catch (err) {
+        console.error(err)
+        alert(err)
+      }
     }
-
     getAnalytics()
   }, [])
 

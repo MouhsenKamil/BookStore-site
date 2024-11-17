@@ -1,23 +1,27 @@
-import{ useState } from "react"
+import{ useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import axios from "axios"
 import Slider from "rc-slider"
 import { IBook } from "../../types/book"
 
+import { useParams } from "react-router-dom"
 import "rc-slider/assets/index.css"
+
+import './AdvancedSearch.css'
 
 
 interface SearchFormData {
   query: string
-  subtitle: string
-  lang: string
-  categories: string
+  subtitle?: string
+  lang?: string
+  categories?: string
   priceRange: [number, number]
-  sellerName: string
+  sellerName?: string
 }
 
 
 export default function AdvancedBookSearch() {
+  const params = useParams()
   const [books, setBooks] = useState<IBook[]>([])
   const { handleSubmit, control, register } = useForm<SearchFormData>({
     defaultValues: {
@@ -29,6 +33,22 @@ export default function AdvancedBookSearch() {
       sellerName: "",
     },
   })
+
+  useEffect(() => {
+    if (!params.query)
+      return
+
+    const priceRange = (params.priceRange as unknown) as [number, number]
+
+    onSubmit({
+      query: params.query,
+      subtitle: params.subtitle,
+      lang: params.lang,
+      categories: params.categories,
+      priceRange: priceRange,
+      sellerName: params.sellerName,
+    })
+  }, [])
 
   const onSubmit = async (data: SearchFormData) => {
     try {
@@ -47,7 +67,7 @@ export default function AdvancedBookSearch() {
       if (response.status !== 200)
         throw new Error(
           response.data.message || response.data.error || 'Unable to fetch results'
-        )    
+        )
 
       setBooks(response.data.results)
     } catch (err) {
@@ -57,7 +77,6 @@ export default function AdvancedBookSearch() {
 
   return (
     <div className="advanced-search">
-      <h1>Advanced Book Search</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="filters">
         <input type="text" placeholder="Search Title" {...register("query", { required: true })} />
         <input type="text" placeholder="Subtitle" {...register("subtitle")} />
@@ -70,13 +89,9 @@ export default function AdvancedBookSearch() {
             control={control}
             render={({ field }) => (
               <>
-                <p>Price Range: ₹{field.value[0]} - ₹{field.value[1]}</p>
+                <p>Price Range: ₹{field.value[0]} - ₹{field.value[1] || 1000}</p>
                 <Slider
-                  range
-                  min={0}
-                  max={5000}
-                  defaultValue={[0, 1000]}
-                  onChange={field.onChange}
+                  range min={0} max={5000} defaultValue={[0, 1000]} onChange={field.onChange}
                 />
               </>
             )}

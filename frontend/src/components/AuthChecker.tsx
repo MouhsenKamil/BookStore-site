@@ -21,7 +21,7 @@ export default function AuthChecker({ userType, redirectPath }: AuthCheckerProps
     return <Navigate to={redirectPath} />
   }
 
-  if (isAuthorizedUserType)
+  if (!isAuthorizedUserType)
     return <Page401 />
 
   return <Outlet />

@@ -157,7 +157,7 @@ export function restrictToRoles(...roles: UserType[]) {
       throw new HttpError('Access denied', {
         statusCode: 403,
         debugMsg: `${req.__userAuth.type} user (id: ${req.__userAuth.id}) tried to access ` +
-                  `this endpoint that's restricted to them.`
+                  `this endpoint that's restricted to them. (tried to access ${req.url})`
       })
 
     next()
