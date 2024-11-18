@@ -5,6 +5,7 @@ import { getSiteAnalytics } from '../controllers/adminController'
 import { queryInParamExists } from '../middlewares/validators'
 import { getCustomers } from '../controllers/customerController'
 import { getSellers } from '../controllers/sellerController'
+import { getAllOrders } from '../controllers/orderController'
 
 
 const router = express.Router({mergeParams: true})
@@ -16,6 +17,6 @@ router.get('/customers', queryInParamExists, getCustomers)
 
 router.get('/sellers', queryInParamExists, getSellers)
 
-router.get('/orders', )
+router.get('/orders', getAllOrders)
 
 export default router
