@@ -1,3 +1,5 @@
+# Use this to get json data from openlibrary to pre populate the database
+
 import json, re, sys
 from random import randint
 import asyncio
@@ -24,32 +26,12 @@ if not queries:
 
 fields = [
   'key',
-
   'author_name',
-  # 'author_key',
-
   'title',
   'subtitle',
-
-  # 'publisher',
-  # 'publish_date',
-
   "language",
-  'subject', # #_[];:
-
+  'subject',
   'cover_edition_key',# used to get cover image for book (template: https://covers.openlibrary.org/b/olid/{olid-key}-{size (S/M/L)}.jpg)
-
-  # "ratings_average",
-  # 'ratings_count',
-  # "ratings_count",
-  # "ratings_count_1",
-  # "ratings_count_2",
-  # "ratings_count_3",
-  # "ratings_count_4",
-  # "ratings_count_5",
-
-  # 'edition_count',
-  # 'edition_key'
 ]
 
 
@@ -129,15 +111,7 @@ async def main():
     return obj
 
   lst = []
-  proxies = {
-    # 'http':	'130.61.171.71',
-    # 'http':	'130.162.148.105',
-    # 'http':	'102.222.51.105',
-    # 'http':	'133.18.234.13',
-    # 'http':	'1.20.250.128',
-    # 'http':	'103.105.54.99',
-    # 'http':	'103.137.111.231',
-  }
+  proxies = {}
 
   async with AsyncClient(timeout=6.0, proxies=proxies) as client:
     for query in queries:
