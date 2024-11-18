@@ -16,6 +16,7 @@ import AboutUs from "./components/AboutUs/AboutUs.tsx"
 import ContactUs from "./components/ContactUs/ContactUs.tsx"
 import Profile from "./components/Profile/Profile.tsx"
 import Cart from "./components/Customer/Cart/Cart.tsx"
+import Wishlist from "./components/Customer/Wishlist/Wishlist.tsx"
 import Orders from "./components/Customer/Orders/Orders.tsx"
 import AHome from "./components/Admin/AHome/AHome.tsx"
 import ABooks from "./components/Admin/ABooks/ABooks.tsx"
@@ -91,6 +92,7 @@ const router = createBrowserRouter([
         children: [
           {path: 'profile', element: <Profile />},
           {path: 'cart', element: <Cart />},
+          {path: 'wishlist', element: <Wishlist />},
           {path: 'orders', element: <Orders />},
           {path: "checkout", element: <Checkout />},
           {path: "checkout/success", element: <CSuccess />}

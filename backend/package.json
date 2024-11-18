@@ -4,8 +4,9 @@
 	"private": true,
 	"scripts": {
 		"db": "mongod.exe -f \"db/bookstoredb.conf\"",
-		"start": "concurrently --kill-others \"pnpm run db\" \"tsc && node dist/main.js\"",
-		"dev": "concurrently --kill-others \"pnpm run db\" \"nodemon -w src src/main.ts\""
+		"start": "concurrently --kill-others \"npm run db\" \"tsc && node dist/main.js\"",
+		"backend-only": "nodemon -w src src/main.ts",
+		"dev": "concurrently --kill-others \"npm run db\" \"npm run backend-only\""
 	},
 	"dependencies": {
 		"bcryptjs": "^2.4.3",
