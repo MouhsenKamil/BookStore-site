@@ -45,7 +45,7 @@ export default function AHome() {
       <p>Total Users: {analytics.totalCustomers}</p>
       <p>Total Sellers: {analytics.totalSellers}</p>
       <p>Total Books in Stock: {analytics.totalBooks.length}</p>
-      <p>Total Books Sold: {analytics.totalBooksSold.length}</p>
+      <p>Total Books Sold: {10}</p>
       <p>Total Orders: {analytics.totalOrders.length}</p>
 
       <Link to='/admin/customers'>Customers</Link>
