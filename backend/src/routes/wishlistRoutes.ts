@@ -13,7 +13,7 @@ const router = express.Router({mergeParams: true})
 const bodyBookIdCheck = checkRequestAttrs({obj: 'body', must: ['bookId']})
 
 router.get('/', getWishlistOfUser)
-router.patch('/add', bodyBookIdCheck, addBookToWishlist)
+router.post('/add', bodyBookIdCheck, addBookToWishlist)
 router.patch('/delete', bodyBookIdCheck, deleteBookInWishlist)
 router.delete('/clear', clearWishlist)
 
