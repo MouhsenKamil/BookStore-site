@@ -160,15 +160,13 @@ export function restrictToRoles(...roles: UserType[]) {
                   'This is caught in restrictToRoles middleware.'
       })
 
-    if (!roles.includes(req.__userAuth.type)) {
-      console.log(roles, req.__userAuth.type)
+    if (!roles.includes(req.__userAuth.type))
       throw new HttpError('Access denied', {
         statusCode: 403,
         debugMsg: `${req.__userAuth.type} user (id: ${req.__userAuth.id}) tried to access ` +
                   `this endpoint that's restricted to them. (tried to access ${req.url})`
       })
     }
-
     next()
   }
 }
