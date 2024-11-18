@@ -1,0 +1,10 @@
+.about-us {
+  width: 50%;
+}
+
+.about-us ul {
+  width: fit-content;
+  margin: 0 auto;
+  text-align: left;
+  list-style-type: none;
+}

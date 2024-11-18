@@ -1,0 +1,38 @@
+div.heading {
+  padding: 0.5em 0;
+  font-weight: bold;
+  font-size: 3em;
+}
+
+.home-page {
+  width: 85%;
+  padding: 2em;
+}
+
+.book-suggestions-title {
+  text-align: left;
+}
+
+.book-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 93vw;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+
+
+@media only screen and (max-width: 800px) {
+  div.heading {
+    font-size: 2.6em;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .book-list {
+    flex-direction: column;
+    max-width: auto;
+    gap: 1em;
+  }
+}

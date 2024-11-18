@@ -1,0 +1,64 @@
+.navbar {
+  margin: 0;
+  padding: 1rem;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search-bar-container {
+  width: 50vw;
+}
+
+.navbar .img-icon {
+  height: 5em;
+  cursor: pointer;
+}
+
+.login-btn {
+  white-space: nowrap;
+}
+
+.user-profile-icon {
+  position:  relative;
+}
+
+.actions {
+  display: none !important;
+  position: absolute;
+  right: 1em;
+  z-index: 1;
+  background-color: #242424;
+  padding: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  column-gap: 1em;
+  border: 1px solid transparent;
+  border-radius: 1em;
+}
+
+.actions hr {
+  width: 90%;
+}
+
+.actions .links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  column-gap: 1ems;
+}
+
+.actions.show {
+  display: block !important;
+}
+
+
+@media only screen and (max-width: 600px) {
+  .login-btn {
+    content: "Login";
+  }
+}
