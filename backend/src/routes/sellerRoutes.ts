@@ -12,16 +12,18 @@ import {
 } from '../controllers/sellerController.ts'
 import { checkRequestAttrs, restrictEditingSensibleInfo } from '../middlewares/validators.ts'
 import { authenticate, restrictToRoles } from '../middlewares/authMiddleware.ts'
-import { parseMeInParams, verifyUserIdParamByUserAuth } from '../middlewares/userMiddleware.ts'
+import { verifyUserIdParamByUserAuth } from '../middlewares/userMiddleware.ts'
 
 import { UserType } from '../models/User.ts'
+
+import { upload } from '../config/upload.ts'
 
 
 const routerWithSellerId = express.Router({ mergeParams: true })
 
 routerWithSellerId.use(
   checkRequestAttrs({ obj: 'params', must: ['sellerId'] }),
-  parseMeInParams('sellerId'),
+  // parseMeInParams('sellerId'),
   verifyUserIdParamByUserAuth('sellerId')
 )
 
@@ -30,7 +32,7 @@ routerWithSellerId.patch('/', restrictEditingSensibleInfo, updateSeller)
 routerWithSellerId.delete('/', deleteSeller)
 
 
-routerWithSellerId.post('/add-book', registerBook)
+routerWithSellerId.put('/add-book', upload.single('coverImage'), registerBook)
 routerWithSellerId.get('/analytics', getSalesAnalytics)
 // routerWithSellerId.patch('/change-password', changePassword)
 
@@ -43,7 +45,7 @@ adminRoutesWithSellerId.patch('/block', blockSeller)
 adminRoutesWithSellerId.patch('/unblock', unblockSeller)
 
 // export routes
-const router = express.Router()
+const router = express.Router({mergeParams: true})
 
 router.use(authenticate, restrictToRoles(UserType.SELLER, UserType.ADMIN))
 router.use('/:sellerId', routerWithSellerId)

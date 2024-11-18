@@ -8,7 +8,7 @@ function logFilenameGenerator(filename: string) {
     if (!time)
       return filename
 
-    const _time = (time instanceof Date) ? time.toISOString() : time.toString()
+    const _time = (time instanceof Date) ? time.toUTCString() : time.toString()
     return `${time}-${index}-${filename}`;
   }
 }

@@ -8,7 +8,7 @@ import sellerRoutes from './sellerRoutes'
 import customerRoutes from './customerRoutes'
 
 
-const router = express.Router()
+const router = express.Router({mergeParams: true})
 
 router.use('/auth', authRoutes)
 router.use('/admin', adminRoutes)

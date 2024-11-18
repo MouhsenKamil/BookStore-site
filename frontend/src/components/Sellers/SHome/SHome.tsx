@@ -2,7 +2,9 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 
-import { IBook } from "../../../types/book"
+import { IBook, IBookWithSellerName } from "../../../types/book"
+import BookCard from "../../BookCard/BookCard"
+import { useAuth } from "../../../hooks/useAuth"
 
 
 interface IAnalyticsProps {
@@ -12,6 +14,7 @@ interface IAnalyticsProps {
 
 
 export default function SHome() {
+  const  { user } = useAuth().authState
   const navigate = useNavigate()
   const [analytics, setAnalytics] = useState<IAnalyticsProps>({
     booksInStock: [], booksSold: []
@@ -41,6 +44,21 @@ export default function SHome() {
         Total books stocked: ${analytics.booksInStock.length + analytics.booksSold.length}
       </p>
       <button onClick={() => navigate('/seller/@dd-a-book')}>Add a Book</button>
+      <h3>Your books</h3>
+      <div className="books-list">
+        {(
+          analytics.booksInStock.map((book, key) => {
+            let _book = { ...book, sellerName: user?.name } as IBookWithSellerName
+            return <BookCard key={key} book={_book} />
+          })
+        )}
+        {(
+          analytics.booksSold.map((book, key) => {
+            let _book = { ...book, sellerName: user?.name } as IBookWithSellerName
+            return <BookCard key={key} book={_book} />
+          })
+        )}
+      </div>
     </div>
   )
 }

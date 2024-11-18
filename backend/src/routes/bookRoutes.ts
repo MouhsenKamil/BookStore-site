@@ -14,6 +14,8 @@ import { authenticate, restrictToRoles } from '../middlewares/authMiddleware.ts'
 import { UserType } from '../models/User.ts'
 import { checkRequestAttrs, queryInParamExists } from '../middlewares/validators.ts'
 
+import { upload } from '../config/upload.ts'
+
 
 const routerWithBookId = express.Router({ mergeParams: true })
 
@@ -23,9 +25,15 @@ routerWithBookId.delete('/', authenticate, restrictToRoles(UserType.ADMIN), dele
 routerWithBookId.post('/purchase', authenticate, restrictToRoles(UserType.CUSTOMER), purchaseBook)
 
 
-const router = express.Router()
+const router = express.Router({mergeParams: true})
 
-router.put('/', authenticate, restrictToRoles(UserType.ADMIN, UserType.SELLER), addBook)
+router.put(
+  '/',
+  authenticate,
+  restrictToRoles(UserType.ADMIN, UserType.SELLER),
+  upload.single('coverImage'),
+  addBook
+)
 
 // endpoints for facilitating book search
 router.get('/', queryInParamExists, getBooks)

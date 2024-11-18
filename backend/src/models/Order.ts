@@ -43,7 +43,7 @@ type OrderDoc = IOrder & Document
 export const Order = mongoose.model<OrderDoc>(
   'orders',
   new Schema<OrderDoc>({
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    user: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
     books: [
       {
         id: { type: Schema.Types.ObjectId, ref: 'Book', required: true },

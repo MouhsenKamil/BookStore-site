@@ -1,30 +1,60 @@
 import { useForm } from "react-hook-form"
 import axios from "axios"
 import { useState } from "react"
+// import { useAuth } from "../../../hooks/useAuth"
 
 
 interface IBookFormInputs {
-  authorName: string[];
-  title: string;
-  subtitle: string | null;
-  lang: string[];
-  categories: string[];
-  coverImage: FileList | null;
-  description: string | null;
-  price: number;
-  unitsInStock: number;
+  authorName: string[]
+  title: string
+  subtitle: string | null
+  lang: string[]
+  categories: string[]
+  coverImage: File | null
+  description: string | null
+  price: number
+  unitsInStock: number
 }
 
 
 export default function AddBook() {
   const { register, handleSubmit, formState: { errors } } = useForm<IBookFormInputs>()
   const [addBookErr, setAddBookErr] = useState('')
+  const [coverImage, setCoverImage] = useState<FileList | null>(null)
 
   const onSubmit = async (data: IBookFormInputs) => {
     try {
-      const response = await axios.post(`/api/seller/@me/add-book/`, data)
+      console.log(JSON.stringify(data))
+      console.log(coverImage)
+      // console.log(coverImage)
+      // data.coverImage = coverImage
+      // const formData = new FormData()
+
+      // Object.entries(data).forEach(([key, value]) => {
+      //   if (key === "coverImage" || value === undefined || value === null)
+      //     return
+
+      //   if (value instanceof Array) {
+      //     for (let val of value)
+      //       formData.append(key + '[]', val)
+      //     return
+      //   }
+
+      //   formData.append(key, value)
+      // })
+
+      // if (coverImage)
+      //   formData.append("coverImage", coverImage[0], coverImage[0].name)
+
+      if (coverImage)
+        data.coverImage = coverImage[0]
+
+      const response = await axios.put(
+        '/api/seller/@me/add-book', data, { withCredentials: true }
+      )
+
       if (response.status !== 201)
-        throw new Error(`Error: status code ${response.status}`)
+        throw new Error(response.data.error)
 
     } catch (err) {
       console.error(err)
@@ -33,7 +63,7 @@ export default function AddBook() {
   }
 
   return (
-    <form className="add-book-form" onSubmit={handleSubmit(onSubmit)}>
+    <form className="add-book-form" onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
       <div className="form-heading">Register a book</div>
       <input
         type="text"
@@ -75,9 +105,10 @@ export default function AddBook() {
       {errors.categories && <p className="error-msg">{errors.categories.message}</p>}
 
       <label htmlFor="coverImage">Cover Image: </label>
-      <input
-        type="file"
-        {...register("coverImage", { required: "Cover image is required" })}
+      <input type="file" {...register("coverImage")} onChange={(e) => {
+          if (e.target.files?.length)
+            setCoverImage(e.target.files)
+        }}
       />
       {errors.coverImage && <p className="error-msg">{errors.coverImage.message}</p>}
 

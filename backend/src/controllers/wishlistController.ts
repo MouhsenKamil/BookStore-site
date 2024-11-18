@@ -4,7 +4,11 @@ import { HttpError } from '../utils/exceptions.ts'
 
 
 export async function getWishlistOfUser(req: Request, res: Response) {
-  const { userId } = req.params
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
   const wishlist = await Wishlist.aggregate([
     {
       $match: { user: userId }
@@ -35,8 +39,13 @@ export async function getWishlistOfUser(req: Request, res: Response) {
 
 
 export async function addBookToWishlist(req: Request, res: Response) {
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
   const updatedWishlist = await Wishlist.findOneAndUpdate(
-    { user: req.params.userId },
+    { user: userId },
     { $addToSet: { books: req.body.bookId } },
     { new: true, upsert: true }
   )
@@ -54,8 +63,13 @@ export async function addBookToWishlist(req: Request, res: Response) {
 
 
 export async function deleteBookInWishlist(req: Request, res: Response) {
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
   const deletedWishlist = await Wishlist.findOneAndUpdate(
-    { user: req.params.userId },
+    { user: userId },
     { $pull: { books: req.body.bookId } },
     { new: true, upsert: true }
   )
@@ -73,7 +87,12 @@ export async function deleteBookInWishlist(req: Request, res: Response) {
 
 
 export async function clearWishlist(req: Request, res: Response) {
-  const deletedWishlist = await Wishlist.findOneAndDelete({ user: req.params.userId })
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
+  const deletedWishlist = await Wishlist.findOneAndDelete({ user: userId })
     .catch(err => {
       throw new HttpError('Error occurred while clearing wishlist', { cause: err })
     })

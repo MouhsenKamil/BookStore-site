@@ -13,7 +13,7 @@ export function verifyUserIdParamByUserAuth(paramName: string) {
 
     const idFromParams = req.params[paramName]
 
-    if (idFromParams !== '@me' && idFromParams !== req.__userAuth.id)
+    if (idFromParams !== '@me')// && idFromParams !== req.__userAuth.id)
       throw new HttpError('Forbidden', {
         statusCode: 403,
         debugMsg: 'user tried to interact with server as an another user via ' +
@@ -24,11 +24,11 @@ export function verifyUserIdParamByUserAuth(paramName: string) {
 }
 
 
-// FIXME: This middleware does not work
-export function parseMeInParams(paramName: string) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (req.params[paramName] === '@me')
-      req.params[paramName] = req.__userAuth.id
-    next()
-  }
-}
+// // FIXME: This middleware does not work
+// export function parseMeInParams(paramName: string) {
+//   return (req: Request, res: Response, next: NextFunction) => {
+//     if (req.params[paramName] === '@me')
+//       req.params[paramName] = req.__userAuth.id
+//     next()
+//   }
+// }

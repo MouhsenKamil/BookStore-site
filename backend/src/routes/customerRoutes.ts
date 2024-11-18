@@ -15,14 +15,14 @@ import wishListRoutes from './wishlistRoutes.ts'
 import { authenticate, restrictToRoles } from '../middlewares/authMiddleware.ts'
 import { UserType } from '../models/User.ts'
 import { checkRequestAttrs, restrictEditingSensibleInfo } from '../middlewares/validators.ts'
-import { parseMeInParams, verifyUserIdParamByUserAuth } from '../middlewares/userMiddleware.ts'
+import { verifyUserIdParamByUserAuth } from '../middlewares/userMiddleware.ts'
 
 
 const routerWithUserId = express.Router({ mergeParams: true })
 
 routerWithUserId.use(
   checkRequestAttrs({ obj: 'params', must: ['userId'] }),
-  parseMeInParams('userId'),
+  // parseMeInParams('userId'),
   verifyUserIdParamByUserAuth('userId')
 )
 
@@ -68,7 +68,7 @@ routerWithUserId.use(adminRoutesWithUserId)
 
 
 // exporting routes
-const router = express.Router()
+const router = express.Router({mergeParams: true})
 
 router.use(authenticate, restrictToRoles(UserType.ADMIN, UserType.CUSTOMER))
 router.use('/:userId', routerWithUserId)

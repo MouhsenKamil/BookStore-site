@@ -8,15 +8,18 @@ interface AuthCheckerProps {
   redirectPath: string
 }
 
+
 export default function AuthChecker({ userType, redirectPath }: AuthCheckerProps) {
   const { authState } = useAuth()
   const location = useLocation()
   const isAutheticated = authState.user !== null
-  const isAuthorizedUserType = isAutheticated && userType === authState.user?.type
+  const isAuthorizedUserType = isAutheticated && (userType === authState.user?.type)
+
+  // console.log(isAutheticated, isAuthorizedUserType)
 
   if (!isAutheticated) {
     if (location.pathname)
-      redirectPath += '?from=' + location.pathname
+      redirectPath += '?from=' + location.pathname + location.search
 
     return <Navigate to={redirectPath} />
   }

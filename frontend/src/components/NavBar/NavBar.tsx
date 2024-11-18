@@ -10,9 +10,9 @@ import './NavBar.css'
 
 
 const roleBasedRoutesMap = {
-  seller: ['profile', 'add-a-book'],
   user: ['profile', 'cart', 'orders'],
-  admin: ['books', 'customers', 'sellers']
+  seller: ['home', 'profile', 'add-a-book'],
+  admin: ['home', 'books', 'customers', 'sellers']
 }
 
 
@@ -45,11 +45,13 @@ export default function NavBar() {
         />
         <div className={`actions ${showProfileMenu ? 'show': ''}`}>
           <div className='username'>
-            {user?.name}{user?.type !== 'customer' ? `(${user?.type})`: ''}
+            {user?.name} {user?.type === 'customer' ? '': `(${user?.type})`}
           </div>
           <hr />
           <div className="links" onClick={() => setShowProfileMenu(!showProfileMenu)}>{
-            userTypeRoutes.map(endpoint => <Link to={`/${userType}/${endpoint}`}>{toTitleCase(endpoint)}</Link>)
+            userTypeRoutes.map((endpoint, key) =>
+                <Link key={key} to={`/${userType}/${endpoint}`}>{toTitleCase(endpoint.replace(/-/g, ' '))}</Link>
+            )
           }</div>
           <button className='logout-btn' onClick={async () => {
             const response = await axios.post('/api/auth/logout', {}, { withCredentials: true })

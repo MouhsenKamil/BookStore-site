@@ -18,13 +18,20 @@
   -webkit-text-size-adjust: 100%;
 }
 
-
 #root {
   background-image: url("/api/static/books-rack-bg.jpg") !important;
   display: flex;
   flex-direction: column;
   text-align: center;
   min-height: 100vh;
+}
+
+#error-page {
+  background-color: #242424a3;
+  padding: 1em 2em;
+  width: fit-content;
+  margin: 0 auto;
+  margin-top: 25vh;
 }
 
 a {

@@ -3,6 +3,8 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useLocation, useNavigate } from "react-router-dom"
 
+import './Checkout.css'
+
 
 export enum PaymentMethod {
   CASH = "cash",
@@ -26,7 +28,6 @@ interface CheckoutFormInputs {
 }
 
 
-
 export default function Checkout() {
   const { register, handleSubmit, watch, formState: { errors }} = useForm<CheckoutFormInputs>()
   const [submitURL, setSubmitURL] = useState('')
@@ -46,7 +47,6 @@ export default function Checkout() {
 
     else
       throw new Error("checkout method must be either 'cart' or 'bookOnly'")
-
   }, [])
 
   const paymentMethod = watch("paymentMethod")
@@ -55,18 +55,17 @@ export default function Checkout() {
     try {
       if (submitURL.includes("books"))
         data = {
-          ...data,
-          quantity: +searchParams.quantity,
+          ...data, quantity: +searchParams.quantity,
         }
 
-      const response = await axios.post(submitURL, data)
-      if (response.status !== 200)
+      const response = await axios.post(submitURL, data, { withCredentials: true })
+      if (response.status !== 201)
         throw new Error(response.data.error)
 
       navigate(
         '/user/checkout/success?orderId='
         + response.data.orderId
-        + '&deliverBy' + response.data.deliverBy
+        + '&deliveredBy=' + response.data.deliveredBy
       )
     } catch (error) {
       console.error(error)
@@ -74,10 +73,11 @@ export default function Checkout() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form className="checkout-form" onSubmit={handleSubmit(onSubmit)}>
       <h2>Checkout Form</h2>
       <div>
         <input
+          type="text"
           id="homeNo"
           {...register("homeNo", { required: "Home No is required" })}
           placeholder="Home No."
@@ -87,6 +87,7 @@ export default function Checkout() {
 
       <div>
         <input
+          type="text"
           id="street"
           {...register("street", { required: "Street is required" })}
           placeholder="Street"
@@ -109,6 +110,7 @@ export default function Checkout() {
 
       <div>
         <input
+          type="text"
           id="city"
           {...register("city", { required: "City is required" })}
           placeholder="City"
@@ -118,6 +120,7 @@ export default function Checkout() {
 
       <div>
         <input
+          type="text"
           id="state"
           {...register("state", { required: "State is required" })}
           placeholder="State"
@@ -127,6 +130,7 @@ export default function Checkout() {
 
       <div>
         <input
+          type="text"
           id="country"
           {...register("country", { required: "Country is required" })}
           placeholder="Country"

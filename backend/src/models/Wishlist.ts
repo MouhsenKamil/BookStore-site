@@ -12,7 +12,7 @@ export const Wishlist = mongoose.model(
   "wishlists",
   new Schema<WishlistDoc>({
     user: {
-      type: Schema.Types.ObjectId, ref: 'User',
+      type: Schema.Types.ObjectId, ref: 'Customer',
       required: true, unique: true, index: true
     },
     books: [{ type: Schema.Types.ObjectId, ref: 'Book', required: true }]

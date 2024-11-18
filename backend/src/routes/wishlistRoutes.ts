@@ -8,7 +8,7 @@ import {
 import { checkRequestAttrs } from '../middlewares/validators.ts'
 
 
-const router = express.Router()
+const router = express.Router({mergeParams: true})
 
 const bodyBookIdCheck = checkRequestAttrs({obj: 'body', must: ['bookId']})
 

@@ -6,7 +6,7 @@ import { IsAuthenticated } from '../middlewares/authMiddleware.ts'
 import { checkRequestAttrs, emailPasswordValidators } from '../middlewares/validators.ts'
 
 
-const router = express.Router()
+const router = express.Router({mergeParams: true})
 const ONE_MINUTE = 60 * 1000
 
 const redirectToHomeIfAuthenticated = IsAuthenticated({
@@ -49,7 +49,7 @@ router.post(
   redirectToHomeIfAuthenticated,
   rateLimiter(
     'Too many login attempts from this IP, please try again after a minute',
-    ONE_MINUTE,
+    100// ONE_MINUTE,
   ),
   ...emailPasswordValidators,
   login

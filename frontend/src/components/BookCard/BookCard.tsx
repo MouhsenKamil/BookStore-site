@@ -23,7 +23,7 @@ export default function BookCard(props: { book: IBookWithSellerName }) {
 
     let messsage = (response.status === 201)
       ? 'Book is now added to the wishlist'
-      : response.data.messsage
+      : response.data.error
 
     alert(messsage)
   }

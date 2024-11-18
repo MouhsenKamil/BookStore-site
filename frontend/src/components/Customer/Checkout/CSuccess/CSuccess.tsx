@@ -20,7 +20,7 @@ export default function CSuccess() {
     <>
       <h4>Your Order has been created successfully</h4>
       <h6>Order ID: {checkoutSuccessData.orderId}</h6>
-      <h6>Delivered on: {(new Date(checkoutSuccessData.deliveredBy)).toUTCString()}</h6>
+      <h6>Delivered on: {checkoutSuccessData.deliveredBy}</h6>
     </>
   )
 }

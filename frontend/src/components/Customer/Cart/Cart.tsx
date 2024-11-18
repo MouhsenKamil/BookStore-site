@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 
 import { IBookInCart } from "../../../types/cart"
+import CoverImage from "../../CoverImage/CoverImage"
 
 
 export default function Cart() {
@@ -12,7 +13,7 @@ export default function Cart() {
   async function removeFromCart(bookId: string) {
     try {
       const response = await axios.patch(
-        "/api/customer/@me/cart/delete", { bookId }, {withCredentials: true}
+        "/api/customer/@me/cart/delete", { bookId }, { withCredentials: true }
       )
       if (response.status !== 204)
         throw new Error(response.data.error)
@@ -29,7 +30,7 @@ export default function Cart() {
         books: cartBooks.forEach(book => {
           return { id: book._id, quantity: book.quantity }
         })
-      }, {withCredentials: true})
+      }, { withCredentials: true })
 
       if (response.status !== 204)
         throw new Error(response.data.error)
@@ -42,7 +43,7 @@ export default function Cart() {
 
   async function clearCart() {
     try {
-      const response = await axios.delete('/api/customer/@me/cart/clear', {withCredentials: true})
+      const response = await axios.delete('/api/customer/@me/cart/clear', { withCredentials: true })
       if (response.status !== 204)
         throw new Error(response.data.error)
 
@@ -55,8 +56,8 @@ export default function Cart() {
   function BookListItem({ book }: { book: IBookInCart }) {
     return (
       <div className="book">
-        <img
-          src={`/api/static${book.coverImage}`}
+        <CoverImage
+          coverImg={book.coverImage}
           alt={book.title}
           onClick={() => navigate(`/book/${book._id}`)}
         />
@@ -64,10 +65,11 @@ export default function Cart() {
         <div className="book-details">
           <div className="book-title">{book.title}</div>
           <div className="price">{book.price}</div>
-          <input
-            type="number" name="quantity" id="quantity" min={0} max={book.unitsInStock}
-            value={book.quantity} onChange={e => {
-              book.quantity = +e.target.value
+          <input type="number" name="quantity" id="quantity" min={0}
+            max={book.unitsInStock} value={book.quantity} onChange={e => {
+              let num = +e.target.value
+              if (isNaN(num) || num > book.unitsInStock) return
+              book.quantity = num
               setCartBooks([...cartBooks.filter(_book => _book._id !== book._id), book])
             }}
           />
@@ -83,13 +85,15 @@ export default function Cart() {
 
   async function fetchCart() {
     try {
-      const response = await axios.get(`/api/customer/@me/cart`, {withCredentials: true})
+      const response = await axios.get(`/api/customer/@me/cart`, { withCredentials: true })
       if (response.status !== 200)
         throw new Error(response.data.error)
+
+      console.log(JSON.stringify(response.data.books))
       setCartBooks(response.data.books)
     } catch (err) {
       console.error(err)
-      alert((err as Error).message)
+      alert((err as AxiosError).response?.data?.error ?? err)
     }
   }
 
@@ -99,17 +103,17 @@ export default function Cart() {
 
   return (
     <div className="customer-orders">
-    <h3>Your cart has {cartBooks.length} books</h3>{
-      (!cartBooks.length)
-        ? <h5>No items in cart. <Link to='/'>Start shopping for books now.</Link></h5>
-        : <>
-        <div className="cart-books-list">
-          {(cartBooks.map((book, key) => <BookListItem key={key} book={book} />))}
-        </div>
-        <button onClick={clearCart}>Clear Cart</button>
-        <button onClick={checkout}>Checkout</button>
-      </>
-    }
+      <h3>Your cart has {(cartBooks ?? []).length} books</h3>{
+        ((cartBooks ?? []).length === 0)
+          ? <h5>No items in cart. <Link to='/'>Start shopping for books now.</Link></h5>
+          : <>
+            <div className="cart-books-list">
+              {(cartBooks.map((book, key) => <BookListItem key={key} book={book} />))}
+            </div>
+            <button onClick={clearCart}>Clear Cart</button>
+            <button onClick={checkout}>Checkout</button>
+          </>
+      }
     </div>
   )
 }

@@ -11,6 +11,7 @@ export default function ACustomers() {
       try {
         const response = await axios.get("/api/admin/customers", {
           params: {
+            query: '',
             fields: ['_id', 'name', 'email', 'blocked']
           }
         })

@@ -78,7 +78,7 @@ export async function getCustomerById(req: Request, res: Response) {
   if (userId === '@me')
     userId = req.__userAuth.id
 
-  const user = await Customer.findById(userId, { _id: 0, passwordHash: 0 })
+  const user = await Customer.findById(userId, { _id: 0, passwordHash: 0, __v: 0 })
     .catch(err => {
       throw new HttpError("Error occurred while fetching user's details", { cause: err })
     })

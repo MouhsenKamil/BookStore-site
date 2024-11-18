@@ -1,3 +1,8 @@
 p.red-text {
   color: red;
+  font-weight: bold;
+}
+
+.checkout-form input[type="text"], .checkout-form input[type="number"] {
+  width: 30em;
 }

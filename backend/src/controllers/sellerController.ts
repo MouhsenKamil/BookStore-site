@@ -77,7 +77,7 @@ export async function getSellerById(req: Request, res: Response) {
   if (sellerId === '@me')
     sellerId = req.__userAuth.id
 
-  const user = await Seller.findById(sellerId, { _id: 0, passwordHash: 0 })
+  const user = await Seller.findById(sellerId, { _id: 0, passwordHash: 0, __v: 0 })
     .catch(err => {
       throw new HttpError("Error occurred while fetching seller's details", { cause: err })
     })
@@ -165,6 +165,10 @@ export async function unblockSeller(req: Request, res: Response) {
 
 
 export async function registerBook(req: Request, res: Response) {
+  req.body.seller = (req.params.sellerId === '@me')
+      ? req.__userAuth.id
+      : req.params.sellerId
+
   await addBook(req, res)
     .catch(err => {
       throw new HttpError('Error occurred while registering book', { cause: err })

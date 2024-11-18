@@ -7,7 +7,7 @@ import { getCustomers } from '../controllers/customerController'
 import { getSellers } from '../controllers/sellerController'
 
 
-const router = express.Router()
+const router = express.Router({mergeParams: true})
 
 router.use(authenticate, restrictToRoles(UserType.ADMIN))
 router.get('/analytics', getSiteAnalytics)
@@ -16,5 +16,6 @@ router.get('/customers', queryInParamExists, getCustomers)
 
 router.get('/sellers', queryInParamExists, getSellers)
 
+router.get('/orders', )
 
 export default router

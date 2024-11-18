@@ -11,6 +11,7 @@ import { toTitleCase } from "../../utils/stringUtils"
 import IntInput from "../IntInput/IntInput"
 
 import './Book.css'
+import { useAuth } from "../../hooks/useAuth"
 
 
 type bookStateType = IBookWithSellerName & { error?: string }
@@ -39,6 +40,7 @@ function TagsList(props: TagsProps) {
 
 
 export default function Book() {
+  const { user } = useAuth().authState
   const { bookId } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -109,23 +111,28 @@ export default function Book() {
 
   const onBuy = async (_: MouseEvent<HTMLButtonElement>) =>  {
     try {
-      const response = await axios.post(
-        `/api/books/${bookId}/purchase`, { quantity }, { withCredentials: true }
-      )
-
-      if (response.status !== 201) {
-        console.log(response.data.error)
-        throw new Error(response.data.error)
-      }
-
       navigate(`/user/checkout?method=bookOnly&bookId=${bookId}&quantity=${quantity}`)
     } catch (err) {
       if ((err as AxiosError).response?.status === 401) {
         navigate('/account/user/login?from=' + location.pathname)
         return
       }
-  
+
       alert((err as Error).message)
+    }
+  }
+
+  const onDelete = async (_: MouseEvent<HTMLElement>) => {
+    try {
+      const response = await axios.delete(`/api/books/${bookId}`, { withCredentials: true })
+      if (response.status !== 204)
+        throw new Error(response.data.error)
+
+      alert('Book has been deleted successfully')
+      navigate("/")
+    } catch (err) {
+      console.error(err)
+      alert(err)
     }
   }
 
@@ -186,7 +193,8 @@ export default function Book() {
         <div className="book-actions">
           <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
           <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>
-          <button title="Buy" onClick={onBuy}>Buy Now</button>
+          {(user?.type === 'customer') && <button title="Buy" onClick={onBuy}>Buy Now</button>}
+          {(user?.type === 'admin') && <button title="Delete" onClick={onDelete}>Delete</button>}
         </div>
       </div>
     </div>

@@ -26,9 +26,9 @@ import Checkout from "./components/Customer/Checkout/Checkout.tsx"
 import AddBook from "./components/Sellers/AddBook/AddBook.tsx"
 import AuthChecker from "./components/AuthChecker.tsx"
 import CSuccess from "./components/Customer/Checkout/CSuccess/CSuccess.tsx"
+import AdvancedBookSearch from "./components/AdvancedSearch/AdvancedSearch.tsx"
 
 import "./index.css"
-import AdvancedBookSearch from "./components/AdvancedSearch/AdvancedSearch.tsx"
 
 
 const router = createBrowserRouter([
@@ -80,7 +80,7 @@ const router = createBrowserRouter([
         path: 'seller',
         element: <AuthChecker redirectPath='/account/seller/login' userType="seller" />,
         children: [
-          {path: '', element: <SHome />},
+          {path: 'home', element: <SHome />},
           {path: 'profile', element: <Profile />},
           {path: 'add-a-book', element: <AddBook />},
         ]
@@ -100,7 +100,7 @@ const router = createBrowserRouter([
         path: 'admin',
         element: <AuthChecker redirectPath='/account/admin/login' userType="admin" />,
         children: [
-          {path: '', element: <AHome />},
+          {path: 'home', element: <AHome />},
           {path: 'books', element: <ABooks />},
           {path: 'customers', element: <ACustomers />},
           {path: 'sellers', element: <ASellers />},

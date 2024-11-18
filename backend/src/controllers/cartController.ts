@@ -5,10 +5,14 @@ import { Book } from '../models/Book.ts'
 import { HttpError } from '../utils/exceptions.ts'
 import { BookArchive } from '../models/BooksArchive.ts'
 import { getRandInt } from '../utils/funcUtils.ts'
+import mongoose, { Schema, Types } from 'mongoose'
 
 
 export async function updatedCart(req: Request, res: Response) {
-  const { userId } = req.params
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
 
   const updatedCart = await Cart.findOneAndUpdate(
     { user: userId }, { books: req.body.books }, { new: true, upsert: true }
@@ -18,11 +22,16 @@ export async function updatedCart(req: Request, res: Response) {
 }
 
 export async function getCartOfUser(req: Request, res: Response) {
-  const { userId } = req.params
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
 
   const cart = await Cart.aggregate([
     {
-      $match: { user: userId }
+      $match: {
+        user: new mongoose.Types.ObjectId(userId)
+      }
     },
     {
       $lookup: {
@@ -35,22 +44,22 @@ export async function getCartOfUser(req: Request, res: Response) {
     { $unwind: '$bookDetails' },
     {
       $project: {
+        // _id: 1,
+        "bookDetails._id": 1,
         "bookDetails.quantity": 1,
-        "bookDetails.id": "bookDetails._id",
-        "bookDetails.unitPrice": "bookDetails.price",
+        "bookDetails.price": 1,
         "bookDetails.title": 1,
         "bookDetails.unitsInStock": 1,
         "bookDetails.coverImage": 1,
-        _id: 0,
-        user: 0,
       }
     },
     {
       $group: {
+        _id: null,
         books: {
           $push: {
-            quantity: "$bookDetails.quantity",
             _id: "$bookDetails._id",
+            quantity: "$bookDetails.quantity",
             title: "$bookDetails.title",
             price: "$bookDetails.price",
             unitsInStock: "$bookDetails.unitsInStock",
@@ -61,7 +70,7 @@ export async function getCartOfUser(req: Request, res: Response) {
     },
     {
       $project: {
-        "bookDetails": 0
+        _id: 0, "bookDetails": 0
       }
     }
   ])
@@ -72,7 +81,7 @@ export async function getCartOfUser(req: Request, res: Response) {
   // if (!cart)
   //   throw new HttpError('Cart is empty', { statusCode: 404 })
 
-  res.status(200).json(cart)
+  res.status(200).json(cart[0])
 }
 
 
@@ -98,7 +107,10 @@ export async function addBookToCart(req: Request, res: Response) {
 
 export async function deleteBookInCart(req: Request, res: Response) {
   const { bookId } = req.body
-  const { userId } = req.params
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
 
   const updatedCart = await Cart.findOneAndUpdate(
     { user: userId }, { $pull: { books: { id: bookId } } }, { new: true }
@@ -118,7 +130,10 @@ export async function deleteBookInCart(req: Request, res: Response) {
 
 export async function checkout(req: Request, res: Response) {
   const checkoutProps: ICheckoutFormData = req.body
-  const { userId } = req.params
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
 
   const cart = await Cart.findOne({ user: userId })
   if (!cart)

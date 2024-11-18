@@ -10,7 +10,7 @@ import {
 import { checkRequestAttrs } from '../middlewares/validators.ts'
 
 
-const router = express.Router()
+const router = express.Router({mergeParams: true})
 
 router.get('/', getCartOfUser)
 router.post('/add', checkRequestAttrs({ obj: 'body', must: ['bookId', 'quantity'] }), addBookToCart)

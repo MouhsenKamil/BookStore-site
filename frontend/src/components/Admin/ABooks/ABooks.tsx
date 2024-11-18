@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 
 import { IBook } from "../../../types/book"
 
@@ -10,12 +10,14 @@ export default function ABooks() {
   useEffect(() => {
     async function fetchBooks() {
       try {
-        const response = await axios.get("/api/books/")
+        const response = await axios.get("/api/admin/analytics", { withCredentials: true })
         if (response.status !== 200)
           throw new Error(response.data.error)
-        setBooks(response.data)
+
+        setBooks(response.data.totalBooks.concat(response.data.totalBooksSold))
       } catch (error) {
         console.error(error)
+        alert((error as AxiosError).response?.data?.error || error)
       }
     }
 
@@ -27,7 +29,7 @@ export default function ABooks() {
       const response = await axios.delete(`/api/books/${bookId}`)
       if (response.status === 200) {
         alert("Book deleted successfully!")
-        setBooks(books.filter((book) => book._id !== bookId))
+        setBooks(books.filter(book => book._id !== bookId))
       } else {
         alert("Failed to delete the book.")
       }
@@ -37,24 +39,28 @@ export default function ABooks() {
     }
   }
 
+  console.log(JSON.stringify(books[0]))
+
   return (
-    <div className="book-list">
+    <>
       <h1>Book List</h1>
-      {!books.length ? (
-        <p>No books available.</p>
-      ) : (
-        <ul>
-          {books.map((book) => (
-            <li key={book._id} className="book-item">
-              <p>
-                <strong>{book.title}</strong> - {book.authorNames}
-                <strong>Units in Stock:</strong> {book.unitsInStock}
-              </p>
-              <button onClick={() => deleteBook(book._id as string)}>Delete</button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+      <div className="book-list">
+        {books.length > 0 ? (
+          <p>No books available.</p>
+        ) : (
+          <ul>
+            {(books.map(book => (
+              <li key={book._id} className="book-item">
+                <p>
+                  <b>{book.title}</b> - {book.authorNames}
+                  <b>Units in Stock:</b> {book.unitsInStock}
+                </p>
+                <button onClick={() => deleteBook(book._id as string)}>Delete</button>
+              </li>
+            )))}
+          </ul>
+        )}
+      </div>
+    </>
   )
 }

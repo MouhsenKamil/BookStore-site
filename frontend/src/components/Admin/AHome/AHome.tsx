@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import axios from "axios"
+import axios, { AxiosError } from "axios"
+import { IBook } from "../../../types/book"
+import { IOrder } from "../../../types/order"
 
 
 interface ISiteAnalytics {
   totalCustomers: number
   totalSellers: number
-  totalBooks: number
-  totalBooksSold: number
-  totalOrders: number
+  totalBooks: IBook[]
+  totalBooksSold: IBook[]
+  totalOrders: IOrder[]
 }
 
 
@@ -16,23 +18,22 @@ export default function AHome() {
   const [analytics, setAnalytics] = useState<ISiteAnalytics>({
     totalCustomers: 0,
     totalSellers: 0,
-    totalBooks: 0,
-    totalBooksSold: 0,
-    totalOrders: 0,
+    totalBooks: [],
+    totalBooksSold: [],
+    totalOrders: [],
   })
 
   useEffect(() => {
     async function fetchSiteAnalytics() {
       try {
-        const response = await axios.get("/api/admin/analytics")
-        if (response.status === 200) {
-          setAnalytics(response.data)
-        } else {
-          alert("Failed to fetch site analytics.")
-        }
+        const response = await axios.get("/api/admin/analytics", { withCredentials: true })
+        if (response.status !== 200)
+          throw new Error(response.data.error)
+
+        setAnalytics(response.data)
       } catch (error) {
-        console.error("Error fetching analytics:", error)
-        alert("An error occurred while fetching analytics.")
+        console.error(error)
+        alert((error as AxiosError).response?.data?.error || error)
       }
     }
 
@@ -43,12 +44,14 @@ export default function AHome() {
     <div className="site-analytics">
       <p>Total Users: {analytics.totalCustomers}</p>
       <p>Total Sellers: {analytics.totalSellers}</p>
-      <p>Total Books in Stock: {analytics.totalBooks}</p>
-      <p>Total Books Sold: {analytics.totalBooksSold}</p>
-      <p>Total Orders: {analytics.totalOrders}</p>
+      <p>Total Books in Stock: {analytics.totalBooks.length}</p>
+      <p>Total Books Sold: {analytics.totalBooksSold.length}</p>
+      <p>Total Orders: {analytics.totalOrders.length}</p>
 
-      <Link to='/admin/customers'>customers</Link>
+      <Link to='/admin/customers'>Customers</Link>
+      <br />
       <Link to='/admin/sellers'>Sellers</Link>
+      <br />
       <Link to='/admin/books'>Books</Link>
     </div>
   )

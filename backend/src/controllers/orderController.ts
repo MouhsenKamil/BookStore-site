@@ -3,12 +3,20 @@ import { Order, OrderStatus } from '../models/Order.ts'
 import { Book } from '../models/Book.ts'
 import { HttpError } from '../utils/exceptions.ts'
 import { BookArchive } from '../models/BooksArchive.ts'
+import mongoose from 'mongoose'
 
 
 export async function getOrdersOfUser(req: Request, res: Response) {
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
   const orders = await Order.aggregate([
     {
-      $match: { user: req.params.userId }
+      $match: {
+        user: new mongoose.Types.ObjectId(userId)
+      }
     },
     {
       $lookup: {
@@ -21,25 +29,27 @@ export async function getOrdersOfUser(req: Request, res: Response) {
     { $unwind: '$bookDetails' },
     {
       $project: {
-        _id: 0,
-        user: 0,
+        // _id: 1,
+        "bookDetails._id": 1,
         "bookDetails.quantity": 1,
-        "bookDetails.id": "bookDetails._id",
-        "bookDetails.unitPrice": "bookDetails.price",
+        "bookDetails.price": 1,
         "bookDetails.title": 1,
         "bookDetails.unitsInStock": 1,
-        "bookDetails.coverImage": 1
+        "bookDetails.coverImage": 1,
       }
     },
     {
       $group: {
+        _id: null,
         books: {
           $push: {
+            _id: "$bookDetails._id",
             quantity: "$bookDetails.quantity",
-            id: "$bookDetails._id",
             title: "$bookDetails.title",
             price: "$bookDetails.price",
-            unitsInStock: "$bookDetails.unitsInStock",
+            orderTime: "$bookDetails.orderTime",
+            deliveredBy: "$bookDetails.deliveredBy",
+            status: "$bookDetails.status",
             coverImage: "$bookDetails.coverImage",
           }
         }
@@ -47,7 +57,7 @@ export async function getOrdersOfUser(req: Request, res: Response) {
     },
     {
       $project: {
-        "bookDetails": 0
+        _id: 0, "bookDetails": 0
       }
     }
   ])
@@ -59,6 +69,11 @@ export async function getOrdersOfUser(req: Request, res: Response) {
     throw new HttpError("User haven't ordered anything yet", { statusCode: 404 })
 
   res.status(200).json({ total: orders.length, results: orders })
+}
+
+export async function getAllOrders(req: Request, res: Response) {
+  const orders = await Order.find({})
+  res.status(200).json(orders)
 }
 
 

@@ -41,9 +41,12 @@ export async function addBook(req: Request, res: Response) {
   req.body.seller = req.body.seller ?? req.__userAuth.id
 
   console.log(JSON.stringify(req.body))
-  return
 
-  const newBook = new Book(req.body)
+  const coverImage = req.body.coverImage
+  req.body.coverImage = !!coverImage ? coverImage.name: null
+  req.body.seller = req.__userAuth.id
+
+  const newBook = new Book()
   await newBook.save().catch(err => {
     throw new HttpError('Error occurred while adding book', { cause: err })
   })
@@ -317,7 +320,8 @@ export async function deleteBook(req: Request, res: Response) {
 
 export async function purchaseBook(req: Request, res: Response) {
   const { quantity, ...checkoutProps }: IBookPurchaseFormData = req.body
-  const { bookId, userId } = req.params
+  const { bookId } = req.params
+  const userId = req.__userAuth.id
 
   const currentDate = new Date()
   const deliveredByDate = new Date(
