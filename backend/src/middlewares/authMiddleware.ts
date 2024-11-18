@@ -47,7 +47,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
         throw new HttpError('Invalid session for unknown user', {
           statusCode: 401,
           debugMsg: "user mentioned in access token does not exist. It's either due to invalid " +
-                    "user id or password in the access token"
+            "user id or password in the access token"
         })
 
       // if (_decodedAT.passwordHash !== user.passwordHash)
@@ -71,10 +71,10 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
         // So we ask user to log in again.
         throw new ForceReLogin(
           'Invalid Token, re-login to continue', {
-            cause: err as Error,
-            debugMsg: 'Given access token is not related to the given refresh token. ' +
-                      'Forcing Forcing user to re-login to continue further'
-          }
+          cause: err as Error,
+          debugMsg: 'Given access token is not related to the given refresh token. ' +
+            'Forcing Forcing user to re-login to continue further'
+        }
         )
 
       if (_decodedRT.userAgent !== req.headers['user-agent'])
@@ -83,10 +83,10 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
         // Thus, its an invalid token.
         throw new ForceReLogin(
           'Invalid Token, re-login to continue', {
-            cause: err as Error,
-            debugMsg: 'Given access token is not related to the given refresh token. ' +
-                      'Forcing Forcing user to re-login to continue further'
-          }
+          cause: err as Error,
+          debugMsg: 'Given access token is not related to the given refresh token. ' +
+            'Forcing Forcing user to re-login to continue further'
+        }
         )
 
       // Issue new both the 'access' and 'refresh' tokens for client
@@ -97,10 +97,10 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       if (!user)
         throw new HttpError(
           'Invalid session for unknown user', {
-            statusCode: 401,
-            debugMsg: "user mentioned in refresh token does not exist. It's either " +
-                      "due to invalid user id or password in the refresh token"
-          }
+          statusCode: 401,
+          debugMsg: "user mentioned in refresh token does not exist. It's either " +
+            "due to invalid user id or password in the refresh token"
+        }
         )
 
       req.__userAuth = { id: _decodedRT.id, type: _decodedRT.type }
@@ -108,7 +108,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       // Update the cookies with the new access and refresh tokens
       await updateTokensInCookies(req, res, user)
     }
-  )
+    )
 
   next()
 }
@@ -135,7 +135,7 @@ export function IsAuthenticated(props: IsAuthenticatedProps) {
 
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await authenticate(req, res, (...args) => {})
+      await authenticate(req, res, (...args) => { })
       if (yes !== undefined && Object.keys(yes).length) {
         res.status(yes.statusCode ?? 200).json({ message, url: yes.redirectTo })
         return
@@ -166,7 +166,6 @@ export function restrictToRoles(...roles: UserType[]) {
         debugMsg: `${req.__userAuth.type} user (id: ${req.__userAuth.id}) tried to access ` +
                   `this endpoint that's restricted to them. (tried to access ${req.url})`
       })
-    }
     next()
   }
 }

@@ -2,6 +2,8 @@
 
 [GDrive link for video sample](https://drive.google.com/drive/folders/1r_Gt4PMm1XnjLpZGozAqqKzoFRq7Iz60?usp=sharing)
 
+[![Video Sample](assets/homepage_screenshot.png)](assets/admin_usage.mp4)
+
 An E-commerce site for buying and selling books. \
 MERN stack project.
 
