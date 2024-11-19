@@ -17,7 +17,7 @@ router.post('/add', checkRequestAttrs({ obj: 'body', must: ['bookId', 'quantity'
 router.patch('/update', updatedCart)
 router.patch('/delete', checkRequestAttrs({ obj: 'body', must: ['bookId'] }), deleteBookInCart)
 
-router.post('/checkout', checkout) 
+router.post('/checkout', checkout)
 router.delete('/clear', clearCart)
 
 export default router

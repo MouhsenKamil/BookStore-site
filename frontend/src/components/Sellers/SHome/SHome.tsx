@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import axios from "axios"
 
 import { IBook, IBookWithSellerName } from "../../../types/book"
-import BookCard from "../../BookCard/BookCard"
+import BookCard from "../../Common/BookCard/BookCard"
 import { useAuth } from "../../../hooks/useAuth"
 
 

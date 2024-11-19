@@ -1,25 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import axios from 'axios'
+import { AxiosError } from 'axios'
 
-
-interface User {
-  name: string
-  email: string
-  type: 'customer' | 'admin' | 'seller'
-}
-
-
-interface AuthState {
-  user: User | null
-  loading: boolean
-  error: string | null
-}
-
-interface ContextValues {
-  authState: AuthState
-  fetchAuthData: () => Promise<void>
-}
-
+import { AuthState, ContextValues } from '../types/auth'
+import { verifyUser } from '../services/authServices'
 
 export const AuthContext = createContext<ContextValues | undefined>(undefined)
 
@@ -31,25 +14,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function fetchAuthData() {
     try {
-      const response = await axios.get<{ userData: User }>(
-        '/api/auth/verify', { withCredentials: true }
-      )
+      const response = await verifyUser()
 
       setAuthState({
         user: response.data.userData,
         loading: false,
         error: null,
       })
-
     } catch (error: any) {
-      setAuthState({
-        user: null,
-        loading: false,
-        error: error.response?.data?.message || error.message || 'Something went wrong',
-      })
+      if (error instanceof AxiosError)
+        setAuthState({
+          user: null,
+          loading: false,
+          error: error.response?.data.message || error.message || 'Something went wrong',
+        })
     }
 
-    console.log(authState.user === null ? "user login detected" : 'user have not logged in')
+    console.log(authState.user === null ? "User login detected" : 'User have not logged in')
   }
 
   useEffect(() => {

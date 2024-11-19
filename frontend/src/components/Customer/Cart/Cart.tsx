@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import axios, { AxiosError } from "axios"
 
 import { IBookInCart } from "../../../types/cart"
-import CoverImage from "../../CoverImage/CoverImage"
+import CoverImage from "../../Common/CoverImage/CoverImage"
 
 
 export default function Cart() {

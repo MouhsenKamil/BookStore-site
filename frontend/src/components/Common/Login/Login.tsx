@@ -1,26 +1,21 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
 
-import { toTitleCase } from '../../utils/stringUtils'
+import { toTitleCase } from '../../../utils/stringUtils'
 import { useState } from 'react'
-import { useAuth } from '../../hooks/useAuth'
+import { useAuth } from '../../../hooks/useAuth'
+import { LoginFormInputs, UserType } from '../../../types/auth'
+import { loginUser } from '../../../services/authServices'
 
 import './Login.css'
 
 
-interface LoginFormInputs {
-  email: string
-  password: string
-  type: 'customer' | 'seller' | 'admin'
-}
-
-
-export default function Login(props: { parent: 'user' | 'seller' | 'admin' }) {
+export default function Login(props: { parent: Exclude<UserType, 'customer'> }) {
   const [loginErr, setLoginErr] = useState('')
   const { fetchAuthData } = useAuth()
   const navigate = useNavigate()
-  // const location = useLocation()
+
   const [UrlSearchParams, _] = useSearchParams({ from: '', msg: '' })
 
   const { parent: parentEndpoint } = props
@@ -28,8 +23,7 @@ export default function Login(props: { parent: 'user' | 'seller' | 'admin' }) {
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
-      data.type = parentEndpoint === 'user' ? 'customer': parentEndpoint
-      const response = await axios.post('/api/auth/login', data)
+      const response = await loginUser(data, { userType: parentEndpoint })
 
       if (response.status !== 200) {
         setLoginErr(response.data.error)

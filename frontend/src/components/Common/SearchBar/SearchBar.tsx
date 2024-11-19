@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 
-import { IBookWithSellerName } from "../../types/book.tsx"
+import { IBookWithSellerName } from "../../../types/book.tsx"
 import CoverImage from "../CoverImage/CoverImage.tsx"
 
 import './SearchBar.css'

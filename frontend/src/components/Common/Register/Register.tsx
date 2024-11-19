@@ -2,20 +2,11 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import axios, { AxiosError } from 'axios'
+import { useAuth } from '../../../hooks/useAuth'
+import { RegisterFormInputs } from '../../../types/auth'
 
 import './Register.css'
-import { useAuth } from '../../hooks/useAuth'
 
-
-interface RegisterFormInputs {
-  name: string
-  email: string
-  password: string
-  confirmPassword: string
-  phoneNo?: number
-  passportNumber?: number
-  type: 'customer' | 'seller'
-}
 
 const passwordValidationFuncs: { [key: string]:[ (val: string) => boolean, string] } = {
   minLength: [val => val.length >= 8, 'Password must be at least 8 characters long'],
@@ -25,10 +16,13 @@ const passwordValidationFuncs: { [key: string]:[ (val: string) => boolean, strin
   hasASpecialChar: [val => /[~`!@#$%^&*(){}[\];:"\",.<>\/?_+=-]/.test(val), 'Password must contain at least one special character']
 }
 
+
 export default function Register(props: { parent: 'user' | 'seller' }) {
   const { fetchAuthData } = useAuth()
   const { parent: parentEndpoint } = props
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormInputs>()
+  const {
+    register, handleSubmit, watch, formState: { errors }
+  } = useForm<RegisterFormInputs>()
   const [registrationError, setRegistrationError] = useState<string>('')
   const navigate = useNavigate()
   const location = useLocation()
@@ -114,13 +108,6 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
               value: 8,
               message: 'Password must be at least 8 characters long',
             },
-            // validate: {
-            //   minLength: (val) => val.length >= 8 || 'Password must be at least 8 characters long',
-            //   hasAnUpperCaseLetter: (val) => val.match(/[A-Z]/) || 'Password must contain at least one uppercase letter',
-            //   hasALowerCaseLetter: (val) => val.match(/[a-z]/) || 'Password must contain at least one uppercase letter',
-            //   hasANumber: (val) => val.match(/[0-9]/) || 'Password must contain at least one number',
-            //   hasASpecialChar: (val) => val.match(new RegExp('[~`!@#$%^&*(){}[];:"\",.<>/?_+=-]')) || 'assword must contain at least one special character'
-            // },
             pattern: {
               value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
               message: 'Password is in invalid format'
@@ -140,7 +127,7 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
           placeholder="Confirm Password"
           {...register('confirmPassword', {
             required: 'Please confirm your password',
-            validate: (value) => value === password || 'Passwords do not match',
+            validate: value => value === password || 'Passwords do not match',
           })}
         />
         {errors.confirmPassword && password && !errors.password && (
@@ -150,12 +137,25 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
         {
           (parentEndpoint === 'seller') && <>
             <input type="tel" placeholder="Phone no."
-              {...register('phoneNo', { required: 'Please enter your phone number' })}
+              {...register(
+                'phoneNo', {
+                  required: 'Please enter your phone number',
+                  pattern: {
+                    value: /^[0-9]{2}[a-z]{3}[CPHFATBLJG]{1}[a-z]{1}[0-9]{4}[a-z]{1}[0-9a-z]{1}Z[0-9a-z]{1}$/,
+                    message: 'Phone number is invalid'
+                  }
+                })}
             />
             {errors.phoneNo && <p className='error-msg'>{errors.phoneNo.message}</p>}
 
             <input type="string" placeholder="Passport no."
-              {...register('passportNumber', { required: 'Please enter your passportNumber' })}
+              {...register('passportNumber', {
+                required: 'Please enter your passportNumber',
+                pattern: {
+                  value: /^[A-Z][1-9][0-9]\s?[0-9]{4}[1-9]$/,
+                  message: 'Passport number number is invalid'
+                }
+              })}
             />
             {errors.passportNumber && <p className='error-msg'>{errors.passportNumber.message}</p>}
           </>

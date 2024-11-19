@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 import { SearchBar } from '../SearchBar/SearchBar'
-import { useAuth } from '../../hooks/useAuth'
-import { toTitleCase } from '../../utils/stringUtils'
+import { useAuth } from '../../../hooks/useAuth'
+import { toTitleCase } from '../../../utils/stringUtils'
 
 import './NavBar.css'
 
