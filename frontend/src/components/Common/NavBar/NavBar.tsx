@@ -22,10 +22,6 @@ export default function NavBar() {
   const navigate = useNavigate()
   const [showProfileMenu, setShowProfileMenu] = useState(false)
 
-  // useEffect(() => {
-  //   console.log('from navbar', JSON.stringify(user))
-  // }, [])
-
   function ProfilePic() {
     let userType: string | undefined = user?.type
 
