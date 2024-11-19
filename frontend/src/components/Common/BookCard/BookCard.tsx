@@ -2,13 +2,16 @@ import { MouseEvent } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 
-import { IBookWithSellerName } from "../../types/book"
+import { IBookWithSellerName } from "../../../types/book"
 import CoverImage from "../CoverImage/CoverImage"
 
 import './BookCard.css'
+import { useAuth } from "../../../hooks/useAuth"
 
 
 export default function BookCard(props: { book: IBookWithSellerName }) {
+  const { user } = useAuth().authState
+
   const { book } = props
   const navigate = useNavigate()
 
@@ -51,10 +54,12 @@ export default function BookCard(props: { book: IBookWithSellerName }) {
             <span style={{color: '#15dd15'}}>In Stock: </span>
             {book.unitsInStock}</span>
           }
-          <div className="book-actions">
-            <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
-            <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>
-          </div>
+          { (user?.type !== 'seller') &&
+            <div className="book-actions">
+              <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
+              <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>
+            </div>
+          }
         </div>
       </div>
     </div>

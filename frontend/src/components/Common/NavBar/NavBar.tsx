@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 import { SearchBar } from '../SearchBar/SearchBar'
-import { useAuth } from '../../hooks/useAuth'
-import { toTitleCase } from '../../utils/stringUtils'
+import { useAuth } from '../../../hooks/useAuth'
+import { toTitleCase } from '../../../utils/stringUtils'
 
 import './NavBar.css'
 
@@ -21,10 +21,6 @@ export default function NavBar() {
   const { user } = authState
   const navigate = useNavigate()
   const [showProfileMenu, setShowProfileMenu] = useState(false)
-
-  // useEffect(() => {
-  //   console.log('from navbar', JSON.stringify(user))
-  // }, [])
 
   function ProfilePic() {
     let userType: string | undefined = user?.type

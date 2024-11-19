@@ -2,16 +2,16 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
 import { useState, MouseEvent, useEffect } from "react"
 import axios, { AxiosError } from "axios"
 
-import languages from "../../public/languages-iso-639-2.json"
-import { IBookWithSellerName } from "../../types/book"
+import languages from "../../../public/languages-iso-639-2.json"
+import { IBookWithSellerName } from "../../../types/book"
 import CoverImage from "../CoverImage/CoverImage"
 
-import { toTitleCase } from "../../utils/stringUtils"
+import { toTitleCase } from "../../../utils/stringUtils"
 
 import IntInput from "../IntInput/IntInput"
 
 import './Book.css'
-import { useAuth } from "../../hooks/useAuth"
+import { useAuth } from "../../../hooks/useAuth"
 
 
 type bookStateType = IBookWithSellerName & { error?: string }
@@ -190,12 +190,14 @@ export default function Book() {
           onValChange={val => { setQuantity(val) }}
          />
 
-        <div className="book-actions">
-          <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
-          <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>
-          {(user?.type === 'customer') && <button title="Buy" onClick={onBuy}>Buy Now</button>}
-          {(user?.type === 'admin') && <button title="Delete" onClick={onDelete}>Delete</button>}
-        </div>
+        { (user?.type !== 'seller') &&
+          <div className="book-actions">
+            <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
+            <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>
+            {(user?.type === 'customer') && <button title="Buy" onClick={onBuy}>Buy Now</button>}
+            {(user?.type === 'admin') && <button title="Delete" onClick={onDelete}>Delete</button>}
+          </div>
+        }
       </div>
     </div>
   )

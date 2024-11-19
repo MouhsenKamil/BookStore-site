@@ -7,7 +7,7 @@ import { IOrder, PaymentMethod, OrderStatus } from "../../../types/order"
 
 export default function AOrders() {
   return (
-    <div style={{ padding: "1rem", border: "1px solid #ccc", borderRadius: "8px", maxWidth: "600px" }}>
+    <div className="admin-window orders-container">
       <h2>Order Details</h2>
       <p><strong>User ID:</strong> {order.user}</p>
       <p><strong>Order Time:</strong> {new Date(order.orderTime).toLocaleString()}</p>

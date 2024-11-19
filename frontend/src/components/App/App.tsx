@@ -1,6 +1,6 @@
 import { Link, Outlet } from 'react-router-dom'
 
-import NavBar from '../NavBar/NavBar.tsx'
+import NavBar from '../Common/NavBar/NavBar.tsx'
 
 import { useAuth } from '../../hooks/useAuth.tsx'
 

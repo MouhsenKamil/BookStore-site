@@ -25,7 +25,6 @@ export async function getWishlistOfUser(req: Request, res: Response) {
       $project: {
         user: 1,
         "$bookDetails.seller": 0,
-        
         books: "$bookDetails"
       }
     }

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
-import { useAuth } from '../../hooks/useAuth'
-import { IExtendedUser } from '../../types/user'
-import { toTitleCase } from '../../utils/stringUtils'
+import { useAuth } from '../../../hooks/useAuth'
+import { IExtendedUser } from '../../../types/user'
+import { toTitleCase } from '../../../utils/stringUtils'
 
 import './Profile.css'
 
