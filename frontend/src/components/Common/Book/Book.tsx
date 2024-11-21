@@ -91,49 +91,35 @@ export default function Book() {
   }
 
   const onAddToWishlist = async (_: MouseEvent<HTMLButtonElement>) => {
-    try {
-      const response = await axios.post(
-        '/api/customer/@me/wishlist/add', { bookId }, { withCredentials: true }
-      )
+    const response = await axios.post(
+      '/api/customer/@me/wishlist/add', { bookId }, { withCredentials: true }
+    )
 
-      if (response.status !== 201)
-        throw new Error(response.data.error)
-
-    } catch (err) {
-      if ((err as AxiosError).response?.status === 401) {
-        navigate('/account/user/login?from=' + location.pathname)
-        return
-      }
-  
-      alert((err as Error).message)
+    if (response.status < 400) {
+      alert("Book has been added to wishlist successfully")
+      return
     }
+
+    if (response.status == 401)
+      navigate('/account/user/login?from=' + location.pathname)
+
+    else
+      alert(response.data.error)
   }
 
   const onBuy = async (_: MouseEvent<HTMLButtonElement>) =>  {
-    try {
-      navigate(`/user/checkout?method=bookOnly&bookId=${bookId}&quantity=${quantity}`)
-    } catch (err) {
-      if ((err as AxiosError).response?.status === 401) {
-        navigate('/account/user/login?from=' + location.pathname)
-        return
-      }
-
-      alert((err as Error).message)
-    }
+    navigate(`/user/checkout?method=bookOnly&bookId=${bookId}&quantity=${quantity}`)
   }
 
   const onDelete = async (_: MouseEvent<HTMLElement>) => {
-    try {
-      const response = await axios.delete(`/api/books/${bookId}`, { withCredentials: true })
-      if (response.status !== 204)
-        throw new Error(response.data.error)
-
-      alert('Book has been deleted successfully')
-      navigate("/")
-    } catch (err) {
-      console.error(err)
-      alert(err)
+    const response = await axios.delete(`/api/books/${bookId}`, { withCredentials: true })
+    if (response.status >= 400) {
+      alert(response.data.error)
+      return
     }
+
+    alert('Book has been deleted successfully')
+    navigate("/")
   }
 
   return (
@@ -186,17 +172,18 @@ export default function Book() {
 
         {errors.quantity && <p className="err-msg">{errors.quantity.message}</p>} */}
 
-        <IntInput text="Quantity: " min={1} max={book.unitsInStock}
-          onValChange={val => { setQuantity(val) }}
-         />
-
-        { (user?.type !== 'seller') &&
-          <div className="book-actions">
-            <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
-            <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>
-            {(user?.type === 'customer') && <button title="Buy" onClick={onBuy}>Buy Now</button>}
-            {(user?.type === 'admin') && <button title="Delete" onClick={onDelete}>Delete</button>}
-          </div>
+        {(user && user.type !== 'seller') &&
+          <>
+            <IntInput text="Quantity: " min={1} max={book.unitsInStock}
+              onValChange={val => { setQuantity(val) }}
+            />
+            <div className="book-actions">
+              <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
+              <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>
+              {(user?.type === 'customer') && <button title="Buy" onClick={onBuy}>Buy Now</button>}
+              {(user?.type === 'admin') && <button title="Delete" onClick={onDelete}>Delete</button>}
+            </div>
+          </>
         }
       </div>
     </div>

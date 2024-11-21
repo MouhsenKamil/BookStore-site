@@ -12,6 +12,8 @@ export async function getOrdersOfUser(req: Request, res: Response) {
   if (userId === '@me')
     userId = req.__userAuth.id
 
+  // console.log(orders)
+
   const orders = await Order.aggregate([
     {
       $match: {
@@ -36,6 +38,14 @@ export async function getOrdersOfUser(req: Request, res: Response) {
         "bookDetails.title": 1,
         "bookDetails.unitsInStock": 1,
         "bookDetails.coverImage": 1,
+        homeNo: 1,
+        street: 1,
+        pinCode: 1,
+        city: 1,
+        state: 1,
+        country: 1,
+        phoneNo: 1,
+        paymentMethod: 1,
       }
     },
     {
@@ -51,13 +61,22 @@ export async function getOrdersOfUser(req: Request, res: Response) {
             deliveredBy: "$bookDetails.deliveredBy",
             status: "$bookDetails.status",
             coverImage: "$bookDetails.coverImage",
+            homeNo: "$homeNo",
+            street: "$street",
+            pinCode: "$pinCode",
+            city: "$city",
+            state: "$state",
+            country: "$country",
+            phoneNo: "$phoneNo",
+            paymentMethod: "$paymentMethod",
           }
-        }
+        },
       }
     },
     {
       $project: {
-        _id: 0, "bookDetails": 0
+        _id: 0,
+        'bookDetails': 0
       }
     }
   ])
@@ -68,7 +87,9 @@ export async function getOrdersOfUser(req: Request, res: Response) {
   if (!orders)
     throw new HttpError("User haven't ordered anything yet", { statusCode: 404 })
 
-  res.status(200).json({ total: orders.length, results: orders })
+  console.log(JSON.stringify(orders))
+
+  res.status(200).json(orders)
 }
 
 export async function getAllOrders(req: Request, res: Response) {

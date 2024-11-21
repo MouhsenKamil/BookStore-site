@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 
 
-export async function getWishlistOfUser(
+export async function getWishlistOfUserAPI(
   options?: { userId?: string }
 ): Promise<AxiosResponse> {
 
@@ -12,17 +12,17 @@ export async function getWishlistOfUser(
   )
 }
 
-export async function addBookToWishlist(
-  bookId: string, options?: { quantity?: number, userId?: string }
+export async function addBookToWishlistAPI(
+  bookId: string, options?: { userId?: string }
 ): Promise<AxiosResponse> {
-  let { quantity = 1, userId = "@me" } = options || {}
+  let { userId = "@me" } = options || {}
 
   return await axios.post(
-    `/api/customer/${userId}/wishlist/add`, { bookId, quantity }, { withCredentials: true }
+    `/api/customer/${userId}/wishlist/add`, { bookId }, { withCredentials: true }
   )
 }
 
-export async function removeBookFromWishlist(
+export async function removeBookFromWishlistAPI(
   bookId: string, options?: { userId?: string }
 ): Promise<AxiosResponse> {
   let { userId = "@me" } = options || {}
@@ -32,7 +32,7 @@ export async function removeBookFromWishlist(
   )
 }
 
-export async function clearWishlist(options: { userId?: string }): Promise<AxiosResponse> {
+export async function clearWishlistAPI(options: { userId?: string }): Promise<AxiosResponse> {
   let { userId = "@me" } = options || {}
 
   return await axios.delete(

@@ -52,24 +52,23 @@ export default function Checkout() {
   const paymentMethod = watch("paymentMethod")
 
   async function onSubmit(data: CheckoutFormInputs) {
-    try {
-      if (submitURL.includes("books"))
-        data = {
-          ...data, quantity: +searchParams.quantity,
-        }
+    if (submitURL.includes("books"))
+      data = {
+        ...data, quantity: +searchParams.quantity,
+      }
 
-      const response = await axios.post(submitURL, data, { withCredentials: true })
-      if (response.status !== 201)
-        throw new Error(response.data.error)
-
-      navigate(
-        '/user/checkout/success?orderId='
-        + response.data.orderId
-        + '&deliveredBy=' + response.data.deliveredBy
-      )
-    } catch (error) {
-      console.error(error)
+    console.log(data)
+    const response = await axios.post(submitURL, data, { withCredentials: true })
+    if (response.status >= 400) {
+      alert(response.data.error)
+      return
     }
+
+    navigate(
+      '/user/checkout/success?orderId='
+      + response.data.orderId
+      + '&deliveredBy=' + response.data.deliveredBy
+    )
   }
 
   return (
@@ -194,7 +193,9 @@ export default function Checkout() {
             <label htmlFor="cardHolderName">Cardholder Name</label>
             <input
               id="cardHolderName"
-              {...register("cardHolderName", { required: "Cardholder name is required" })}
+              {...register(
+                "cardHolderName", { required: "Cardholder name is required" },
+              )}
             />
             {errors.cardHolderName && (
               <p className='red-text'>{errors.cardHolderName.message}</p>

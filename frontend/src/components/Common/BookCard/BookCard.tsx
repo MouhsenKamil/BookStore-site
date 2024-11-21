@@ -54,7 +54,7 @@ export default function BookCard(props: { book: IBookWithSellerName }) {
             <span style={{color: '#15dd15'}}>In Stock: </span>
             {book.unitsInStock}</span>
           }
-          { (user?.type !== 'seller') &&
+          { (user && user.type !== 'seller') &&
             <div className="book-actions">
               <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
               <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>

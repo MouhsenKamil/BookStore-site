@@ -1,5 +1,5 @@
 backend/db/static/
-backend/db/data/
+backend/db/data/*
 backend/db/logs/
 backend/cert/
 backend/dist/

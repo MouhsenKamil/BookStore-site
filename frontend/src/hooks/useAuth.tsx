@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { AxiosError } from 'axios'
 
-import { AuthState, ContextValues } from '../types/auth'
+import { AuthState, AuthContextValues } from '../types/auth'
 import { verifyUser } from '../services/authServices'
 
-export const AuthContext = createContext<ContextValues | undefined>(undefined)
+
+export const AuthContext = createContext<AuthContextValues | undefined>(undefined)
 
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -30,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
     }
 
-    console.log(authState.user === null ? "User login detected" : 'User have not logged in')
+    console.log(authState.user !== null ? "User login detected" : 'User have not logged in')
   }
 
   useEffect(() => {

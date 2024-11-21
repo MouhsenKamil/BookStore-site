@@ -18,7 +18,7 @@ routeWithOrderId.patch('/', updateOrderStatus)
 routeWithOrderId.delete('/', cancelOrder)
 // routeWithOrderId.delete('/', deleteOrder)
 
-const router = express.Router({mergeParams: true})
+const router = express.Router({ mergeParams: true })
 
 router.get('/list', getOrdersOfUser)
 router.use(routeWithOrderId)

@@ -135,6 +135,8 @@ export async function checkout(req: Request, res: Response) {
   if (userId === '@me')
     userId = req.__userAuth.id
 
+  console.log(JSON.stringify(checkoutProps))
+
   const cart = await Cart.findOne({ user: userId })
   if (!cart)
     throw new HttpError('Cart is empty', { statusCode: 404 })
@@ -176,14 +178,19 @@ export async function checkout(req: Request, res: Response) {
 
   res.status(201).json({
     message: 'Order has been created successfully.',
-    order_id: order._id,
+    orderId: order._id,
     deliveredBy: deliveredByDate
   })
 }
 
 
 export async function clearCart(req: Request, res: Response) {
-  const deletedCart = await Cart.findOneAndDelete({ user: req.params.userId })
+  let { userId } = req.params
+
+  if (userId === '@me')
+    userId = req.__userAuth.id
+
+  const deletedCart = await Cart.findOneAndDelete({ user: userId })
     .catch(err => {
       throw new HttpError('Error occurred while deleting cart', { cause: err })
     })

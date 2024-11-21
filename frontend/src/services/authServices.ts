@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios"
 import { UserData, RegisterFormInputs, UserType, LoginFormInputs } from "../types/auth"
 
 
-const AUTH_API_URL = "'/api/auth"
+const AUTH_API_URL = "/api/auth/"
 
 export async function registerUser(
   data: RegisterFormInputs, { userType }: { userType: UserType }

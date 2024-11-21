@@ -25,7 +25,7 @@ export default function Login(props: { parent: Exclude<UserType, 'customer'> }) 
     try {
       const response = await loginUser(data, { userType: parentEndpoint })
 
-      if (response.status !== 200) {
+      if (response.status >= 400) {
         setLoginErr(response.data.error)
         return
       }

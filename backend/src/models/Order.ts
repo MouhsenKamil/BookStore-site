@@ -31,7 +31,6 @@ export interface IOrder extends ICheckoutFormData {
   books: {
     id: Types.ObjectId
     quantity: number
-    // unitPrice: number
   }[]
   orderTime: Date
   deliveredBy: Date

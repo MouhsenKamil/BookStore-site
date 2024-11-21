@@ -74,7 +74,7 @@ export default function NavBar() {
         onClick={() => navigate('/')}
       />
       {(!user || user.type === 'customer') && <SearchBar />}
-      {(user !== null)
+      {(!!user)
         ? <ProfilePic />
         : <button className='login-btn'>
           <Link to="/account/user/login">Login</Link>

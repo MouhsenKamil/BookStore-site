@@ -75,6 +75,14 @@ export async function login(req: Request, res: Response) {
       debugMsg: 'Invalid password provided for login'
     })
 
+  if (userType !== UserType.ADMIN && user.blocked)
+    throw new HttpError(
+      'User is blocked by admin from accessing the site', {
+        statusCode: 401,
+        debugMsg : "User is blocked from logging in"
+      }
+    )
+
   // Issue access and refresh token to the user
   await updateTokensInCookies(req, res, user)
 

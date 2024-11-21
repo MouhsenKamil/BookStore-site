@@ -1,10 +1,9 @@
 import axios, { AxiosResponse } from "axios"
 
 
-export async function getCartOfUser(
+export async function getCartOfUserAPI(
   options?: { userId?: string }
 ): Promise<AxiosResponse> {
-
   let { userId = "@me" } = options || {}
 
   return await axios.get(
@@ -13,7 +12,7 @@ export async function getCartOfUser(
 }
 
 
-export async function addBookToCart(
+export async function addBookToCartAPI(
   bookId: string, options?: { quantity?: number, userId?: string }
 ): Promise<AxiosResponse> {
   let { quantity = 1, userId = "@me" } = options || {}
@@ -23,7 +22,8 @@ export async function addBookToCart(
   )
 }
 
-export async function removeBookFromCart(
+
+export async function removeBookFromCartAPI(
   bookId: string, options?: { userId?: string }
 ): Promise<AxiosResponse> {
   let { userId = "@me" } = options || {}
@@ -33,7 +33,8 @@ export async function removeBookFromCart(
   )
 }
 
-export async function clearCart(options: { userId?: string }): Promise<AxiosResponse> {
+
+export async function clearCartAPI(options?: { userId?: string }): Promise<AxiosResponse> {
   let { userId = "@me" } = options || {}
 
   return await axios.delete(
@@ -41,7 +42,8 @@ export async function clearCart(options: { userId?: string }): Promise<AxiosResp
   )
 }
 
-export async function checkout(options: { userId?: string }): Promise<AxiosResponse> {
+
+export async function checkoutAPI(options?: { userId?: string }): Promise<AxiosResponse> {
   let { userId = "@me" } = options || {}
 
   return await axios.post(

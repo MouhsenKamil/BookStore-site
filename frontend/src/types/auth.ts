@@ -16,7 +16,7 @@ export interface AuthState {
 }
 
 
-export interface ContextValues {
+export interface AuthContextValues {
   authState: AuthState
   fetchAuthData: () => Promise<void>
 }

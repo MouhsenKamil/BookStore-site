@@ -10,26 +10,24 @@ export default function Wishlist() {
   const [wishlistBooks, setWishlistBooks] = useState<IBook[]>([])
 
   async function removeFromWishlist(bookId: string) {
-    try {
-      const response = await axios.patch("/api/customer/@me/wishlist/delete", { bookId })
-      if (response.status !== 204)
-        throw new Error(response.data.error)
+    const response = await axios.patch("/api/customer/@me/wishlist/delete", { bookId })
+    if (response.status >= 400)
+      alert(response.data.error)
 
+    else {
       setWishlistBooks(wishlistBooks.filter(book => book._id !== bookId))
-    } catch (error) {
-      console.error(error)
+      alert('Book has been removed from wishlist successfully')
     }
   }
 
   async function clearWishlist() {
-    try {
-      const response = await axios.delete('/api/customer/@me/wishlist/clear')
-      if (response.status !== 204)
-        throw new Error(response.data.error)
+    const response = await axios.delete('/api/customer/@me/wishlist/clear')
+    if (response.status >= 400)
+      alert(response.data.error)
 
+    else {
       setWishlistBooks([])
-    } catch (err) {
-      console.error(err)
+      alert('Wishlist has been cleared successfully')
     }
   }
 
@@ -56,13 +54,12 @@ export default function Wishlist() {
   }
 
   async function fetchWishlist() {
-    try {
-      const response = await axios.get(`/api/customer/@me/wishlist`)
-      if (response.status !== 200)
-        throw new Error(response.data.error)
+    const response = await axios.get(`/api/customer/@me/wishlist`)
+    if (response.status >= 400)
+      alert(response.data.error)
+    else {
+      console.log(response.data)
       setWishlistBooks(response.data.books)
-    } catch (err) {
-      console.error(err)
     }
   }
 
@@ -72,7 +69,7 @@ export default function Wishlist() {
 
   return (
     <div className="customer-orders">
-    <h3>Your wishlist has ${wishlistBooks.length} books</h3>{
+    <h3>Your wishlist has {wishlistBooks.length || 0} books</h3>{
       (!wishlistBooks.length)
         ? <h5>No items in wishlist. <Link to='/'>Start shopping for books now.</Link></h5>
         : <>

@@ -107,8 +107,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
 
       // Update the cookies with the new access and refresh tokens
       await updateTokensInCookies(req, res, user)
-    }
-    )
+    })
 
   next()
 }
@@ -164,7 +163,7 @@ export function restrictToRoles(...roles: UserType[]) {
       throw new HttpError('Access denied', {
         statusCode: 403,
         debugMsg: `${req.__userAuth.type} user (id: ${req.__userAuth.id}) tried to access ` +
-                  `this endpoint that's restricted to them. (tried to access ${req.url})`
+                  `this endpoint that's restricted to them. (tried to access ${req.method} ${req.url})`
       })
 
     next()
