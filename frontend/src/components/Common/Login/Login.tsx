@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { AxiosError } from 'axios'
 
 import { toTitleCase } from '../../../utils/stringUtils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../../../hooks/useAuth'
 import { LoginFormInputs, UserType } from '../../../types/auth'
 import { loginUser } from '../../../services/authServices'
@@ -12,9 +12,15 @@ import './Login.css'
 
 
 export default function Login(props: { parent: Exclude<UserType, 'customer'> }) {
-  const [loginErr, setLoginErr] = useState('')
-  const { fetchAuthData } = useAuth()
+  const { authState, fetchAuthData } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (authState.user)
+      navigate('/')
+  }, [])
+
+  const [loginErr, setLoginErr] = useState('')
 
   const [UrlSearchParams, _] = useSearchParams({ from: '', msg: '' })
 
@@ -22,6 +28,8 @@ export default function Login(props: { parent: Exclude<UserType, 'customer'> }) 
   const { register, handleSubmit, formState: { errors }} = useForm<LoginFormInputs>()
 
   const onSubmit = async (data: LoginFormInputs) => {
+    setLoginErr("")
+
     try {
       const response = await loginUser(data, { userType: parentEndpoint })
 

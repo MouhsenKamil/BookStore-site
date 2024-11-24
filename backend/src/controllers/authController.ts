@@ -166,6 +166,8 @@ export async function verify(req: Request, res: Response) {
   let userType = req.__userAuth.type
   let user
 
+  console.log('from verify: ', req.cookies)
+
   try {
     if (userType === UserType.CUSTOMER)
       user = await Customer.findById(

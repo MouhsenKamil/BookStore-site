@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ mode }) => {
   const parent_dir = path.resolve(__dirname, '..')
-  const env = loadEnv(mode, parent_dir, '')
+  const env = { ...process.env, ...loadEnv(mode, parent_dir, '')}
 
   return {
     plugins: [react()],

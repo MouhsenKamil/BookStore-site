@@ -1,3 +1,5 @@
+import { IBookInCart } from "./cart"
+
 export enum OrderStatus {
   PACKAGING = 'packaging',
   ON_DELIVERY = 'on_delivery',
@@ -26,14 +28,17 @@ export interface ICheckoutFormData {
 export interface IOrder extends ICheckoutFormData {
   _id: string
   user: string
-  books: {
-    _id: number
-    name: string
-    quantity: number
-    unitPrice: number
-  }[]
-  orderTime: Date
-  deliveredBy: Date
+  // books: {
+  //   _id: number
+  //   name: string
+  //   quantity: number
+  //   unitPrice: number
+  // }[]
+  books: IBookInCart[]
+  // orderTime: Date
+  // deliveredBy: Date
+  orderTime: string
+  deliveredBy: string
   status: OrderStatus
   totalAmount: number
 }

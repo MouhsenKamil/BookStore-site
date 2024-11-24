@@ -21,7 +21,7 @@ routeWithOrderId.delete('/', cancelOrder)
 const router = express.Router({ mergeParams: true })
 
 router.get('/list', getOrdersOfUser)
-router.use(routeWithOrderId)
+router.use('/:orderId', routeWithOrderId)
 
 
 export default router

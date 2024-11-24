@@ -4,9 +4,9 @@ import axios from "axios"
 
 import { IBookWithSellerName } from "../../../types/book"
 import CoverImage from "../CoverImage/CoverImage"
+import { useAuth } from "../../../hooks/useAuth"
 
 import './BookCard.css'
-import { useAuth } from "../../../hooks/useAuth"
 
 
 export default function BookCard(props: { book: IBookWithSellerName }) {
@@ -54,7 +54,7 @@ export default function BookCard(props: { book: IBookWithSellerName }) {
             <span style={{color: '#15dd15'}}>In Stock: </span>
             {book.unitsInStock}</span>
           }
-          { (user && user.type !== 'seller') &&
+          { (user?.type === 'customer') &&
             <div className="book-actions">
               <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
               <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>

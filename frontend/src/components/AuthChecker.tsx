@@ -1,5 +1,5 @@
 import { useAuth } from "../hooks/useAuth"
-import { Navigate, Outlet, useLocation } from "react-router-dom"
+import { useNavigate, Outlet, useLocation } from "react-router-dom"
 import Page401 from "./ErrorPage/401"
 
 
@@ -12,16 +12,18 @@ interface AuthCheckerProps {
 export default function AuthChecker({ userType, redirectPath }: AuthCheckerProps) {
   const { authState } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
   const isAutheticated = authState.user !== null
   const isAuthorizedUserType = isAutheticated && (userType === authState.user?.type)
 
-  // console.log(isAutheticated, isAuthorizedUserType)
+  console.log(isAutheticated, isAuthorizedUserType)
 
   if (!isAutheticated) {
     if (location.pathname)
       redirectPath += '?from=' + location.pathname + location.search
 
-    return <Navigate to={redirectPath} />
+    navigate(redirectPath)
+    return
   }
 
   if (!isAuthorizedUserType)

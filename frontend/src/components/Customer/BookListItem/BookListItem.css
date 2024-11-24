@@ -1,5 +1,5 @@
 .book-list-item {
-  padding: 0 0.25em;
+  padding: 1em;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -54,9 +54,7 @@
 
 .book-list-item .book-title {
   margin: 0;
-  /* height: 2em; */
   text-wrap: balance;
-  /* text-overflow: ellipsis; */
   font-weight: bold;
   cursor: pointer;
 }

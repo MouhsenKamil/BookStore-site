@@ -1,5 +1,5 @@
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import axios, { AxiosError } from 'axios'
 import { useAuth } from '../../../hooks/useAuth'
@@ -18,13 +18,19 @@ const passwordValidationFuncs: { [key: string]:[ (val: string) => boolean, strin
 
 
 export default function Register(props: { parent: 'user' | 'seller' }) {
-  const { fetchAuthData } = useAuth()
+  const { authState, fetchAuthData } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (authState.user)
+      navigate('/')
+  }, [])
+
   const { parent: parentEndpoint } = props
   const {
     register, handleSubmit, watch, formState: { errors }
   } = useForm<RegisterFormInputs>()
   const [registrationError, setRegistrationError] = useState<string>('')
-  const navigate = useNavigate()
   const location = useLocation()
 
   // Watch password field to compare it with confirmPassword

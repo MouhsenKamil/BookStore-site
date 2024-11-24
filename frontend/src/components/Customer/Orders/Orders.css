@@ -1,9 +1,6 @@
 .order-list-item {
-  border: 1px solid white;
+  border: 2px solid var(--dark-bg);
   padding: 1em;
   border-radius: 10px;
-}
-
-.order-list-item ul {
-  list-style-type: none;
+  text-align: left;
 }

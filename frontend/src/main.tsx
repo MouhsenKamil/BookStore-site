@@ -19,7 +19,7 @@ import Cart from "./components/Customer/Cart/Cart.tsx"
 import Wishlist from "./components/Customer/Wishlist/Wishlist.tsx"
 import Orders from "./components/Customer/Orders/Orders.tsx"
 import AHome from "./components/Admin/AHome/AHome.tsx"
-import ABooks from "./components/Admin/ABooks/ABooks.tsx"
+// import ABooks from "./components/Admin/ABooks/ABooks.tsx"
 import ACustomers from "./components/Admin/ACustomers/ACustomers.tsx"
 import ASellers from "./components/Admin/ASellers/ASellers.tsx"
 import SHome from "./components/Sellers/SHome/SHome.tsx"
@@ -103,7 +103,7 @@ const router = createBrowserRouter([
         element: <AuthChecker redirectPath='/account/admin/login' userType="admin" />,
         children: [
           {path: 'home', element: <AHome />},
-          {path: 'books', element: <ABooks />},
+          // {path: 'books', element: <ABooks />},
           {path: 'customers', element: <ACustomers />},
           {path: 'sellers', element: <ASellers />},
         ]
@@ -112,10 +112,11 @@ const router = createBrowserRouter([
   },
 ])
 
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
-  </React.StrictMode>,
+  // </React.StrictMode>
 )

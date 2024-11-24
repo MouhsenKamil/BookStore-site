@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Types } from 'mongoose'
+import { IBookInCart } from './Cart'
 
 
 export enum OrderStatus {
@@ -28,10 +29,7 @@ export interface ICheckoutFormData {
 
 export interface IOrder extends ICheckoutFormData {
   user: Types.ObjectId
-  books: {
-    id: Types.ObjectId
-    quantity: number
-  }[]
+  books: IBookInCart[]
   orderTime: Date
   deliveredBy: Date
   status: OrderStatus
@@ -39,12 +37,14 @@ export interface IOrder extends ICheckoutFormData {
 
 type OrderDoc = IOrder & Document
 
+
 export const Order = mongoose.model<OrderDoc>(
   'orders',
   new Schema<OrderDoc>({
     user: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
     books: [
       {
+        _id: false,
         id: { type: Schema.Types.ObjectId, ref: 'Book', required: true },
         quantity: { type: Number, required: true },
         // unitPrice: { type: Number, required: true },

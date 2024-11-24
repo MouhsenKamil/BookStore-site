@@ -1,17 +1,16 @@
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
 import { useState, MouseEvent, useEffect } from "react"
-import axios, { AxiosError } from "axios"
+import axios from "axios"
 
 import languages from "../../../public/languages-iso-639-2.json"
 import { IBookWithSellerName } from "../../../types/book"
 import CoverImage from "../CoverImage/CoverImage"
+import IntInput from "../IntInput/IntInput"
+import { useAuth } from "../../../hooks/useAuth"
 
 import { toTitleCase } from "../../../utils/stringUtils"
 
-import IntInput from "../IntInput/IntInput"
-
 import './Book.css'
-import { useAuth } from "../../../hooks/useAuth"
 
 
 type bookStateType = IBookWithSellerName & { error?: string }
@@ -77,16 +76,19 @@ export default function Book() {
         '/api/customer/@me/cart/add', { bookId, quantity }, { withCredentials: true }
       )
 
-      if (response.status !== 201)
-        throw new Error(response.data.error)
-
-    } catch (err) {
-      if ((err as AxiosError).response?.status === 401) {
+      if (response.status === 401) {
         navigate('/account/user/login?from=' + location.pathname)
         return
       }
 
-      alert((err as Error).message)
+      if (response.status < 400)
+        alert("Book has been added to cart successfully")
+
+      else
+        alert(response.data)
+
+    } catch (err) {
+      console.error(err)
     }
   }
 
@@ -140,12 +142,12 @@ export default function Book() {
           })}
         />
 
-        {book.description && <p className="book-desc">
+        {book.description && <div className="book-desc">
           <h4>Description</h4>
           {book.description.trim().split(/(?:\r?\n\s*)+/).map(
-            paragraph => <p>{paragraph}</p>
+            (paragraph, key) => <p key={key}>{paragraph}</p>
           )}
-        </p>}
+        </div>}
 
         <p><b>Seller: </b>{book.sellerName}</p>
         <>
@@ -174,13 +176,16 @@ export default function Book() {
 
         {(user && user.type !== 'seller') &&
           <>
-            <IntInput text="Quantity: " min={1} max={book.unitsInStock}
-              onValChange={val => { setQuantity(val) }}
-            />
             <div className="book-actions">
-              <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
-              <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>
-              {(user?.type === 'customer') && <button title="Buy" onClick={onBuy}>Buy Now</button>}
+              {(user?.type === 'customer') && <>
+                <IntInput text="Quantity: " min={1} max={book.unitsInStock}
+                  onValChange={val => { setQuantity(val) }}
+                />
+                <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
+                <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>
+                <button title="Buy" onClick={onBuy}>Buy Now</button>
+                </>
+                }
               {(user?.type === 'admin') && <button title="Delete" onClick={onDelete}>Delete</button>}
             </div>
           </>

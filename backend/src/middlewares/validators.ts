@@ -56,7 +56,7 @@ export function checkRequestAttrs({obj, must=[], mustNot: mustNot=[]}: CheckRequ
       throw new HttpError(
         `${requiredData} ${requiredData.length ? 'is': 'are'} required`, {
           statusCode: 422,
-          debugMsg: `missing values from reques's ${obj} - ${requiredData}`
+          debugMsg: `missing values from request's ${obj} - ${requiredData}`
       })
 
     next()

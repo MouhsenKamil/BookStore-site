@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import axios, { AxiosError } from "axios"
+import axios from "axios"
 import { IBook } from "../../../types/book"
 import { IOrder } from "../../../types/order"
 
@@ -28,12 +28,11 @@ export default function AHome() {
       try {
         const response = await axios.get("/api/admin/analytics", { withCredentials: true })
         if (response.status !== 200)
-          throw new Error(response.data.error)
-
-        setAnalytics(response.data)
+          alert(response.data.error)
+        else
+          setAnalytics(response.data)
       } catch (error) {
         console.error(error)
-        alert((error as AxiosError).response?.data?.error || error)
       }
     }
 

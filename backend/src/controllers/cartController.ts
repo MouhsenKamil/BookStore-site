@@ -1,11 +1,16 @@
+import mongoose from 'mongoose'
 import { Request, Response } from 'express'
+
 import { Cart } from '../models/Cart.ts'
 import { ICheckoutFormData, Order } from '../models/Order.ts'
 import { Book } from '../models/Book.ts'
 import { HttpError } from '../utils/exceptions.ts'
 import { BookArchive } from '../models/BooksArchive.ts'
 import { getRandInt } from '../utils/funcUtils.ts'
-import mongoose, { Schema, Types } from 'mongoose'
+import { mergeBooksByQuantity } from '../utils/orderUtils.ts'
+
+
+const _7_DAYS = 24 * 60 * 60
 
 
 export async function updatedCart(req: Request, res: Response) {
@@ -33,6 +38,7 @@ export async function getCartOfUser(req: Request, res: Response) {
         user: new mongoose.Types.ObjectId(userId)
       }
     },
+    { $unwind: '$books' },
     {
       $lookup: {
         from: 'books',
@@ -44,13 +50,14 @@ export async function getCartOfUser(req: Request, res: Response) {
     { $unwind: '$bookDetails' },
     {
       $project: {
-        // _id: 1,
-        "bookDetails._id": 1,
-        "bookDetails.quantity": 1,
-        "bookDetails.price": 1,
-        "bookDetails.title": 1,
-        "bookDetails.unitsInStock": 1,
-        "bookDetails.coverImage": 1,
+        _id: 0,
+        books: {
+          _id: "$bookDetails._id",
+          quantity: 1,
+          price: "$bookDetails.price",
+          title: "$bookDetails.title",
+          coverImage: "$bookDetails.coverImage",
+        },
       }
     },
     {
@@ -58,19 +65,13 @@ export async function getCartOfUser(req: Request, res: Response) {
         _id: null,
         books: {
           $push: {
-            _id: "$bookDetails._id",
-            quantity: "$bookDetails.quantity",
-            title: "$bookDetails.title",
-            price: "$bookDetails.price",
-            unitsInStock: "$bookDetails.unitsInStock",
-            coverImage: "$bookDetails.coverImage",
+            _id: "$books._id",
+            quantity: "$books.quantity",
+            price: "$books.price",
+            title: "$books.title",
+            coverImage: "$books.coverImage",
           }
         }
-      }
-    },
-    {
-      $project: {
-        _id: 0, "bookDetails": 0
       }
     }
   ])
@@ -81,26 +82,34 @@ export async function getCartOfUser(req: Request, res: Response) {
   // if (!cart)
   //   throw new HttpError('Cart is empty', { statusCode: 404 })
 
-  res.status(200).json(cart[0])
+  res.status(200).json(cart[0].books)
 }
 
 
 export async function addBookToCart(req: Request, res: Response) {
   const { bookId, quantity } = req.body
 
-  const updatedCart = await Cart.findOneAndUpdate(
-    { user: req.__userAuth.id },
-    { $addToSet: { books: { id: bookId, quantity }}},
-    { new: true, upsert: true }
+  let updatedCart = await Cart.findOneAndUpdate(
+    { user: req.__userAuth.id, "books.id": bookId },
+    { $inc: { "books.$.quantity": quantity }},
+    { new: true },
   )
 
   if (!updatedCart)
-    throw new HttpError('Cart not found', { statusCode: 404 })
+    updatedCart = await Cart.findOneAndUpdate(
+      { user: req.__userAuth.id },
+      { $addToSet: { books: { id: bookId, quantity }}},
+      { new: true, upsert: true }
+    )
 
+  if (!updatedCart)
+    throw new HttpError('Cart not found', { statusCode: 404 })
+  
   await updatedCart.save()
     .catch(err => {
       throw new HttpError(`Error occurred while adding book to cart`, { cause: err })
     })
+
   res.sendStatus(204)
 }
 
@@ -113,7 +122,9 @@ export async function deleteBookInCart(req: Request, res: Response) {
     userId = req.__userAuth.id
 
   const updatedCart = await Cart.findOneAndUpdate(
-    { user: userId }, { $pull: { books: { id: bookId } } }, { new: true }
+    { user: userId },
+    { $pull: { books: { id: bookId }}},
+    { new: true }
   )
 
   if (!updatedCart)
@@ -135,20 +146,18 @@ export async function checkout(req: Request, res: Response) {
   if (userId === '@me')
     userId = req.__userAuth.id
 
-  console.log(JSON.stringify(checkoutProps))
-
   const cart = await Cart.findOne({ user: userId })
   if (!cart)
     throw new HttpError('Cart is empty', { statusCode: 404 })
 
   const currentDate = new Date()
   const deliveredByDate = new Date(
-    currentDate.getTime() + getRandInt(1, 7) * (24 * 60 * 60) // Delivery time: 1-7 days (random)
+    currentDate.getTime() + getRandInt(1, 7) * _7_DAYS
   )
 
   const order = new Order({
     user: userId,
-    books: cart.books,
+    books: mergeBooksByQuantity(cart.books),
     orderTime: currentDate,
     deliveredBy: deliveredByDate,
     ...checkoutProps

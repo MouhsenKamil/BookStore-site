@@ -40,7 +40,7 @@ interface SearchFilters {
 export async function addBook(req: Request, res: Response) {
   req.body.seller = req.body.seller ?? req.__userAuth.id
 
-  console.log(JSON.stringify(req.body))
+  // console.log(JSON.stringify(req.body))
 
   const coverImage = req.body.coverImage
   req.body.coverImage = !!coverImage ? coverImage.name: null

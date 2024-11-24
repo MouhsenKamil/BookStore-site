@@ -89,10 +89,11 @@ const sslServer = https.createServer({
 sslServer
   .listen(PORT, async () => {
     await connectDB({
-      host: 'localhost',
+      // host: 'localhost',
       // host: `${env.MONGODB_ADMIN_USERNAME}:${env.MONGODB_ADMIN_PASSWORD}@localhost`,
-      port: env.MONGODB_PORT,
-      dbName: env.BOOKSTORE_DB_NAME,
+      // port: env.MONGODB_PORT,
+      // dbName: env.BOOKSTORE_DB_NAME,
+      uri: env.MONGODB_URI,
       username: env.MONGODB_ADMIN_USERNAME,
       password: env.MONGODB_ADMIN_PASSWORD
     })

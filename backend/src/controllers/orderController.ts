@@ -12,14 +12,13 @@ export async function getOrdersOfUser(req: Request, res: Response) {
   if (userId === '@me')
     userId = req.__userAuth.id
 
-  // console.log(orders)
-
   const orders = await Order.aggregate([
     {
       $match: {
         user: new mongoose.Types.ObjectId(userId)
       }
     },
+    { $unwind: "$books" },
     {
       $lookup: {
         from: 'books',
@@ -31,13 +30,17 @@ export async function getOrdersOfUser(req: Request, res: Response) {
     { $unwind: '$bookDetails' },
     {
       $project: {
-        // _id: 1,
-        "bookDetails._id": 1,
-        "bookDetails.quantity": 1,
-        "bookDetails.price": 1,
-        "bookDetails.title": 1,
-        "bookDetails.unitsInStock": 1,
-        "bookDetails.coverImage": 1,
+        _id: 1,
+        books: {
+          _id: "$bookDetails._id",
+          quantity: 1,
+          price: "$bookDetails.price",
+          title: "$bookDetails.title",
+          coverImage: "$bookDetails.coverImage",
+        },
+        orderTime: 1,
+        deliveredBy: 1,
+        status: 1,
         homeNo: 1,
         street: 1,
         pinCode: 1,
@@ -46,37 +49,31 @@ export async function getOrdersOfUser(req: Request, res: Response) {
         country: 1,
         phoneNo: 1,
         paymentMethod: 1,
-      }
+      },
     },
     {
       $group: {
-        _id: null,
+        _id: "$_id",
         books: {
           $push: {
-            _id: "$bookDetails._id",
-            quantity: "$bookDetails.quantity",
-            title: "$bookDetails.title",
-            price: "$bookDetails.price",
-            orderTime: "$bookDetails.orderTime",
-            deliveredBy: "$bookDetails.deliveredBy",
-            status: "$bookDetails.status",
-            coverImage: "$bookDetails.coverImage",
-            homeNo: "$homeNo",
-            street: "$street",
-            pinCode: "$pinCode",
-            city: "$city",
-            state: "$state",
-            country: "$country",
-            phoneNo: "$phoneNo",
-            paymentMethod: "$paymentMethod",
-          }
+            _id: "$books._id",
+            quantity: "$books.quantity",
+            price: "$books.price",
+            title: "$books.title",
+            coverImage: "$books.coverImage",
+          },
         },
-      }
-    },
-    {
-      $project: {
-        _id: 0,
-        'bookDetails': 0
+        orderTime: { $first: "$orderTime" },
+        deliveredBy: { $first: "$deliveredBy" },
+        status: { $first: "$status" },
+        homeNo: { $first: "$homeNo" },
+        street: { $first: "$street" },
+        pinCode: { $first: "$pinCode" },
+        city: { $first: "$city" },
+        state: { $first: "$state" },
+        country: { $first: "$country" },
+        phoneNo: { $first: "$phoneNo" },
+        paymentMethod: { $first: "$paymentMethod" },
       }
     }
   ])
@@ -86,8 +83,6 @@ export async function getOrdersOfUser(req: Request, res: Response) {
 
   if (!orders)
     throw new HttpError("User haven't ordered anything yet", { statusCode: 404 })
-
-  console.log(JSON.stringify(orders))
 
   res.status(200).json(orders)
 }
@@ -144,6 +139,7 @@ export async function updateOrderStatus(req: Request, res: Response) {
 
 
 export async function cancelOrder(req: Request, res: Response) {
+  console.log('from cancel order: ', req.params.orderId)
   const cancelledOrder = await Order.findById(req.params.orderId)
     .catch(err => {
       throw new HttpError('Error occurred while cancelling order', { cause: err })

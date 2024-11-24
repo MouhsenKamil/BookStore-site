@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 
 
 // interface ICheckoutSuccessData {
@@ -17,10 +17,11 @@ export default function CSuccess() {
     return <h4>No purchase has been done.</h4>
 
   return (
-    <>
-      <h4>Your Order has been created successfully</h4>
-      <h6>Order ID: {checkoutSuccessData.orderId}</h6>
-      <h6>Delivered on: {checkoutSuccessData.deliveredBy}</h6>
-    </>
+    <div className="checkout-success">
+      <h3>Your Order has been created successfully</h3>
+      <h4>Order ID: {checkoutSuccessData.orderId}</h4>
+      <h4>Delivered on: {checkoutSuccessData.deliveredBy}</h4>
+      <Link to='/'>Return Home</Link>
+    </div>
   )
 }

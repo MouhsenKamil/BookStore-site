@@ -17,7 +17,8 @@ interface ENV {
   BOOKSTORE_DB_NAME?: string
 
   BACKEND_PORT?: number
-  MONGODB_PORT?: number
+  // MONGODB_PORT?: number
+  MONGODB_URI?: string
 
   ACCESS_TOKEN_SECRET?: string
   REFRESH_TOKEN_SECRET?: string
@@ -50,9 +51,10 @@ function getConfig(): ENV {
     BACKEND_PORT: process.env.BACKEND_PORT
       ? Number(process.env.BACKEND_PORT)
       : undefined,
-    MONGODB_PORT: process.env.BACKEND_PORT
-      ? Number(process.env.MONGODB_PORT)
-      : undefined,
+    MONGODB_URI: process.env.MONGODB_URI,
+    // MONGODB_PORT: process.env.BACKEND_PORT
+    //   ? Number(process.env.MONGODB_PORT)
+    //   : undefined,
 
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
