@@ -1,8 +1,8 @@
 .book-cover-image {
   cursor: pointer;
-  width: 11em;
-  height: auto;
-  /* height: 10em; */
+  /* width: 11em; */
+  /* height: auto; */
+  height: 10em;
 }
 
 @media only screen and (max-width: 600px) {

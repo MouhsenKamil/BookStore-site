@@ -64,22 +64,19 @@ export async function login(req: Request, res: Response) {
 
   else
     throw new HttpError('Invalid email id', {
-      statusCode: 401,
-      debugMsg: `Email id ${email} not registered`
+      statusCode: 401, debugMsg: `Email id ${email} not registered`
     })
 
   // Validate username and password
   if (!user || !bcrypt.compareSync(password, user.passwordHash))
     throw new HttpError('Invalid password', {
-      statusCode: 401,
-      debugMsg: 'Invalid password provided for login'
+      statusCode: 401, debugMsg: 'Invalid password provided for login'
     })
 
   if (userType !== UserType.ADMIN && user.blocked)
     throw new HttpError(
       'User is blocked by admin from accessing the site', {
-        statusCode: 401,
-        debugMsg : "User is blocked from logging in"
+        statusCode: 401, debugMsg : "User is blocked from logging in"
       }
     )
 
@@ -132,7 +129,7 @@ export async function refresh(req: Request, res: Response) {
   //   }
   // )
 
-  let { id: userId, type: userType} = req.__userAuth
+  let { id: userId, type: userType } = req.__userAuth
   let user
 
   if (userType === UserType.CUSTOMER)
@@ -151,6 +148,13 @@ export async function refresh(req: Request, res: Response) {
 
   if (!user)
     throw new HttpError('Invalid session. User not found', { statusCode: 404 })
+
+  if (userType !== UserType.ADMIN && user.blocked)
+    throw new HttpError(
+      'User is blocked by admin from accessing the site', {
+        statusCode: 401, debugMsg : "User is blocked from refreshing the access token"
+      }
+    )
 
   await updateTokensInCookies(req, res, user)
 }
@@ -199,6 +203,13 @@ export async function verify(req: Request, res: Response) {
       // authentication is required to run this code. Thus no need to
       // check whether user exists or not
 
+    if (userType !== UserType.ADMIN && user.blocked)
+      throw new HttpError(
+        'User is blocked by admin from accessing the site', {
+          statusCode: 401, debugMsg : "User is blocked from running a verify check"
+        }
+      )
+
     res.status(200).json({ userData: user.toJSON() })
   } catch (err) {
     throw new ForceReLogin("Unable to verify and get id's", { cause: err as Error })
@@ -209,7 +220,7 @@ export async function verify(req: Request, res: Response) {
 export async function changePassword(req: Request, res: Response) {
   const { id: userId, type: userType } = req.__userAuth
   let user
-  
+
   if (userType === UserType.CUSTOMER)
     user = await Customer.findById(userId)
 
@@ -242,22 +253,6 @@ export async function changePassword(req: Request, res: Response) {
     throw new HttpError(
       'New password cannot be same as old password', { statusCode: 409 }
     )
-
-  // if (userType === UserType.CUSTOMER)
-  //   updatedUser = await Customer.findByIdAndUpdate(
-  //     user.id, { passwordHash: newPasswordHash }, { runValidators: true, new: true }
-  //   )
-
-  // else if (userType === UserType.SELLER)
-  //   updatedUser = await Seller.findByIdAndUpdate(
-  //     user.id, { passwordHash: newPasswordHash }, { runValidators: true, new: true }
-  //   )
-
-  // else
-  //   throw new HttpError(`Unknown user type: ${userType}`, {
-  //     statusCode: 400,
-  //     debugMsg: `Got '${userType}' as user type while trying to register user`
-  //   })
 
   await user.updateOne({ passwordHash: newPasswordHash }, { new: true })
     .catch(err => {

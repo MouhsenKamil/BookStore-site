@@ -28,28 +28,37 @@ export default function Orders() {
       }
     }
 
-    console.log(orderItem)
+    // console.log(orderItem)
 
     return (
       <div className="order-list-item">
         <div className="order-details">
-          <p><strong>Order Time: </strong>{(new Date(orderItem.orderTime)).toLocaleString()}</p>
-          <p><strong>Delivery Date: </strong>{(new Date(orderItem.deliveredBy)).toLocaleString()}</p>
-          <p><strong>Delivery Status: </strong>{toTitleCase(orderItem.status)}</p>
-          <p><strong>Payment Method: </strong>{orderItem.paymentMethod}</p>
-          <p><strong>Shippin Address: </strong>{
-            `${orderItem.homeNo}, ${orderItem.street}, ${orderItem.city}, ${orderItem.state}, ` +
-            `${orderItem.country} - ${orderItem.pinCode}`
-          }</p>
+          <p className="ordered-time"><strong>Ordered on: </strong>{(new Date(orderItem.orderTime)).toLocaleString()}</p>
+          <p className="delivered-time"><strong>Delivered by: </strong>{(new Date(orderItem.deliveredBy)).toLocaleString()}</p>
+          <p className="delivery-status">
+            <strong>Delivery Status: </strong>
+            <span style={{ color: (orderItem.status === 'delivered') ? 'lightgreen': 'orange', fontWeight: "bold" }}>
+              {orderItem.status.toUpperCase()}
+            </span>
+          </p>
+          <p className="payment-method">
+            <strong>Payment Method: </strong>
+            {toTitleCase(orderItem.paymentMethod)}
+          </p>
+          <p className="shipping-address">
+            <strong>Shipping Address: </strong>
+            {orderItem.homeNo}, {toTitleCase(orderItem.street)}, {toTitleCase(orderItem.city)} 
+            {toTitleCase(orderItem.state)}, {toTitleCase(orderItem.country)} - {orderItem.pinCode}
+          </p>
           {/* <p><strong>Your Phone No. for delivery guidance: </strong> {orderItem.phoneNo}</p> */}
+          <br />
+          <button onClick={_ => cancelOrder()}>Cancel Order</button>
         </div>
-        <p><strong>Books: </strong></p>
-        <div className="orders-books-list-item">
+        <div className="order-books-list">
           {orderItem.books.map((book, key) => (
             <BookListItem key={key} book={book} />
           ))}
         </div>
-        <button onClick={_ => cancelOrder()}>Cancel Order</button>
       </div>
     )
   }

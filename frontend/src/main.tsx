@@ -1,4 +1,3 @@
-import React from "react"
 import ReactDOM from "react-dom/client"
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom"
 
@@ -30,6 +29,7 @@ import CSuccess from "./components/Customer/Checkout/CSuccess/CSuccess.tsx"
 import AdvancedBookSearch from "./components/AdvancedSearch/AdvancedSearch.tsx"
 
 import "./index.css"
+import AOrders from "./components/Admin/AOrders/AOrders.tsx"
 
 
 const router = createBrowserRouter([
@@ -106,6 +106,7 @@ const router = createBrowserRouter([
           // {path: 'books', element: <ABooks />},
           {path: 'customers', element: <ACustomers />},
           {path: 'sellers', element: <ASellers />},
+          {path: 'orders', element: <AOrders />},
         ]
       },
     ],

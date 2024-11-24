@@ -50,11 +50,19 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
             "user id or password in the access token"
         })
 
-      // if (_decodedAT.passwordHash !== user.passwordHash)
-      //   throw new ForceReLogin('Invalid Token, re-login to continue', {
-      //     statusCode: 401, 
-      //     debugMsg: 'Password reset has occurred. Forcing user to re-login to continue further'
-      //   })
+      if (_decodedAT.passwordHash !== user.passwordHash)
+        throw new ForceReLogin('Invalid Token, re-login to continue', {
+          statusCode: 401, 
+          debugMsg: 'Password reset has occurred. Forcing user to re-login to continue further'
+        })
+
+      if (user.type !== UserType.ADMIN && user.blocked)
+        throw new HttpError(
+          'User is blocked by admin from accessing the site', {
+            statusCode: 401,
+            debugMsg : "User is blocked from logging in"
+          }
+        )
 
       req.__userAuth = { id: _decodedAT.id, type: _decodedAT.type }
     })
