@@ -12,7 +12,7 @@ import './NavBar.css'
 const roleBasedRoutesMap = {
   user: ['profile', 'cart', 'wishlist', 'orders'],
   seller: ['home', 'profile', 'add-a-book'],
-  admin: ['home', 'customers', 'sellers', 'orders']
+  admin: ['home', 'customers', 'sellers', 'orders', 'add-a-book']
 }
 
 

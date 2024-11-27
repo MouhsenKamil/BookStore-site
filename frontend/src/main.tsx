@@ -10,7 +10,7 @@ import Login from "./components/Common/Login/Login.tsx"
 import Register from "./components/Common/Register/Register.tsx"
 import Page404 from "./components/ErrorPage/404.tsx"
 import Home from "./components/Common/Home/Home.tsx"
-import ForgotPassword from "./components/Common/ForgotPassword/ForgotPassword.tsx"
+// import ForgotPassword from "./components/Common/ForgotPassword/ForgotPassword.tsx"
 import AboutUs from "./components/Common/AboutUs/AboutUs.tsx"
 import ContactUs from "./components/Common/ContactUs/ContactUs.tsx"
 import Profile from "./components/Common/Profile/Profile.tsx"
@@ -106,6 +106,7 @@ const router = createBrowserRouter([
           {path: 'customers', element: <ACustomers />},
           {path: 'sellers', element: <ASellers />},
           {path: 'orders', element: <AOrders />},
+          {path: 'add-a-book', element: <AddBook />},
         ]
       },
     ],

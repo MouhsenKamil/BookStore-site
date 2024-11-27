@@ -32,22 +32,23 @@ routerWithUserId.use('/wishlist', wishListRoutes)
 
 routerWithUserId.get('/', getCustomerById)
 routerWithUserId.patch('/', restrictEditingSensibleInfo, updateCustomer)
+routerWithUserId.delete('/', deleteCustomer)
 
 
-// routes for credit card
-routerWithUserId.post(
-  '/card',
-  checkRequestAttrs({
-    obj: 'body', must: ['cardNumber', 'cardHolderName', 'expiryDate', 'cvv']
-  }),
-  addCreditCard
-)
+// // routes for credit card
+// routerWithUserId.post(
+//   '/card',
+//   checkRequestAttrs({
+//     obj: 'body', must: ['cardNumber', 'cardHolderName', 'expiryDate', 'cvv']
+//   }),
+//   addCreditCard
+// )
 
-routerWithUserId.delete(
-  '/card/:cardId',
-  checkRequestAttrs({ obj: 'params', must: ['cardId'] }),
-  deleteCreditCard
-)
+// routerWithUserId.delete(
+//   '/card/:cardId',
+//   checkRequestAttrs({ obj: 'params', must: ['cardId'] }),
+//   deleteCreditCard
+// )
 
 // routerWithUserId.patch(
 //   '/change-password',
@@ -62,7 +63,6 @@ const adminRoutesWithUserId = express.Router({ mergeParams: true })
 adminRoutesWithUserId.use(restrictToRoles(UserType.ADMIN))
 adminRoutesWithUserId.patch('/block', blockCustomer)
 adminRoutesWithUserId.patch('/unblock', unblockCustomer)
-adminRoutesWithUserId.delete('/', deleteCustomer)
 
 routerWithUserId.use(adminRoutesWithUserId)
 

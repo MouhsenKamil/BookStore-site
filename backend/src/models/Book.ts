@@ -5,11 +5,11 @@ import { Author } from './Author'
 
 export interface IBook {
   _id: string
-  authorNames: Array<string>
+  authorNames: string[]
   title: string
   subtitle: string | null
-  lang: Array<string>
-  categories: Array<string>
+  lang: string[]
+  categories: string[]
   coverImage: string | null
   description: string | null
   price: number

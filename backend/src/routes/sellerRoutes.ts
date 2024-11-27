@@ -3,7 +3,7 @@ import {
   // createSeller,
   deleteSeller,
   getSalesAnalytics,
-  getSellers,
+  // getSellers,
   getSellerById,
   registerBook,
   updateSeller,
@@ -15,7 +15,6 @@ import { authenticate, restrictToRoles } from '../middlewares/authMiddleware.ts'
 import { verifyUserIdParamByUserAuth } from '../middlewares/userMiddleware.ts'
 
 import { UserType } from '../models/User.ts'
-
 import { upload } from '../config/upload.ts'
 
 

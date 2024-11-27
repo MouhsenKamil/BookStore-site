@@ -55,14 +55,14 @@ router.post(
   login
 )
 
-router.post(
-  '/change-password',
-  redirectToLoginIfNotAuthenticated,
-  rateLimiter(
-    'Too many changes from this IP, please try again after a minute',
-    ONE_MINUTE,
-  ),
-  changePassword
-)
+// router.post(
+//   '/change-password',
+//   redirectToLoginIfNotAuthenticated,
+//   rateLimiter(
+//     'Too many changes from this IP, please try again after a minute',
+//     ONE_MINUTE,
+//   ),
+//   changePassword
+// )
 
 export default router

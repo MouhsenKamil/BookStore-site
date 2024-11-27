@@ -28,8 +28,6 @@ export default function Orders() {
       }
     }
 
-    // console.log(orderItem)
-
     return (
       <div className="order-list-item">
         <div className="order-details">
@@ -81,7 +79,8 @@ export default function Orders() {
   }, [])
 
   return (
-    <div className="customer-orders">{
+    <div className="customer-orders">
+      <h2>Your Orders</h2>{
       ((orders ?? []).length === 0)
         ? <h3>You haven't done any orders. <Link to='/'>Start shopping now.</Link></h3>
         : <>
