@@ -91,7 +91,7 @@ export default function Login(props: { parent: Exclude<UserType, 'customer'> }) 
         {errors.password && <p className='error-msg'>{errors.password.message}</p>}
         {loginErr && <p className='login-err error-msg'>{loginErr}</p>}
 
-        <Link to={`/account/${parentEndpoint}/forgot-password`}>Forgot Password?</Link>
+        {/* <Link to={`/account/${parentEndpoint}/forgot-password`}>Forgot Password?</Link> */}
 
         <button type="submit">Login</button>
       </form>

@@ -58,7 +58,9 @@ export default function Checkout() {
       }
 
     console.log(data)
+
     const response = await axios.post(submitURL, data, { withCredentials: true })
+
     if (response.status >= 400) {
       alert(response.data.error)
       return

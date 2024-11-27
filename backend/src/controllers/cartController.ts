@@ -10,7 +10,7 @@ import { getRandInt } from '../utils/funcUtils.ts'
 import { mergeBooksByQuantity } from '../utils/orderUtils.ts'
 
 
-const _7_DAYS = 24 * 60 * 60
+const _7_DAYS = 24 * 60 * 60 * 1000
 
 
 export async function updatedCart(req: Request, res: Response) {
@@ -57,6 +57,7 @@ export async function getCartOfUser(req: Request, res: Response) {
           price: "$bookDetails.price",
           title: "$bookDetails.title",
           coverImage: "$bookDetails.coverImage",
+          unitsInStock: "$bookDetails.unitsInStock"
         },
       }
     },
@@ -70,10 +71,11 @@ export async function getCartOfUser(req: Request, res: Response) {
             price: "$books.price",
             title: "$books.title",
             coverImage: "$books.coverImage",
+            unitsInStock: "$books.unitsInStock"
           }
         }
       }
-    }
+    },
   ])
     .catch(err => {
       throw new HttpError(`Error occurred while fetching cart`, { cause: err })
@@ -82,7 +84,7 @@ export async function getCartOfUser(req: Request, res: Response) {
   // if (!cart)
   //   throw new HttpError('Cart is empty', { statusCode: 404 })
 
-  res.status(200).json(cart[0].books)
+  res.status(200).json(cart[0]?.books || [])
 }
 
 

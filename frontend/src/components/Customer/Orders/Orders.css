@@ -5,11 +5,13 @@
   margin: 1em 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
+  width: 60vw;
 }
 
 .order-details {
   margin-left: 1em;
+  min-width: 26%;
 }
 
 .order-details p {
@@ -23,15 +25,39 @@
 
 .order-books-list {
   display: flex;
-  align-items: center;
   justify-content: center;
-  width: fit-content;
+  overflow-x:  auto;
+  scrollbar-width: thin; 
+  width: 74%;
 }
 
 .order-books-list .book-list-item {
-  width: 5%;
+  max-width: 4%;
+  padding: 0;
+}
+
+.order-books-list > .book-list-item:last-child {
+  min-width: fit-content;
 }
 
 .order-books-list .book-list-item:hover {
   z-index: 1;
+}
+
+
+@media only screen and (max-width: 1200px) {
+  .order-list-item {
+    flex-wrap: wrap;
+    gap: 1em;
+  }
+
+  .order-details {
+    display: block;
+    width: 100%;
+  }
+
+  .order-books-list {
+    width: 100%;
+    justify-content: center;
+  }
 }

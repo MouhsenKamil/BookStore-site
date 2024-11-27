@@ -1,69 +1,37 @@
-import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
+import { Link } from "react-router-dom"
 
-import { IBookInCart } from "../../../types/cart"
-import BookListItem from "../BookListItem/BookListItem"
+import BookListItem from "../../Common/BookListItem/BookListItem"
+import useCart from "../../../hooks/useCart"
 
 import './Cart.css'
 
 
 export default function Cart() {
-  const navigate = useNavigate()
-  const [cartBooks, setCartBooks] = useState<IBookInCart[]>([])
+  const { cart, clearCart, removeBookFromCart, checkoutCart } = useCart()
 
-  async function removeFromCart(bookId: string) {
-    const response = await axios.patch(
-      "/api/customer/@me/cart/delete", { bookId }, { withCredentials: true }
-    )
-
-    if (response.status >= 400)
-      alert(response.data.error)
-
-    else
-      setCartBooks(cartBooks.filter(book => book._id !== bookId))
-  }
-
-  async function checkout() {
-    navigate(`/user/checkout?method=cart`)
-  }
-
-  async function clearCart() {
-    const response = await axios.delete(
-      '/api/customer/@me/cart/clear', { withCredentials: true }
-    )
-
-    if (response.status >= 400)
-      alert(response.data.error)
-
-    else
-      setCartBooks([])
-  }
-
-  async function fetchCart() {
-    const response = await axios.get(`/api/customer/@me/cart`, { withCredentials: true })
-    if (response.status >= 400)
-      alert(response.data.error)
-
-    else
-      setCartBooks(response.data)
-  }
-
-  useEffect(() => {
-    fetchCart()
-  }, [])
+  console.log(cart)
 
   return (
     <div className="customer-cart">
-      <h3>Your cart has {(cartBooks ?? []).length} books</h3>{
-        ((cartBooks ?? []).length === 0)
+      <h3>Your cart has {cart.length} books</h3>{
+        (cart.length === 0)
           ? <h5>No items in cart. <Link to='/'>Start shopping for books now.</Link></h5>
           : <>
             <div className="cart-books-list">
-              {(cartBooks.map((book, key) => (
-                  <BookListItem key={key} book={book}>
-                  <button className="remove-from-cart-btn" onClick={() => {
-                    removeFromCart(book._id)
+              {(cart.map((book, key) => (
+                <BookListItem key={key} book={book}>
+                  <button className="remove-from-cart-btn" onClick={async (e) => {
+                    let target = e.currentTarget ?? e.target
+                    try {
+                      await removeBookFromCart(book._id)
+                      target.inputMode = "Removed from Cart ✅"
+                    } catch {
+                      target.inputMode = "Error Occurred ❗"
+                    }
+
+                    setTimeout(() => {
+                      target.innerText = "Remove from Cart"
+                    }, 2500)
                   }}>
                     Remove from Cart
                   </button>
@@ -71,7 +39,7 @@ export default function Cart() {
               )))
             }</div>
             <button onClick={clearCart}>Clear Cart</button>
-            <button onClick={checkout}>Checkout</button>
+            <button onClick={checkoutCart}>Checkout</button>
           </>
       }
     </div>

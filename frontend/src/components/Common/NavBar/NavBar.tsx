@@ -39,14 +39,16 @@ export default function NavBar() {
           className='img-icon user-profile-icon' src="/api/static/user-profile-icon.png"
           alt="User" onClick={() => setShowProfileMenu(!showProfileMenu)}
         />
-        <div className={`actions ${showProfileMenu ? 'show': ''}`}>
+        <div className={`actions ${showProfileMenu ? 'show' : ''}`}>
           <div className='username'>
-            {user?.name} {user?.type === 'customer' ? '': `(${user?.type})`}
+            {user?.name} {user?.type === 'customer' ? '' : `(${user?.type})`}
           </div>
           <hr />
           <div className="links" onClick={() => setShowProfileMenu(!showProfileMenu)}>{
             userTypeRoutes.map((endpoint, key) =>
-                <Link key={key} to={`/${userType}/${endpoint}`}>{toTitleCase(endpoint.replace(/-/g, ' '))}</Link>
+              <Link key={key} to={`/${userType}/${endpoint}`}>
+                {toTitleCase(endpoint.replace(/-/g, ' '))}
+              </Link>
             )
           }</div>
           <button className='logout-btn' onClick={async () => {
@@ -55,7 +57,6 @@ export default function NavBar() {
               alert(response.data.error)
               return
             }
-
             setShowProfileMenu(false)
             navigate(response.data.url)
             fetchAuthData()
@@ -73,11 +74,11 @@ export default function NavBar() {
         alt="Bookstore site"
         onClick={() => navigate('/')}
       />
-      {(!user || user.type === 'customer') && <SearchBar />}
+      {(user?.type === 'customer') && <SearchBar />}
       {(!!user)
         ? <ProfilePic />
-        : <button className='login-btn'>
-          <Link to="/account/user/login">Login</Link>
+        : <button className='login-btn' onClick={() => navigate("/account/user/login")}>
+          Login
         </button>
       }
     </div>

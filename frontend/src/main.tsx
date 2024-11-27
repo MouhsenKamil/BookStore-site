@@ -27,9 +27,9 @@ import AddBook from "./components/Sellers/AddBook/AddBook.tsx"
 import AuthChecker from "./components/AuthChecker.tsx"
 import CSuccess from "./components/Customer/Checkout/CSuccess/CSuccess.tsx"
 import AdvancedBookSearch from "./components/AdvancedSearch/AdvancedSearch.tsx"
+import AOrders from "./components/Admin/AOrders/AOrders.tsx"
 
 import "./index.css"
-import AOrders from "./components/Admin/AOrders/AOrders.tsx"
 
 
 const router = createBrowserRouter([
@@ -56,7 +56,7 @@ const router = createBrowserRouter([
             children: [
               {path: "login", element: <Login parent='user' />},
               {path: "register", element: <Register parent='user' />},
-              {path: "forgot-password", element: <ForgotPassword parent='user' />},
+              // {path: "forgot-password", element: <ForgotPassword parent='user' />},
             ]
           },
           {
@@ -65,7 +65,7 @@ const router = createBrowserRouter([
             children: [
               {path: "login", element: <Login parent='seller' />},
               {path: "register", element: <Register parent='seller' />},
-              {path: "forgot-password", element: <ForgotPassword parent='seller' />},
+              // {path: "forgot-password", element: <ForgotPassword parent='seller' />},
             ]
           },
           {
@@ -103,7 +103,6 @@ const router = createBrowserRouter([
         element: <AuthChecker redirectPath='/account/admin/login' userType="admin" />,
         children: [
           {path: 'home', element: <AHome />},
-          // {path: 'books', element: <ABooks />},
           {path: 'customers', element: <ACustomers />},
           {path: 'sellers', element: <ASellers />},
           {path: 'orders', element: <AOrders />},

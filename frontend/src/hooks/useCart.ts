@@ -1,22 +1,23 @@
- import { IBookInCart } from "../types/cart"
 import { useEffect, useState } from "react"
-
-import {
-  addBookToCartAPI, checkoutAPI, clearCartAPI, getCartOfUserAPI, removeBookFromCartAPI
-} from "../services/cartServices"
-import { useAuth } from "./useAuth"
+import { useNavigate } from "react-router-dom"
 import axios from "axios"
 
+import {
+  addBookToCartAPI,
+  clearCartAPI,
+  getCartOfUserAPI,
+  removeBookFromCartAPI
+} from "../services/cartServices"
+import { IBookInCart } from "../types/cart"
+import { useAuth } from "./useAuth"
 
-interface useCartProps {
-  userId: string
-  keepList: boolean
-}
 
 
-export default function useCart(props: useCartProps) {
-  const { userId = '@me', keepList = false } = props
+export default function useCart(props?: { userId?: string }) {
+  const { userId = "@me" } = props || {}
   const { user } = useAuth().authState
+  const navigate = useNavigate()
+
   const [cart, setCart] = useState<IBookInCart[]>([])
 
   if (!user)
@@ -26,94 +27,49 @@ export default function useCart(props: useCartProps) {
     throw new Error(`Unknown user type: ${user.type}`)
 
   useEffect(() => {
-    getCartOfUserAPI({userId})
-      .then(response => {
-        if (response.status >= 400)
-          alert(response.data.error)
-        else if (keepList)
-          setCart(response.data)
-      })
-  })
+    getCartOfUserAPI({ userId })
+      .then(response => setCart(response.data))
+  }, [])
 
 
-  async function addBookToCart(
-    bookId: string, options?: { quantity?: number }
-  ) {
-    const response = await addBookToCartAPI(bookId, {
-      quantity: options?.quantity, userId
-    })
+  async function addBookToCart(bookId: string, options?: { quantity?: number }) {
+    await addBookToCartAPI(bookId, {quantity: options?.quantity, userId})
 
-    if (response.status >= 400)
-      alert(response.data.error)
+    const bookRes = await axios.get('/api/books/' + bookId)
 
-    else {
-      const bookRes = await axios.get('/api/books/' + bookId)
+    setCart([...cart, {
+      _id: bookRes.data._id,
+      title: bookRes.data.title,
+      price: bookRes.data.price,
+      unitsInStock: bookRes.data.unitsInStock,
+      coverImage: bookRes.data.coverImage,
+      quantity: bookRes.data.quantity,
+    }])
 
-      if (response.status >= 400) {
-        alert(response.data.error)
-        return
-      }
-
-      if (keepList)
-        setCart([...cart, {
-          _id: bookRes.data._id,
-          title: bookRes.data.title,
-          price: bookRes.data.price,
-          unitsInStock: bookRes.data.unitsInStock,
-          coverImage: bookRes.data.coverImage,
-          quantity: bookRes.data.quantity,
-        }])
-
-      alert("Book has been added to cart successfully")
-    }
+    alert("Book has been added to cart successfully")
   }
 
-
   async function getCartOfUser() {
-    // const response = await getCartOfUserAPI({userId})
-
-    // if (response.status >= 400)
-    //   alert(response.data.error)
-
-    // else
     return cart
   }
 
   async function removeBookFromCart(bookId: string) {
-    const response = await removeBookFromCartAPI(bookId, {userId})
-
-    if (response.status >= 400)
-      alert(response.data.error)
-
-    else {
-      if (keepList)
-        setCart(cart.filter(book => book._id === bookId))
-      alert("Book has been removed to cart successfully")
-    }
+    await removeBookFromCartAPI(bookId, {userId})
+    setCart(cart.filter(book => book._id !== bookId))
+    alert("Book has been removed to cart successfully")
   }
 
-  async function checkout() {
-    const response = await checkoutAPI({ userId })
-    if (response.status >= 400)
-      alert(response.data.error)
-
-    else
-      setCart([])
+  async function checkoutCart() {
+    // setCart([])
+    navigate('/user/checkout?method=cart')
+    // await checkoutAPI({ userId })
   }
 
   async function clearCart() {
-    const response = await clearCartAPI({ userId })
-
-    if (response.status >= 400)
-      alert(response.data.error)
-
-    else {
-      if (keepList)
-        setCart([])
-      alert("Cart has been cleared successfully")
-    }
+    await clearCartAPI({ userId })
+    setCart([])
+    alert("Cart has been cleared successfully")
   }
 
-
-  return { cart, addBookToCart, getCartOfUser, removeBookFromCart, checkout, clearCart }
+  return { cart, addBookToCart, getCartOfUser, removeBookFromCart, checkoutCart, clearCart }
 }

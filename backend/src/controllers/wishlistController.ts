@@ -59,7 +59,7 @@ export async function getWishlistOfUser(req: Request, res: Response) {
       throw new HttpError('Error occurred while fetching wishlist', { cause: err })
     })
 
-  res.status(201).json(wishlist[0])
+  res.status(201).json(wishlist[0]?.books || [])
 }
 
 

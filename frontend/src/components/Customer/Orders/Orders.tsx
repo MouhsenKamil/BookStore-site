@@ -3,8 +3,8 @@ import { Link } from "react-router-dom"
 import axios from "axios"
 
 import { IOrder } from "../../../types/order"
-import { toTitleCase } from "../../../utils/stringUtils"
-import BookListItem from "../BookListItem/BookListItem"
+import { getTimeDiff, toTitleCase } from "../../../utils/stringUtils"
+import BookListItem from "../../Common/BookListItem/BookListItem"
 
 import './Orders.css'
 
@@ -33,8 +33,12 @@ export default function Orders() {
     return (
       <div className="order-list-item">
         <div className="order-details">
+          <p className="order-id"><strong>ID: </strong>{orderItem._id}</p>
           <p className="ordered-time"><strong>Ordered on: </strong>{(new Date(orderItem.orderTime)).toLocaleString()}</p>
-          <p className="delivered-time"><strong>Delivered by: </strong>{(new Date(orderItem.deliveredBy)).toLocaleString()}</p>
+          <p className="delivered-time"><strong>Delivered by: </strong>
+            <br /> {(new Date(orderItem.deliveredBy)).toLocaleString()}
+            <br /> (in {getTimeDiff(orderItem.orderTime, orderItem.deliveredBy)})
+          </p>
           <p className="delivery-status">
             <strong>Delivery Status: </strong>
             <span style={{ color: (orderItem.status === 'delivered') ? 'lightgreen': 'orange', fontWeight: "bold" }}>

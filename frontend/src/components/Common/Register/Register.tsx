@@ -49,13 +49,11 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
         dataObj = {
           ...dataObj,
           phoneNo: data.phoneNo,
-          passportNumber: data.passportNumber,
+          passportNo: data.passportNo,
         }
       }
 
       const response = await axios.post('/api/auth/register', dataObj)
-
-      console.log(JSON.stringify(response))
 
       if (response.status !== 200) {
         setRegistrationError(response.data.error)
@@ -147,7 +145,7 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
                 'phoneNo', {
                   required: 'Please enter your phone number',
                   pattern: {
-                    value: /^[0-9]{2}[a-z]{3}[CPHFATBLJG]{1}[a-z]{1}[0-9]{4}[a-z]{1}[0-9a-z]{1}Z[0-9a-z]{1}$/,
+                    value: /^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,
                     message: 'Phone number is invalid'
                   }
                 })}
@@ -155,15 +153,15 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
             {errors.phoneNo && <p className='error-msg'>{errors.phoneNo.message}</p>}
 
             <input type="string" placeholder="Passport no."
-              {...register('passportNumber', {
-                required: 'Please enter your passportNumber',
+              {...register('passportNo', {
+                required: 'Please enter your passport number',
                 pattern: {
                   value: /^[A-Z][1-9][0-9]\s?[0-9]{4}[1-9]$/,
                   message: 'Passport number number is invalid'
                 }
               })}
             />
-            {errors.passportNumber && <p className='error-msg'>{errors.passportNumber.message}</p>}
+            {errors.passportNo && <p className='error-msg'>{errors.passportNo.message}</p>}
           </>
         }
 

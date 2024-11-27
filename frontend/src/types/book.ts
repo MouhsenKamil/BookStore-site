@@ -1,14 +1,15 @@
 export interface IBook {
   _id: string
-  authorNames: Array<string>
+  authorNames: string[]
   title: string
   subtitle: string | null
-  lang: Array<string>
-  categories: Array<string>
-  coverImage: string | null
-  description: string | null
+  lang: string[]
+  categories: string[]
+  coverImage: string
+  description: string
   price: number
   unitsInStock: number
+  quantity: number
   seller: string
 }
 

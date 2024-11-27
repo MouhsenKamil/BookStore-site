@@ -29,7 +29,7 @@ export type RegisterFormInputs = {
   confirmPassword?: string
   type: 'customer' | 'seller' | 'admin'
   phoneNo?: number
-  passportNumber?: number
+  passportNo?: number
 }
 
 

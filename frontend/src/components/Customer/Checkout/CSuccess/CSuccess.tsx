@@ -21,7 +21,8 @@ export default function CSuccess() {
       <h3>Your Order has been created successfully</h3>
       <h4>Order ID: {checkoutSuccessData.orderId}</h4>
       <h4>Delivered on: {checkoutSuccessData.deliveredBy}</h4>
-      <Link to='/'>Return Home</Link>
+      <p>Track your order in the <Link to='/user/orders'>Orders</Link> Page</p>
+      <p><Link to='/'>Return Home</Link></p>
     </div>
   )
 }

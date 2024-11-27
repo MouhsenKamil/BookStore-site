@@ -31,7 +31,7 @@ MONGODB_USER_PASSWORD: MongoDB customer user account's username
 BOOKSTORE_DB_NAME: Name of the MongoDB Database
 
 BACKEND_PORT: Express JS backend port number (in integer)
-MONGODB_PORT: MongoDB port number (in integer)
+MONGODB_URI: URL endpoint where the MongoDB server is running and hosted
 
 # Secrets for secure encrypted communication
 ACCESS_TOKEN_SECRET: Secret key for signing access tokens

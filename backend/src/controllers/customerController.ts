@@ -37,7 +37,7 @@ export async function createCustomer(req: Request, res: Response) {
 
 
 export async function getCustomers(req: Request, res: Response) {
-  const { query, limit = '0', fields = '', sort = 'name', order = 'asc' } = req.query
+  const { query, limit = '10', fields = [], sort = 'name', order = 'asc' } = req.query
   const queryObj = query
     // ? { name: { $regex: (query as string).replace('/', '\\/'), $options: 'i' } }
     ? { name: { $regex: (query as string).replace('/', '\\/'), $options: 'i' } }
@@ -50,12 +50,16 @@ export async function getCustomers(req: Request, res: Response) {
 
   const orderInt = (orderStr === 'asc') ? 1: -1
 
-  let fieldsArr = (fields as string).trim().split(',')
+  let fieldsArr = fields as string[] // (fields as string).trim().split(',')
 
-  let projectionObj: Record<string, 1 | -1> = Object.fromEntries(
+  let projectionObj: Record<string, 1 | 0> = Object.fromEntries(
     fieldsArr.map(elem => [elem, 1])
   )
-  projectionObj.id = projectionObj.id ?? 0
+
+  if (Object.keys(projectionObj).length === 0)
+    projectionObj = { passwordHash: 0, __v: 0 }
+
+  projectionObj._id = projectionObj._id ?? 0
 
   const limitInt = +limit
 
@@ -63,7 +67,7 @@ export async function getCustomers(req: Request, res: Response) {
     { $match: queryObj },
     { $limit: limitInt },
     { $sort: { [sort as string]: orderInt }},
-    { $project: { ...projectionObj, passwordHash: 0, __v: 0 }}
+    { $project: projectionObj }
   ]).catch(err => {
     throw new HttpError('Error occurred while fetching users', { cause: err })
   })

@@ -11,6 +11,7 @@ import { useAuth } from "../../../hooks/useAuth"
 import { toTitleCase } from "../../../utils/stringUtils"
 
 import './Book.css'
+import { AddtoCartButton, AddtoWishlistButton } from "../CommonButtons"
 
 
 type bookStateType = IBookWithSellerName & { error?: string }
@@ -42,9 +43,11 @@ export default function Book() {
   const { user } = useAuth().authState
   const { bookId } = useParams()
   const navigate = useNavigate()
-  const location = useLocation()
+  // const location = useLocation()
   const [book, setBook] = useState<bookStateType>({} as IBookWithSellerName)
   const [quantity, setQuantity] = useState(1)
+
+  const [editing, setEditing] = useState(false)
 
   if (!bookId || bookId === "undefined") {
     navigate('/')
@@ -70,48 +73,44 @@ export default function Book() {
   if (book.error)
     return <><h1>Book not found</h1><Link to='/'>Return to Home</Link></>
 
-  const onAddToCart = async (_: MouseEvent<HTMLButtonElement>) => {
-    try { 
-      const response = await axios.post(
-        '/api/customer/@me/cart/add', { bookId, quantity }, { withCredentials: true }
-      )
+  // const onAddToCart = async (_: MouseEvent<HTMLButtonElement>) => {
+  //   try { 
+  //     const response = await axios.post(
+  //       '/api/customer/@me/cart/add', { bookId, quantity }, { withCredentials: true }
+  //     )
 
-      if (response.status === 401) {
-        navigate('/account/user/login?from=' + location.pathname)
-        return
-      }
+  //     if (response.status === 401) {
+  //       navigate('/account/user/login?from=' + location.pathname)
+  //       return
+  //     }
 
-      if (response.status < 400)
-        alert("Book has been added to cart successfully")
+  //     if (response.status < 400)
+  //       alert("Book has been added to cart successfully")
 
-      else
-        alert(response.data)
+  //     else
+  //       alert(response.data)
 
-    } catch (err) {
-      console.error(err)
-    }
-  }
+  //   } catch (err) {
+  //     console.error(err)
+  //   }
+  // }
 
-  const onAddToWishlist = async (_: MouseEvent<HTMLButtonElement>) => {
-    const response = await axios.post(
-      '/api/customer/@me/wishlist/add', { bookId }, { withCredentials: true }
-    )
+  // const onAddToWishlist = async (_: MouseEvent<HTMLButtonElement>) => {
+  //   const response = await axios.post(
+  //     '/api/customer/@me/wishlist/add', { bookId }, { withCredentials: true }
+  //   )
 
-    if (response.status < 400) {
-      alert("Book has been added to wishlist successfully")
-      return
-    }
+  //   if (response.status < 400) {
+  //     alert("Book has been added to wishlist successfully")
+  //     return
+  //   }
 
-    if (response.status == 401)
-      navigate('/account/user/login?from=' + location.pathname)
+  //   if (response.status == 401)
+  //     navigate('/account/user/login?from=' + location.pathname)
 
-    else
-      alert(response.data.error)
-  }
-
-  const onBuy = async (_: MouseEvent<HTMLButtonElement>) =>  {
-    navigate(`/user/checkout?method=bookOnly&bookId=${bookId}&quantity=${quantity}`)
-  }
+  //   else
+  //     alert(response.data.error)
+  // }
 
   const onDelete = async (_: MouseEvent<HTMLElement>) => {
     const response = await axios.delete(`/api/books/${bookId}`, { withCredentials: true })
@@ -124,8 +123,17 @@ export default function Book() {
     navigate("/")
   }
 
+  function onEdit(_: MouseEvent<HTMLButtonElement, MouseEvent>) {
+    if (!editing) {
+      setEditing(true)
+      return
+    }
+
+
+  }
+
   return (
-    <div className="book-display">
+    <div className="book-display" contentEditable={editing}>
       <CoverImage coverImg={book.coverImage} alt={book.title} />
 
       <div className="book-info">
@@ -174,21 +182,23 @@ export default function Book() {
 
         {errors.quantity && <p className="err-msg">{errors.quantity.message}</p>} */}
 
-        {(user && user.type !== 'seller') &&
-          <>
-            <div className="book-actions">
-              {(user?.type === 'customer') && <>
-                <IntInput text="Quantity: " min={1} max={book.unitsInStock}
-                  onValChange={val => { setQuantity(val) }}
-                />
-                <button title="Add to Wishlist" onClick={onAddToWishlist}>Add to Wishlist ⭐</button>
-                <button title="Add to Cart" onClick={onAddToCart}>Add to Cart 🛒</button>
-                <button title="Buy" onClick={onBuy}>Buy Now</button>
-                </>
-                }
-              {(user?.type === 'admin') && <button title="Delete" onClick={onDelete}>Delete</button>}
-            </div>
-          </>
+        {(user?.type === 'customer') && <div className="book-actions">
+            <IntInput text="Quantity: " min={1} max={book.unitsInStock}
+              onValChange={val => { setQuantity(val) }}
+            />
+            <AddtoWishlistButton bookId={bookId} />
+            <AddtoCartButton bookId={bookId} />
+
+            <button title="Buy" onClick={() => {
+              navigate(`/user/checkout?method=bookOnly&bookId=${bookId}&quantity=${quantity}`)
+            }}>Buy Now</button>
+          </div>
+        }
+
+        {(user?.type === 'admin') && <div className="book-actions">
+          {/* <button title="Edit" onClick={onEdit}>{!editing ? "Edit": "Confirm"}</button> */}
+          <button title="Delete" onClick={onDelete}>Delete</button>
+          </div>
         }
       </div>
     </div>

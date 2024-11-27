@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form"
 // import axios from "axios"
-import { useNavigate } from "react-router-dom"
+// import { useNavigate } from "react-router-dom"
 import { useState } from "react"
+
 // import { useAuth } from "../../../hooks/useAuth"
 
 
@@ -21,34 +22,35 @@ interface IBookFormInputs {
 export default function AddBook() {
   const { register, handleSubmit, formState: { errors } } = useForm<IBookFormInputs>()
   const [addBookErr, setAddBookErr] = useState('')
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   const [coverImage, setCoverImage] = useState<FileList | null>(null)
 
   const onSubmit = async (data: IBookFormInputs) => {
     try {
+      console.log(data)
       alert('Book has been added successfully!')
-      navigate('/')
+      // navigate('/')
       // console.log(JSON.stringify(data))
       // console.log(coverImage)
-      // // console.log(coverImage)
-      // // data.coverImage = coverImage
-      // // const formData = new FormData()
+      // console.log(coverImage)
+      // data.coverImage = coverImage
+      // const formData = new FormData()
 
-      // // Object.entries(data).forEach(([key, value]) => {
-      // //   if (key === "coverImage" || value === undefined || value === null)
-      // //     return
+      // Object.entries(data).forEach(([key, value]) => {
+      //   if (key === "coverImage" || value === undefined || value === null)
+      //     return
 
-      // //   if (value instanceof Array) {
-      // //     for (let val of value)
-      // //       formData.append(key + '[]', val)
-      // //     return
-      // //   }
+      //   if (value instanceof Array) {
+      //     for (let val of value)
+      //       formData.append(key + '[]', val)
+      //     return
+      //   }
 
-      // //   formData.append(key, value)
-      // // })
+      //   formData.append(key, value)
+      // })
 
-      // // if (coverImage)
-      // //   formData.append("coverImage", coverImage[0], coverImage[0].name)
+      // if (coverImage)
+      //   formData.append("coverImage", coverImage[0], coverImage[0].name)
 
       // if (coverImage)
       //   data.coverImage = coverImage[0]

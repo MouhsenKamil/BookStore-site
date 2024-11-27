@@ -9,10 +9,13 @@ import { BookArchive } from '../models/BooksArchive.ts'
 import { getRandInt } from '../utils/funcUtils.ts'
 import { ICheckoutFormData, Order } from '../models/Order.ts'
 // import { BookUniqueListValues } from '../models/BookUniqueListValues.ts'
-import { metadataListQuerier } from '../utils/bookUtils.ts'
 import { Language } from '../models/Languages.ts'
 import { Author } from '../models/Author.ts'
 import { Category } from '../models/Category.ts'
+
+
+
+const _7_DAYS = 24 * 60 * 60 * 1000
 
 
 interface IBookPurchaseFormData extends ICheckoutFormData {
@@ -325,7 +328,7 @@ export async function purchaseBook(req: Request, res: Response) {
 
   const currentDate = new Date()
   const deliveredByDate = new Date(
-    currentDate.getTime() + getRandInt(1, 7) * (24 * 60 * 60) // Delivery time: 1-7 days (random)
+    currentDate.getTime() + getRandInt(1, 7) * _7_DAYS
   )
 
   const order = new Order({

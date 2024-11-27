@@ -6,9 +6,16 @@ export async function getCartOfUserAPI(
 ): Promise<AxiosResponse> {
   let { userId = "@me" } = options || {}
 
-  return await axios.get(
+  const response = await axios.get(
     `/api/customer/${userId}/cart/`, { withCredentials: true }
   )
+
+  if (response.status >= 400) {
+    alert(response.data.error)
+    throw new Error(response.data.error)
+  }
+
+  return response
 }
 
 
@@ -17,9 +24,16 @@ export async function addBookToCartAPI(
 ): Promise<AxiosResponse> {
   let { quantity = 1, userId = "@me" } = options || {}
 
-  return await axios.post(
+  const response = await axios.post(
     `/api/customer/${userId}/cart/add`, { bookId, quantity }, { withCredentials: true }
   )
+
+  if (response.status >= 400) {
+    alert(response.data.error)
+    throw new Error(response.data.error)
+  }
+
+  return response
 }
 
 
@@ -28,25 +42,46 @@ export async function removeBookFromCartAPI(
 ): Promise<AxiosResponse> {
   let { userId = "@me" } = options || {}
 
-  return await axios.patch(
+  const response = await axios.patch(
     `/api/customer/${userId}/cart/delete`, { bookId }, { withCredentials: true }
   )
+
+  if (response.status >= 400) {
+    alert(response.data.error)
+    throw new Error(response.data.error)
+  }
+
+  return response
 }
 
 
 export async function clearCartAPI(options?: { userId?: string }): Promise<AxiosResponse> {
   let { userId = "@me" } = options || {}
 
-  return await axios.delete(
+  const response = await axios.delete(
     `/api/customer/${userId}/cart/clear`, { withCredentials: true }
   )
+
+  if (response.status >= 400) {
+    alert(response.data.error)
+    throw new Error(response.data.error)
+  }
+
+  return response
 }
 
 
 export async function checkoutAPI(options?: { userId?: string }): Promise<AxiosResponse> {
   let { userId = "@me" } = options || {}
 
-  return await axios.post(
+  const response =  await axios.post(
     `/api/customer/${userId}/cart/checkout`, { withCredentials: true }
   )
+
+  if (response.status >= 400) {
+    alert(response.data.error)
+    throw new Error(response.data.error)
+  }
+
+  return response
 }

@@ -1,4 +1,5 @@
 import express from 'express'
+
 import {
   deleteCustomer,
   getCustomerById,
@@ -8,7 +9,6 @@ import {
   addCreditCard,
   deleteCreditCard,
 } from '../controllers/customerController.ts'
-
 import cartRoutes from './cartRoutes.ts'
 import orderRoutes from './orderRoutes.ts'
 import wishListRoutes from './wishlistRoutes.ts'

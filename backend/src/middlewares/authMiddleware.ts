@@ -21,6 +21,8 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       debugMsg: 'Cookies were empty while trying to authenticate user'
     })
 
+  console.log(Object.keys(cookies))
+
   const refreshToken = cookies[env.REFRESH_TOKEN_COOKIE_NAME]
   const accessTokenHeaderPayload = cookies[env.ACCESS_TOKEN_HEADER_PAYLOAD_COOKIE_NAME]
   const accessTokenSign = cookies[env.ACCESS_TOKEN_SIGN_COOKIE_NAME]
