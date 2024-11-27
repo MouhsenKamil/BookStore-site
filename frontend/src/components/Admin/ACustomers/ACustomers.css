@@ -17,7 +17,8 @@
   padding: 0.25em 0.5em;
   width: fit-content;
   border: 2px solid black;
-  overflow: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
   resize: horizontal;
   text-align: center;
   scrollbar-width: thin;
@@ -25,8 +26,6 @@
 
 .customers-list .customer-item td.customer-id, .customers-list thead th:first-child {
   flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .customers-list .customer-item .customer-actions,  .customers-list thead th:last-child {

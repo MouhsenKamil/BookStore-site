@@ -17,7 +17,8 @@
   padding: 0.25em 0.5em;
   width: fit-content;
   border: 2px solid black;
-  overflow: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
   resize: horizontal;
   text-align: center;
   scrollbar-width: thin;
@@ -25,8 +26,6 @@
 
 .sellers-list .seller-item td.seller-id, .sellers-list thead th:first-child {
   flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .sellers-list .seller-item .seller-actions,  .sellers-list thead th:last-child {

@@ -28,12 +28,14 @@ MONGODB_ADMIN_PASSWORD: MongoDB Admin user acount's password
 MONGODB_USER_USERNAME: MongoDB customer user account's username
 MONGODB_USER_PASSWORD: MongoDB customer user account's username
 
+# Note: You can use either of the credentials based off of your need.
+
 BOOKSTORE_DB_NAME: Name of the MongoDB Database
 
 BACKEND_PORT: Express JS backend port number (in integer)
 MONGODB_URI: URL endpoint where the MongoDB server is running and hosted
 
-# Secrets for secure encrypted communication
+# Secrets for secure encrypted communication/authentication
 ACCESS_TOKEN_SECRET: Secret key for signing access tokens
 REFRESH_TOKEN_SECRET: Secret key for signing refresh tokens
 COOKIE_SESSION_SECRET: Secret key for cookie-parser package for signing cookies
