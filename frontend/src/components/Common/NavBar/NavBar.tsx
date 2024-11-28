@@ -74,7 +74,7 @@ export default function NavBar() {
         alt="Bookstore site"
         onClick={() => navigate('/')}
       />
-      {(user?.type === 'customer') && <SearchBar />}
+      {(!user || user.type === 'customer') && <SearchBar />}
       {(!!user)
         ? <ProfilePic />
         : <button className='login-btn' onClick={() => navigate("/account/user/login")}>
