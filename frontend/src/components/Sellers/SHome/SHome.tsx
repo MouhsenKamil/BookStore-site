@@ -55,13 +55,13 @@ export default function SHome() {
         : <div className="books-list">
           {(
             analytics.booksInStock.map((book, key) => {
-              let _book = { ...book, sellerName: user?.name } as IBookWithSellerName
+              const _book = { ...book, sellerName: user?.name } as IBookWithSellerName
               return <BookCard key={key} book={_book} />
             })
           )}
           {(
             analytics.booksSold.map((book, key) => {
-              let _book = { ...book, sellerName: user?.name } as IBookWithSellerName
+              const _book = { ...book, sellerName: user?.name } as IBookWithSellerName
               return <BookCard key={key} book={_book} />
             })
           )}

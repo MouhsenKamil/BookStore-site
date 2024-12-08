@@ -40,60 +40,20 @@ export default function ASellers() {
         passportNo: newSellerPassportNo,
         phoneNo: newSellerPhoneNo
       })
-
-      // const idxOfChangedSeller = sellers.findIndex(c => c._id === seller._id)
-      // let newSellersList = [...sellers.filter(c => c._id !== seller._id)]
-  
-      // newSellersList.splice(idxOfChangedSeller, 0, newData)
     }
 
     setEditingItem([...editingItem.filter(val => val !== key)])
   }
 
-  // async function fetchSellers(query: string = '') {
-  //   let params = {
-  //     query, fields: ['_id', 'name', 'email', 'blocked']
-  //   }
-
-  //   const response = await getSellersAPI(params)
-  //   setSellers(response.data.results)
-  // }
-
-  // useEffect(() => {
-  //   fetchSellers()
-  // }, [])
-
-  // async function deleteSeller(sellerId: string) {
-  //   const response = await deleteSellerAPI(sellerId)
-  //   if (response.status === 200)
-  //     setSellers(sellers.filter(seller => seller._id !== sellerId))
-  // }
-
-  // async function toggleBlockSeller(sellerId: string, blocked: boolean) {
-  //   if (blocked)
-  //     await unblockSellerAPI(sellerId)
-  //   else
-  //     await blockSellerAPI(sellerId)
-
-  //   const idxOfChangedSeller = sellers.findIndex(seller => seller._id === sellerId)
-  //   let newSellersList = [...sellers.filter(seller => seller._id !== sellerId)]
-
-  //   newSellersList.splice(
-  //     idxOfChangedSeller, 0, {
-  //       ...sellers.find(seller => seller._id === sellerId),
-  //       blocked: !blocked,
-  //     } as ISeller
-  //   )
-
-  //   setSellers(newSellersList)
-  // }
-
   return (
     <div className="sellers-list-container">
       <h1>Seller List</h1>
-      <input type="text" onChange={async (e: ChangeEvent<HTMLInputElement>) => {
-        await searchSellers({ query: e.target.value })
-      }} />
+      <input type="text" placeholder="Search Sellers"
+        onChange={async (e: ChangeEvent<HTMLInputElement>) => {
+          await searchSellers({ query: e.target.value })
+        }}
+      />
+
       {sellers.length === 0
         ? <p>No sellers are available.</p>
         : <table className="sellers-list">
@@ -130,16 +90,17 @@ export default function ASellers() {
                 </td>
 
                 <td className="seller-actions">
-                  <button
-                    type="button"
-                    title={!seller.blocked ? "Block" : "Unblock"}
-                    style={{ backgroundColor: seller.blocked ? 'green' : 'red' }}
-                    onClick={async () => {
-                      await toggleBlockSeller(seller._id)
-                    }}>
-                    {!seller.blocked ? "Block" : "Unblock"}
-                  </button>
-        
+                  {!editingItem.includes(key) && <button
+                      type="button"
+                      title={!seller.blocked ? "Block" : "Unblock"}
+                      style={{ backgroundColor: seller.blocked ? 'green' : 'red' }}
+                      onClick={async () => {
+                        await toggleBlockSeller(seller._id)
+                      }}>
+                      {!seller.blocked ? "Block" : "Unblock"}
+                    </button>
+                  }
+
                   <button
                     type="button"
                     title={!editingItem.includes(key) ? "Edit": "Confirm"}
@@ -147,12 +108,33 @@ export default function ASellers() {
                   >
                     {!editingItem.includes(key) ? "Edit": "Confirm"}
                   </button>
-        
-                  <button type="button" title="Delete Seller" onClick={
+
+                  {editingItem.includes(key) &&
+                    <button
+                      type="button"
+                      title="Cancel"
+                      onClick={e => {
+                        const parentElem = e.currentTarget.parentElement?.parentElement
+
+                        if (!parentElem)
+                          return
+
+                        parentElem.querySelector(".seller-name")?.textContent || seller.name
+                        parentElem.querySelector(".seller-email")?.textContent || seller.email
+                        setEditingItem([...editingItem.filter(val => val !== key)])
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  }
+
+                  {!editingItem.includes(key) && <button
+                    type="button" title="Delete Seller" onClick={
                     async () => await deleteSeller(seller._id)
-                  }>
-                    Delete
-                  </button>
+                    }>
+                      Delete
+                    </button>
+                  }
                 </td>
               </tr>
             ))}

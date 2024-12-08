@@ -144,12 +144,12 @@ export function IsAuthenticated(props: IsAuthenticatedProps) {
 
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await authenticate(req, res, (...args) => { })
+      await authenticate(req, res, () => {})
       if (yes !== undefined && Object.keys(yes).length) {
         res.status(yes.statusCode ?? 200).json({ message, url: yes.redirectTo })
         return
       }
-    } catch (err) {
+    } catch {
       if (no !== undefined && Object.keys(no).length) {
         res.status(no.statusCode ?? 401).json({ message, url: no.redirectTo })
         return

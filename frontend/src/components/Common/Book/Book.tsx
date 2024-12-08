@@ -1,17 +1,17 @@
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { useState, MouseEvent, useEffect } from "react"
 import axios from "axios"
 
 import languages from "../../../public/languages-iso-639-2.json"
 import { IBookWithSellerName } from "../../../types/book"
 import CoverImage from "../CoverImage/CoverImage"
+import { AddtoCartButton, AddtoWishlistButton } from "../CommonButtons"
 import IntInput from "../IntInput/IntInput"
 import { useAuth } from "../../../hooks/useAuth"
 
 import { toTitleCase } from "../../../utils/stringUtils"
 
 import './Book.css'
-import { AddtoCartButton, AddtoWishlistButton } from "../CommonButtons"
 
 
 type bookStateType = IBookWithSellerName & { error?: string }
@@ -40,19 +40,21 @@ function TagsList(props: TagsProps) {
 
 
 export default function Book() {
-  const { user } = useAuth().authState
   const { bookId } = useParams()
   const navigate = useNavigate()
-  // const location = useLocation()
+
+  if (!bookId || bookId === "undefined") {
+    alert("Parameter 'bookId' has no value.")
+    navigate('/')
+    return
+  }
+
+  const { user } = useAuth().authState
+
   const [book, setBook] = useState<bookStateType>({} as IBookWithSellerName)
   const [quantity, setQuantity] = useState(1)
 
   const [editing, setEditing] = useState(false)
-
-  if (!bookId || bookId === "undefined") {
-    navigate('/')
-    return
-  }
 
   useEffect(() => {
     async function getBook(bookId: string) {
@@ -112,7 +114,7 @@ export default function Book() {
   //     alert(response.data.error)
   // }
 
-  const onDelete = async (_: MouseEvent<HTMLElement>) => {
+  const onDelete = async (_: MouseEvent<HTMLButtonElement>) => {
     const response = await axios.delete(`/api/books/${bookId}`, { withCredentials: true })
     if (response.status >= 400) {
       alert(response.data.error)
@@ -123,13 +125,13 @@ export default function Book() {
     navigate("/")
   }
 
-  function onEdit(_: MouseEvent<HTMLButtonElement, MouseEvent>) {
+  function onEdit(_: MouseEvent<HTMLButtonElement>) {
     if (!editing) {
       setEditing(true)
       return
     }
 
-
+    
   }
 
   return (
@@ -196,7 +198,7 @@ export default function Book() {
         }
 
         {(user?.type === 'admin') && <div className="book-actions">
-          {/* <button title="Edit" onClick={onEdit}>{!editing ? "Edit": "Confirm"}</button> */}
+          <button title="Edit" onClick={onEdit}>{!editing ? "Edit": "Confirm"}</button>
           <button title="Delete" onClick={onDelete}>Delete</button>
           </div>
         }

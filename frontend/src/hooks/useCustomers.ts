@@ -8,10 +8,10 @@ import {
   deleteCustomerAPI,
   blockCustomerAPI,
   unblockCustomerAPI,
-  getBlockableUserAPIProps
 } from "../services/customerServices"
 // import { ICustomer } from "../types/customer"
 import { IBlockableUser } from "../types/user"
+import { GetSearchResultsProps } from "../types/commonTypes"
 
 
 export default function useCustomers() {
@@ -28,7 +28,7 @@ export default function useCustomers() {
     return customers
   }
 
-  async function searchCustomers(params: getBlockableUserAPIProps) {
+  async function searchCustomers(params: GetSearchResultsProps<IBlockableUser>) {
     const keys = Object.keys(params)
     if (keys.length === 0)
       return customers
@@ -57,11 +57,10 @@ export default function useCustomers() {
     if (idxOfChangedCustomer === -1)
       throw new Error(`Customer ${customerId} not found`)
 
-    let newCustomersList = [...customers.filter(c => c._id !== customerId)]
+    const newCustomersList = [...customers.filter(c => c._id !== customerId)]
 
     newCustomersList.splice(idxOfChangedCustomer, 0, {
-      ...customers[idxOfChangedCustomer],
-      ...data
+      ...customers[idxOfChangedCustomer], ...data
     })
     setCustomers(newCustomersList)
   }

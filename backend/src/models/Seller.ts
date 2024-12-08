@@ -9,7 +9,7 @@ export interface ISeller extends IBlockableUser {
 
 type SellerDoc = ISeller & Document
 
-const PHONE_NUMBER_REGEX = /^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/i
+const PHONE_NUMBER_REGEX = /^(\+\d{1,2}\s?)?1?-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/i
 // const PASSPORT_NUMBER_REGEX = /^[0-9]{2}[a-z]{3}[CPHFATBLJG]{1}[a-z]{1}[0-9]{4}[a-z]{1}[0-9a-z]{1}Z[0-9a-z]{1}$/i
 const PASSPORT_NUMBER_REGEX = /^[A-Z][1-9][0-9]\s?[0-9]{4}[1-9]$/g
 

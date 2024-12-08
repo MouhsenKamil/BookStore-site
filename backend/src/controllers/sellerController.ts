@@ -11,7 +11,7 @@ import { deleteCustomer } from './customerController.ts'
 import { logEvents } from '../middlewares/logger.ts'
 
 
-export async function createSeller(req: Request, res: Response) {
+export async function createSeller(req: Request) {
   const sellerExists = await Seller.findOne({ email: req.body.email })
 
   if (sellerExists)
@@ -50,7 +50,7 @@ export async function getSellers(req: Request, res: Response) {
 
   const orderInt = (orderStr === 'asc') ? 1: -1
 
-  let fieldsArr = fields as string[]
+  const fieldsArr = fields as string[]
   let projectionObj: Record<string, 1 | 0> = Object.fromEntries(
     fieldsArr.map(elem => [elem, 1])
   )

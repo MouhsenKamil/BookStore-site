@@ -46,7 +46,7 @@ export default function Checkout() {
       setSubmitURL(`/api/books/${searchParams.bookId}/purchase`)
 
     else
-      throw new Error("checkout method must be either 'cart' or 'bookOnly'")
+      throw new Error(`checkout method must be either 'cart' or 'bookOnly', but got ${searchParams.method}`)
   }, [])
 
   const paymentMethod = watch("paymentMethod")

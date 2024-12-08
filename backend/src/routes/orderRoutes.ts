@@ -1,8 +1,9 @@
 import express from 'express'
+
 import {
   getOrdersOfUser,
   getOrderById,
-  updateOrderStatus,
+  updateOrder,
   // deleteOrder,
   cancelOrder
 } from '../controllers/orderController.ts'
@@ -14,7 +15,7 @@ const routeWithOrderId = express.Router({ mergeParams: true })
 routeWithOrderId.use(checkRequestAttrs({obj: 'params', must: ['orderId']}))
 
 routeWithOrderId.get('/', getOrderById)
-routeWithOrderId.patch('/', updateOrderStatus)
+routeWithOrderId.patch('/', updateOrder)
 routeWithOrderId.delete('/', cancelOrder)
 // routeWithOrderId.delete('/', deleteOrder)
 

@@ -2,7 +2,7 @@ import { IBookInCart } from "../models/Cart"
 
 
 export function mergeBooksByQuantity(books: IBookInCart[]) {
-  let acc: { [key: string]: number } = {}
+  const acc: { [key: string]: number } = {}
 
   for (const book of books) {
     const bookId = (book.id as unknown) as string
@@ -14,9 +14,9 @@ export function mergeBooksByQuantity(books: IBookInCart[]) {
       acc[bookId] += book.quantity
   }
 
-  let res: {id: string, quantity: number}[] = []
+  const res: {id: string, quantity: number}[] = []
 
-  for (let key in acc)
+  for (const key in acc)
     res.push({id: key, quantity: acc[key]})
 
   return res

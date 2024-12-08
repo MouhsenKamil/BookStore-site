@@ -20,7 +20,7 @@ export default function Wishlist() {
           {(wishlist.map((book, key) => (
             <BookListItem key={key} book={book}>
               <button onClick={async (e) => {
-                let target = e.currentTarget ?? e.target
+                const target = e.currentTarget ?? e.target
                 try {
                   await removeBookFromWishlist(book._id)
                   target.inputMode = "Removed from Wishlist ✅"

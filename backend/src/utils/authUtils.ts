@@ -91,7 +91,7 @@ export function clearAccessTokenFromCookies(res: Response) {
 
 
 export async function verifyAccessToken(accessToken: string): Promise<AccessToken> {
-  return new Promise((resolve, _) => {
+  return new Promise((resolve) => {
     jwt.verify(accessToken, env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (!err && decoded) {
         resolve(decoded as AccessToken)
@@ -163,7 +163,7 @@ export function clearRefreshTokenFromCookies(res: Response) {
 
 
 export async function verifyRefreshToken(refreshToken: string): Promise<RefreshToken> {
-  return new Promise((resolve, _) => {
+  return new Promise((resolve) => {
     jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
       if (!err && decoded) {
         resolve(decoded as RefreshToken)

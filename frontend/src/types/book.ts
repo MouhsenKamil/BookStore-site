@@ -13,6 +13,20 @@ export interface IBook {
   seller: string
 }
 
+
+export interface IBookFormInputs {
+  authorName: string[]
+  title: string
+  subtitle: string | null
+  lang: string[]
+  categories: string[]
+  coverImage: File | null
+  description: string | null
+  price: number
+  unitsInStock: number
+}
+
+
 export interface IBookWithSellerName extends IBook {
   sellerName: string
 }

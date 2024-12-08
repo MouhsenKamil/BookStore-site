@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express"
+import express, { Request, Response } from "express"
 import 'express-async-errors'
 
 import mongoose from "mongoose"
@@ -47,7 +47,7 @@ app.get('/', (req: Request, res: Response) => {
 })
 
 // Return 404 on unknown routes
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response) => {
   res.status(404).json({ error: "Unknown endpoint" })
 })
 

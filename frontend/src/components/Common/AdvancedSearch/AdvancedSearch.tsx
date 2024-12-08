@@ -1,12 +1,12 @@
 import{ useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
+import { useParams } from "react-router-dom"
 import axios from "axios"
 import Slider from "rc-slider"
-import { IBook } from "../../types/book"
 
-import { useParams } from "react-router-dom"
+import { IBook } from "../../../types/book"
+
 import "rc-slider/assets/index.css"
-
 import './AdvancedSearch.css'
 
 
@@ -38,6 +38,7 @@ export default function AdvancedBookSearch() {
     if (!params.query)
       return
 
+    console.log(params)
     const priceRange = (params.priceRange as unknown) as [number, number]
 
     onSubmit({
@@ -78,7 +79,6 @@ export default function AdvancedBookSearch() {
   return (
     <div className="advanced-search">
       <form onSubmit={handleSubmit(onSubmit)} className="filters">
-        <input type="text" placeholder="Search Title" {...register("query", { required: true })} />
         <input type="text" placeholder="Subtitle" {...register("subtitle")} />
         <input type="text" placeholder="Language" {...register("lang")} />
         <input type="text" placeholder="Categories" {...register("categories")} />
@@ -89,7 +89,7 @@ export default function AdvancedBookSearch() {
             control={control}
             render={({ field }) => (
               <>
-                <p>Price Range: ₹{field.value[0]} - ₹{field.value[1] || 1000}</p>
+                <p>Price Range: ₹{field.value[0] || 0} - ₹{field.value[1] || 1000}</p>
                 <Slider
                   range min={0} max={5000} defaultValue={[0, 1000]} onChange={field.onChange}
                 />

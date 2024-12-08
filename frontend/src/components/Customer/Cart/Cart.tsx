@@ -21,7 +21,7 @@ export default function Cart() {
               {(cart.map((book, key) => (
                 <BookListItem key={key} book={book}>
                   <button className="remove-from-cart-btn" onClick={async (e) => {
-                    let target = e.currentTarget ?? e.target
+                    const target = e.currentTarget ?? e.target
                     try {
                       await removeBookFromCart(book._id)
                       target.inputMode = "Removed from Cart ✅"

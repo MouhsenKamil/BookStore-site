@@ -7,7 +7,7 @@ import { logEvents } from '../middlewares/logger.ts'
 import { CreditCard } from '../models/CreditCard.ts'
 
 
-export async function createCustomer(req: Request, res: Response) {
+export async function createCustomer(req: Request) {
   const userExists = await Customer.findOne({ email: req.body.email })
   if (userExists)
     throw new NewUserError('User already exists', {
@@ -39,7 +39,6 @@ export async function createCustomer(req: Request, res: Response) {
 export async function getCustomers(req: Request, res: Response) {
   const { query, limit = '10', fields = [], sort = 'name', order = 'asc' } = req.query
   const queryObj = query
-    // ? { name: { $regex: (query as string).replace('/', '\\/'), $options: 'i' } }
     ? { name: { $regex: (query as string).replace('/', '\\/'), $options: 'i' } }
     : {}
 
@@ -50,7 +49,7 @@ export async function getCustomers(req: Request, res: Response) {
 
   const orderInt = (orderStr === 'asc') ? 1: -1
 
-  let fieldsArr = fields as string[] // (fields as string).trim().split(',')
+  const fieldsArr = fields as string[] // (fields as string).trim().split(',')
 
   let projectionObj: Record<string, 1 | 0> = Object.fromEntries(
     fieldsArr.map(elem => [elem, 1])

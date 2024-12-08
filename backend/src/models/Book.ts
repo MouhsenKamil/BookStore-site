@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose'
-import { Category } from './Category'
-import { Author } from './Author'
+// import { Category } from './Category'
+// import { Author } from './Author'
 
 
 export interface IBook {
@@ -42,20 +42,20 @@ export const BookSchema = new Schema<BookDoc>({
 })
 
 
-async function updateCategories(categories: string[]) {
-  for (const category of categories)
-    await Category.updateOne(
-      { name: category.trim() }, { $setOnInsert: { name: category } }, { upsert: true }
-    )
-}
+// async function updateCategories(categories: string[]) {
+//   for (const category of categories)
+//     await Category.updateOne(
+//       { name: category.trim() }, { $setOnInsert: { name: category } }, { upsert: true }
+//     )
+// }
 
 
-async function updateAuthorNames(authorNames: string[]) {
-  for (const authorName of authorNames)
-    await Author.updateOne(
-      { name: authorName.trim() }, { $setOnInsert: { name: authorName } }, { upsert: true }
-    )
-}
+// async function updateAuthorNames(authorNames: string[]) {
+//   for (const authorName of authorNames)
+//     await Author.updateOne(
+//       { name: authorName.trim() }, { $setOnInsert: { name: authorName } }, { upsert: true }
+//     )
+// }
 
 
 // BookSchema.post<BookDoc>('save', async function (options, next) {

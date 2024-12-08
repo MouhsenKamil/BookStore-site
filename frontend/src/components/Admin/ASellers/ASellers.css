@@ -36,4 +36,5 @@
 
 .sellers-list-container input[type="text"] {
   width: calc(100% - 2rem);
+  margin-bottom: 1em;
 }

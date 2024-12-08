@@ -5,7 +5,7 @@ import { addBookToWishlistAPI } from "../../services/wishlistServices"
 export function AddtoWishlistButton({ bookId }: { bookId: string }) {
   return (
     <button type="button" title="Add to Wishlist" onClick={async (e) => {
-      let target = e.currentTarget ?? e.target
+      const target = e.currentTarget ?? e.target
       try {
         await addBookToWishlistAPI(bookId)
         target.innerText = "Added to Wishlist ✅"
@@ -26,7 +26,7 @@ export function AddtoWishlistButton({ bookId }: { bookId: string }) {
 export function AddtoCartButton({ bookId }: { bookId: string }) {
   return (
     <button type="button" title="Add to Cart" onClick={async (e) => {
-      let target = e.currentTarget ?? e.target
+      const target = e.currentTarget ?? e.target
       try {
         addBookToCartAPI(bookId)
         e.currentTarget.innerText = "Added to Cart ✅"

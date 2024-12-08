@@ -3,15 +3,14 @@ import { useEffect, useState } from "react"
 import {
   getSellersAPI,
   getSellerByIdAPI,
-  // changeUserPasswordAPI,
   updateSellerAPI,
   deleteSellerAPI,
   blockSellerAPI,
   unblockSellerAPI
 } from "../services/sellerServices"
-// import { ISeller } from "../types/seller"
-import { getBlockableUserAPIProps } from "../services/customerServices"
 import { ISeller } from "../types/seller"
+import { IBlockableUser } from "../types/user"
+import { GetSearchResultsProps } from "../types/commonTypes"
 
 
 export default function useSellers() {
@@ -28,7 +27,7 @@ export default function useSellers() {
     return sellers
   }
 
-  async function searchSellers(params: getBlockableUserAPIProps) {
+  async function searchSellers(params: GetSearchResultsProps<IBlockableUser>) {
     const keys = Object.keys(params)
     if (keys.length === 0)
       return sellers
@@ -57,17 +56,17 @@ export default function useSellers() {
     if (idxOfChangedSeller === -1)
       throw new Error(`Seller ${sellerId} not found`)
 
-    let newSellersList = [...sellers.filter(c => c._id !== sellerId)]
+    const newSellersList = [...sellers.filter(c => c._id !== sellerId)]
 
     newSellersList.splice(idxOfChangedSeller, 0, {
-      ...sellers[idxOfChangedSeller],
-      ...data
+      ...sellers[idxOfChangedSeller], ...data
     })
     setSellers(newSellersList)
   }
 
   async function deleteSeller(sellerId: string) {
     const response = await deleteSellerAPI(sellerId)
+
     setSellers(sellers.filter(c => c._id !== sellerId))
     return response
   }

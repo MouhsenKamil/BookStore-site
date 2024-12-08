@@ -42,7 +42,7 @@ export default function Login(props: { parent: Exclude<UserType, 'customer'> }) 
 
       // let uri = Object.fromEntries(new URLSearchParams(decodeURI(location.search)))
       // let redirectTo = uri.from || response.data.url || '/'
-      let redirectTo = UrlSearchParams.get('from') || response.data.url || '/'
+      const redirectTo = UrlSearchParams.get('from') || response.data.url || '/'
       console.log('redirectTo', redirectTo)
 
       navigate(redirectTo)

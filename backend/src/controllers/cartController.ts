@@ -19,7 +19,7 @@ export async function updatedCart(req: Request, res: Response) {
   if (userId === '@me')
     userId = req.__userAuth.id
 
-  const updatedCart = await Cart.findOneAndUpdate(
+  await Cart.findOneAndUpdate(
     { user: userId }, { books: req.body.books }, { new: true, upsert: true }
   )
 

@@ -1,9 +1,10 @@
+import mongoose from 'mongoose'
 import { Request, Response } from 'express'
+
 import { Order, OrderStatus } from '../models/Order.ts'
 import { Book } from '../models/Book.ts'
 import { HttpError } from '../utils/exceptions.ts'
 import { BookArchive } from '../models/BooksArchive.ts'
-import mongoose from 'mongoose'
 
 
 export async function getOrdersOfUser(req: Request, res: Response) {
@@ -87,8 +88,29 @@ export async function getOrdersOfUser(req: Request, res: Response) {
   res.status(200).json(orders)
 }
 
-export async function getAllOrders(req: Request, res: Response) {
-  const orders = await Order.find({})
+
+export async function getOrders(req: Request, res: Response) {
+  const { limit = 10, fields = [], sort = 'name', order = 'asc' } = req.query
+  const orderStr = (order as string).toLowerCase()
+
+  if (!['asc', 'desc'].includes(orderStr))
+    throw new HttpError(`Invalid value for sort order: ${order}`, { statusCode: 400 })
+
+  const orderInt = (orderStr === 'asc') ? 1: -1
+  const fieldsArr = fields as string[] // (fields as string).trim().split(',')
+
+  let projectionObj: Record<string, 1 | 0> = Object.fromEntries(
+    fieldsArr.map(elem => [elem, 1])
+  )
+
+  if (Object.keys(projectionObj).length === 0)
+    projectionObj = { __v: 0 }
+
+  projectionObj._id = projectionObj._id ?? 0
+
+  const orders = await Order.find(
+    {}, { limit: +limit }, { sort: { [sort as string]: orderInt } },
+  )
   res.status(200).json(orders)
 }
 
@@ -106,10 +128,9 @@ export async function getOrderById(req: Request, res: Response) {
 }
 
 
-export async function updateOrderStatus(req: Request, res: Response) {
-  const { status } = req.body
+export async function updateOrder(req: Request, res: Response) {
   const updatedOrder = await Order.findByIdAndUpdate(
-    req.params.orderId, { status: status }, { new: true, runValidators: true }
+    req.params.orderId, req.body, { new: true, runValidators: true }
   )
   .catch((err) => {
     throw new HttpError('Error occurred while updating order', { cause: err })

@@ -9,12 +9,12 @@ function logFilenameGenerator(filename: string) {
       return filename
 
     const _time = (time instanceof Date) ? time.toUTCString() : time.toString()
-    return `${time}-${index}-${filename}`;
+    return `${_time}-${index}-${filename}`;
   }
 }
 
 function createLogger(logFileName: string, logParentDirPath?: string) {
-  let logDirPath = logParentDirPath ?? logFileName.slice(0, -4)
+  const logDirPath = logParentDirPath ?? logFileName.slice(0, -4)
   return createStream(logFilenameGenerator(logFileName), {
     interval: '1d',
     size: '30M',

@@ -62,8 +62,8 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
   
       fetchAuthData()
 
-      let uri = Object.fromEntries(new URLSearchParams(decodeURI(location.search)))
-      let redirectTo = uri.from || response.data.url || '/'
+      const uri = Object.fromEntries(new URLSearchParams(decodeURI(location.search)))
+      const redirectTo = uri.from || response.data.url || '/'
 
       navigate(redirectTo)
     } catch (err) {
@@ -120,8 +120,8 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
         />
         {errors.password && <ul className='error-msg'>{(
           Object.values(passwordValidationFuncs).map(([validateFunc, errormsg], key) => {
-            let checkRes = validateFunc(password)
-            let msgTagClassName = checkRes ? "pass-item": "error-item"
+            const checkRes = validateFunc(password)
+            const msgTagClassName = checkRes ? "pass-item": "error-item"
             return <li key={key} className={msgTagClassName}>{errormsg}</li>
           }))}</ul>
         }

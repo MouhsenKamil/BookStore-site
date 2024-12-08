@@ -6,8 +6,8 @@ import {
   updateCustomer,
   blockCustomer,
   unblockCustomer,
-  addCreditCard,
-  deleteCreditCard,
+  // addCreditCard,
+  // deleteCreditCard,
 } from '../controllers/customerController.ts'
 import cartRoutes from './cartRoutes.ts'
 import orderRoutes from './orderRoutes.ts'

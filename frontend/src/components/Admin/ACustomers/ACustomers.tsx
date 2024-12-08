@@ -4,6 +4,7 @@ import { IBlockableUser } from "../../../types/user"
 import useCustomers from "../../../hooks/useCustomers"
 
 import './ACustomers.css'
+import { Link } from "react-router-dom"
 
 
 export default function ACustomers() {
@@ -36,9 +37,12 @@ export default function ACustomers() {
   return (
     <div className="customers-list-container">
       <h1>Customer List</h1>
-      <input type="text" onChange={async (e: ChangeEvent<HTMLInputElement>) => {
-        await searchCustomers({ query: e.target.value })
-      }} />
+      <input type="text" placeholder="Search Customers"
+        onChange={async (e: ChangeEvent<HTMLInputElement>) => {
+          await searchCustomers({ query: e.target.value })
+        }}
+      />
+
       {customers.length === 0
         ? <p>No customers are available.</p>
         : <table className="customers-list">
@@ -47,6 +51,7 @@ export default function ACustomers() {
               <th>ID</th>
               <th>Name</th>
               <th>Email</th>
+              <th>Orders</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -56,6 +61,9 @@ export default function ACustomers() {
                 <td className="customer-id">{customer._id}</td>
                 <td className="customer-name" contentEditable={editingItem.includes(key)}>{customer.name}</td>
                 <td className="customer-email" contentEditable={editingItem.includes(key)}>{customer.email}</td>
+                <td className="customer-orders">
+                  <Link to={`/admin/customers/${customer._id}/orders`}>Orders</Link>
+                </td>
                 <td className="customer-actions">
                   <button
                     type="button"
@@ -66,7 +74,7 @@ export default function ACustomers() {
                     }}>
                     {!customer.blocked ? "Block" : "Unblock"}
                   </button>
-        
+
                   <button
                     type="button"
                     title={!editingItem.includes(key) ? "Edit": "Confirm"}
@@ -74,6 +82,25 @@ export default function ACustomers() {
                   >
                     {!editingItem.includes(key) ? "Edit": "Confirm"}
                   </button>
+
+                  {editingItem.includes(key) &&
+                    <button
+                      type="button"
+                      title="Cancel"
+                      onClick={e => {
+                        const parentElem = e.currentTarget.parentElement?.parentElement
+
+                        if (!parentElem)
+                          return
+
+                        parentElem.querySelector(".customer-name")?.textContent || customer.name
+                        parentElem.querySelector(".customer-email")?.textContent || customer.email
+                        setEditingItem([...editingItem.filter(val => val !== key)])
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  }
         
                   <button type="button" title="Delete Customer" onClick={
                     async () => await deleteCustomer(customer._id)

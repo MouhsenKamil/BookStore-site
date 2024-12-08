@@ -2,21 +2,9 @@ import { useForm } from "react-hook-form"
 // import axios from "axios"
 // import { useNavigate } from "react-router-dom"
 import { useState } from "react"
+import { IBookFormInputs } from "../../../types/book"
 
 // import { useAuth } from "../../../hooks/useAuth"
-
-
-interface IBookFormInputs {
-  authorName: string[]
-  title: string
-  subtitle: string | null
-  lang: string[]
-  categories: string[]
-  coverImage: File | null
-  description: string | null
-  price: number
-  unitsInStock: number
-}
 
 
 export default function AddBook() {

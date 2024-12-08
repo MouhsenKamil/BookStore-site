@@ -1,0 +1,20 @@
+.advanced-search {
+  width: 90vw;
+  width: auto;
+  display: flex;
+  flex-direction: row;
+}
+
+.advanced-search .filters input[type="text"] {
+  width: 60%;
+  /* margin: 0; */
+  /* position: absolute; */
+  /* top: 0; */
+  /* left: 1rem; */
+  /* height: 80%; */
+  /* width: 14vw; */
+}
+
+.advanced-search .book-list {
+  width: 78vw;
+}

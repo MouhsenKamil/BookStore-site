@@ -1,20 +1,16 @@
 import axios from "axios"
 
 import { IBlockableUser } from "../types/user"
+import { GetSearchResultsProps } from "../types/commonTypes"
 
 
-export interface getBlockableUserAPIProps {
-  query?: string
-  limit?: number
-  fields?: (keyof IBlockableUser)[] | string[]
-  sort?: Omit<keyof IBlockableUser, '_id'>
-  order?: 'asc' | 'desc'
-}
+const CUSTOMER_API_URL = `/api/customer/`
 
 
-export async function getCustomersAPI(props?: getBlockableUserAPIProps) {
+export async function getCustomersAPI(props?: GetSearchResultsProps<IBlockableUser>) {
   const {
-    query = '', limit = 10, fields = ['_id', 'name', 'email', 'blocked'], sort = 'name', order = 'asc'
+    query = '', limit = 10, fields = ['_id', 'name', 'email', 'blocked'],
+    sort = 'name', order = 'asc'
   } = props || {}
 
   const response = await axios.get("/api/admin/customers", {
@@ -32,7 +28,7 @@ export async function getCustomersAPI(props?: getBlockableUserAPIProps) {
 
 
 export async function getCustomerByIdAPI(customerId: string) {
-  const response = await axios.get(`/api/customer/${customerId}`, { withCredentials: true })
+  const response = await axios.get(`${CUSTOMER_API_URL}${customerId}`, { withCredentials: true })
 
   if (response.status >= 400) {
     alert(response.data.error)
@@ -43,8 +39,10 @@ export async function getCustomerByIdAPI(customerId: string) {
 }
 
 
-export async function updateCustomerAPI(customerId: string, data: Record<string, any>) {
-  const response = await axios.patch(`/api/customer/${customerId}`, data, {
+export async function updateCustomerAPI(
+  customerId: string, data: Partial<Omit<IBlockableUser, '_id'>>
+) {
+  const response = await axios.patch(`${CUSTOMER_API_URL}${customerId}`, data, {
     withCredentials: true
   })
 
@@ -58,7 +56,7 @@ export async function updateCustomerAPI(customerId: string, data: Record<string,
 
 // export async function changeUserPasswordAPI(customerId: string, oldPassword: string, newPassword: string) {
 //   const response = await axios.patch(
-//     `/api/customer/${customerId}/change-password`, { oldPassword, newPassword },
+//     `${CUSTOMER_API_URL}${customerId}/change-password`, { oldPassword, newPassword },
 //     { withCredentials: true }
 //   )
 
@@ -71,7 +69,7 @@ export async function updateCustomerAPI(customerId: string, data: Record<string,
 // }
 
 export async function deleteCustomerAPI(customerId: string) {
-  const response = await axios.delete(`/api/customer/${customerId}`, { withCredentials: true })
+  const response = await axios.delete(`${CUSTOMER_API_URL}${customerId}`, { withCredentials: true })
 
   if (response.status >= 400) {
     alert(response.data.error)
@@ -82,7 +80,7 @@ export async function deleteCustomerAPI(customerId: string) {
 }  
 
 export async function blockCustomerAPI(customerId: string) {
-  const response = await axios.patch(`/api/customer/${customerId}/block`, {},
+  const response = await axios.patch(`${CUSTOMER_API_URL}${customerId}/block`, {},
     { withCredentials: true }
   )
 
@@ -95,7 +93,7 @@ export async function blockCustomerAPI(customerId: string) {
 }
 
 export async function unblockCustomerAPI(customerId: string) {
-  const response = await axios.patch(`/api/customer/${customerId}/unblock`, {},
+  const response = await axios.patch(`${CUSTOMER_API_URL}${customerId}/unblock`, {},
     { withCredentials: true }
   )
 

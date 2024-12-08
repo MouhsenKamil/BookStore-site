@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 import { logEvents } from '../middlewares/logger.ts'
 import { ForceReLogin, HttpError } from '../utils/exceptions.ts'
 import { clearRefreshTokenFromCookies, updateTokensInCookies } from '../utils/authUtils.ts'
-import { User, UserDoc, UserType } from '../models/User.ts'
+import { UserType } from '../models/User.ts'
 import { Customer } from '../models/Customer.ts'
 import { Seller } from '../models/Seller.ts'
 import { createCustomer } from './customerController.ts'
@@ -23,10 +23,10 @@ export async function register(req: Request, res: Response) {
   let newUser
 
   if (userType === UserType.CUSTOMER)
-    newUser = await createCustomer(req, res)
+    newUser = await createCustomer(req)
 
   else if (userType === UserType.SELLER)
-    newUser = await createSeller(req, res)
+    newUser = await createSeller(req)
 
   else
     throw new HttpError(`Unknown user type: ${userType}`, {
@@ -129,7 +129,7 @@ export async function refresh(req: Request, res: Response) {
   //   }
   // )
 
-  let { id: userId, type: userType } = req.__userAuth
+  const { id: userId, type: userType } = req.__userAuth
   let user
 
   if (userType === UserType.CUSTOMER)
@@ -167,7 +167,7 @@ export function logout(req: Request, res: Response) {
 
 
 export async function verify(req: Request, res: Response) {
-  let userType = req.__userAuth.type
+  const userType = req.__userAuth.type
   let user
 
   console.log('from verify: ', Object.keys(req.cookies))

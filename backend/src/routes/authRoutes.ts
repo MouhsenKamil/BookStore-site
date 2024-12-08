@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { register, login, logout, refresh, verify, changePassword } from '../controllers/authController.ts'
+import { register, login, logout, refresh, verify } from '../controllers/authController.ts'
 import { rateLimiter } from '../middlewares/rateLimiter.ts'
 import { IsAuthenticated } from '../middlewares/authMiddleware.ts'
 import { checkRequestAttrs, emailPasswordValidators } from '../middlewares/validators.ts'

@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client"
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
 
 import { AuthProvider } from "./hooks/useAuth.tsx"
 
@@ -26,7 +26,7 @@ import Checkout from "./components/Customer/Checkout/Checkout.tsx"
 import AddBook from "./components/Sellers/AddBook/AddBook.tsx"
 import AuthChecker from "./components/AuthChecker.tsx"
 import CSuccess from "./components/Customer/Checkout/CSuccess/CSuccess.tsx"
-import AdvancedBookSearch from "./components/AdvancedSearch/AdvancedSearch.tsx"
+import AdvancedBookSearch from "./components/Common/AdvancedSearch/AdvancedSearch.tsx"
 import AOrders from "./components/Admin/AOrders/AOrders.tsx"
 
 import "./index.css"
@@ -48,7 +48,7 @@ const router = createBrowserRouter([
       {path: '*', element: <Page404 />},
       {
         path: "account",
-        element: <Outlet />,
+        // element: <Outlet />,
         children: [
           {
             path: 'user',
@@ -103,7 +103,13 @@ const router = createBrowserRouter([
         element: <AuthChecker redirectPath='/account/admin/login' userType="admin" />,
         children: [
           {path: 'home', element: <AHome />},
-          {path: 'customers', element: <ACustomers />},
+          {
+            path: 'customers',
+            children: [
+              { path: '', element: <ACustomers /> },
+              { path: ':customerId/orders', element: <Orders /> },
+            ]
+          },
           {path: 'sellers', element: <ASellers />},
           {path: 'orders', element: <AOrders />},
           {path: 'add-a-book', element: <AddBook />},

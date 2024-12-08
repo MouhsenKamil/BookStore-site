@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import { logMongoDBErrors } from '../middlewares/logger'
 
 
-interface connectDBProps {
+interface ConnectDBProps {
   // host: string
   // port: number
   // dbName: string
@@ -14,7 +14,7 @@ interface connectDBProps {
 
 
 // export async function connectDB({host, port, dbName, username, password}: connectDBProps) {
-export async function connectDB({uri, username, password}: connectDBProps) {
+export async function connectDB({uri, username, password}: ConnectDBProps) {
   console.log("Initializing connection with the BookStore MongoDB Database...")
 
   await mongoose.connect(

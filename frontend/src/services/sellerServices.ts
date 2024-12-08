@@ -1,9 +1,13 @@
 import axios from "axios"
 
-import { getBlockableUserAPIProps } from "./customerServices"
+import { GetSearchResultsProps } from "../types/commonTypes"
+import { IBlockableUser } from "../types/user"
+import { ISeller } from "../types/seller"
 
 
-export async function getSellersAPI(props?: getBlockableUserAPIProps) {
+const SELLER_API_URL = "/api/seller/"
+
+export async function getSellersAPI(props?: GetSearchResultsProps<IBlockableUser>) {
   const {
     query = '', fields = ['_id', 'name', 'email', 'passportNo', 'phoneNo', 'blocked'],
     sort = 'name', order = 'asc', limit = 10,
@@ -24,7 +28,7 @@ export async function getSellersAPI(props?: getBlockableUserAPIProps) {
 
 
 export async function getSellerByIdAPI(sellerId: string) {
-  const response = await axios.get(`/api/seller/${sellerId}`, { withCredentials: true })
+  const response = await axios.get(`${SELLER_API_URL}${sellerId}`, { withCredentials: true })
 
   if (response.status >= 400) {
     alert(response.data.error)
@@ -35,8 +39,8 @@ export async function getSellerByIdAPI(sellerId: string) {
 }
 
 
-export async function updateSellerAPI(sellerId: string, data: Record<string, any>) {
-  const response = await axios.patch(`/api/seller/${sellerId}`, data, {
+export async function updateSellerAPI(sellerId: string, data: Partial<ISeller>) {
+  const response = await axios.patch(`${SELLER_API_URL}${sellerId}`, data, {
     withCredentials: true
   })
 
@@ -50,7 +54,7 @@ export async function updateSellerAPI(sellerId: string, data: Record<string, any
 
 // export async function changeUserPasswordAPI(sellerId: string, oldPassword: string, newPassword: string) {
 //   const response = await axios.patch(
-//     `/api/seller/${sellerId}/change-password`, { oldPassword, newPassword },
+//     `${SELLER_API_URL}${sellerId}/change-password`, { oldPassword, newPassword },
 //     { withCredentials: true }
 //   )
 
@@ -64,7 +68,7 @@ export async function updateSellerAPI(sellerId: string, data: Record<string, any
 
 
 export async function deleteSellerAPI(sellerId: string) {
-  const response = await axios.delete(`/api/seller/${sellerId}`, { withCredentials: true })
+  const response = await axios.delete(`${SELLER_API_URL}${sellerId}`, { withCredentials: true })
 
   if (response.status >= 400) {
     alert(response.data.error)
@@ -75,7 +79,7 @@ export async function deleteSellerAPI(sellerId: string) {
 }  
 
 export async function blockSellerAPI(sellerId: string) {
-  const response = await axios.patch(`/api/seller/${sellerId}/block`, {},
+  const response = await axios.patch(`${SELLER_API_URL}${sellerId}/block`, {},
     { withCredentials: true }
   )
 
@@ -88,7 +92,7 @@ export async function blockSellerAPI(sellerId: string) {
 }
 
 export async function unblockSellerAPI(sellerId: string) {
-  const response = await axios.patch(`/api/seller/${sellerId}/unblock`, {},
+  const response = await axios.patch(`${SELLER_API_URL}${sellerId}/unblock`, {},
     { withCredentials: true }
   )
 
