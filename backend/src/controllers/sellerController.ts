@@ -105,7 +105,7 @@ export async function updateSeller(req: Request, res: Response) {
     throw new HttpError('Error occurred while updating seller', { cause: err })
   })
 
-  res.status(204)
+  res.sendStatus(204)
 }
 
 

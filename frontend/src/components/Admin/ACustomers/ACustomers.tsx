@@ -1,10 +1,11 @@
 import { ChangeEvent, MouseEvent, useState } from "react"
+import { Link } from "react-router-dom"
 
+import { ThreeDotsOptionsBtn } from "../../Common/ThreeDotsOptionsBtn/ThreeDotsOptionsBtn"
 import { IBlockableUser } from "../../../types/user"
 import useCustomers from "../../../hooks/useCustomers"
 
 import './ACustomers.css'
-import { Link } from "react-router-dom"
 
 
 export default function ACustomers() {
@@ -13,12 +14,7 @@ export default function ACustomers() {
   } = useCustomers()
   const [editingItem, setEditingItem] = useState<number[]>([])
 
-  async function onEdit(e: MouseEvent<HTMLButtonElement>, customer: IBlockableUser, key: number) {
-    if (!editingItem.includes(key)) {
-      setEditingItem([...editingItem, key])
-      return
-    }
-
+  async function submitEdit(e: MouseEvent, customer: IBlockableUser, key: number) {
     const parentElem = e.currentTarget.parentElement?.parentElement
 
     if (!parentElem)
@@ -28,10 +24,28 @@ export default function ACustomers() {
     const newCustomerEmail = parentElem.querySelector(".customer-email")?.textContent || customer.email
 
     if ((customer.name !== newCustomerName) || (customer.email !== newCustomerEmail)) {
-      await updateCustomer(customer._id, { name: newCustomerName, email: newCustomerEmail })
+      let res = await updateCustomer(customer._id, { name: newCustomerName, email: newCustomerEmail })
+      console.log(res.status)
     }
 
-    setEditingItem([...editingItem.filter(val => val !== key)])
+    setEditingItem(editingItem.filter(val => val !== key))
+  }
+
+  function cancelEdit(e: MouseEvent, customer: IBlockableUser, key: number) {
+    const parentElem = e.currentTarget.parentElement?.parentElement
+
+    if (!parentElem)
+      return
+
+    setEditingItem(editingItem.filter(val => val !== key))
+
+    const customerNameElem = parentElem.querySelector(".customer-name")
+    if (customerNameElem)
+      customerNameElem.textContent = customer.name
+
+    const customerEmailElem = parentElem.querySelector(".customer-email")
+    if (customerEmailElem)
+      customerEmailElem.textContent = customer.email
   }
 
   return (
@@ -51,8 +65,8 @@ export default function ACustomers() {
               <th>ID</th>
               <th>Name</th>
               <th>Email</th>
-              <th>Orders</th>
-              <th>Actions</th>
+              <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -65,48 +79,23 @@ export default function ACustomers() {
                   <Link to={`/admin/customers/${customer._id}/orders`}>Orders</Link>
                 </td>
                 <td className="customer-actions">
-                  <button
-                    type="button"
-                    title={!customer.blocked ? "Block" : "Unblock"}
-                    style={{ backgroundColor: customer.blocked ? 'green' : 'red' }}
-                    onClick={async () => {
-                      await toggleBlockCustomer(customer._id)
-                    }}>
-                    {!customer.blocked ? "Block" : "Unblock"}
-                  </button>
+                  {!editingItem.includes(key) && <ThreeDotsOptionsBtn>
+                    <div title={!customer.blocked ? "Block" : "Unblock"}
+                      style={{ color: customer.blocked ? 'green' : 'red' }}
+                      onClick={async () => {
+                        await toggleBlockCustomer(customer._id)
+                        console.log(customer.blocked)
+                      }}>
+                      {!customer.blocked ? "Block" : "Unblock"}
+                    </div>
+                    <div title="Edit" onClick={() => setEditingItem([...editingItem, key])}>Edit</div>
+                    <div title="Delete Customer" onClick={async () => await deleteCustomer(customer._id)}>Delete</div>
+                  </ThreeDotsOptionsBtn>}
 
-                  <button
-                    type="button"
-                    title={!editingItem.includes(key) ? "Edit": "Confirm"}
-                    onClick={async (e) => await onEdit(e, customer, key)}
-                  >
-                    {!editingItem.includes(key) ? "Edit": "Confirm"}
-                  </button>
-
-                  {editingItem.includes(key) &&
-                    <button
-                      type="button"
-                      title="Cancel"
-                      onClick={e => {
-                        const parentElem = e.currentTarget.parentElement?.parentElement
-
-                        if (!parentElem)
-                          return
-
-                        parentElem.querySelector(".customer-name")?.textContent || customer.name
-                        parentElem.querySelector(".customer-email")?.textContent || customer.email
-                        setEditingItem([...editingItem.filter(val => val !== key)])
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  }
-        
-                  <button type="button" title="Delete Customer" onClick={
-                    async () => await deleteCustomer(customer._id)
-                  }>
-                    Delete
-                  </button>
+                  {editingItem.includes(key) && <>
+                    <div title="Confirm" onClick={async (e) => await submitEdit(e, customer, key)}>✅</div>
+                    <div title="Cancel" onClick={e => cancelEdit(e, customer, key)}>❌</div>
+                  </>}
                 </td>
               </tr>
             ))}

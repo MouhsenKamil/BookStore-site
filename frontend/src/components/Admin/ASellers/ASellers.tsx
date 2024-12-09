@@ -4,6 +4,7 @@ import useSellers from "../../../hooks/useSellers"
 import { ISeller } from "../../../types/seller"
 
 import './ASellers.css'
+import { ThreeDotsOptionsBtn } from "../../Common/ThreeDotsOptionsBtn/ThreeDotsOptionsBtn"
 
 
 export default function ASellers() {
@@ -12,12 +13,7 @@ export default function ASellers() {
   } = useSellers()
   const [editingItem, setEditingItem] = useState<number[]>([])
 
-  async function onEdit(e: MouseEvent<HTMLButtonElement>, seller: ISeller, key: number) {
-    if (!editingItem.includes(key)) {
-      setEditingItem([...editingItem, key])
-      return
-    }
-
+  async function submitEdit(e: MouseEvent, seller: ISeller, key: number) {
     const parentElem = e.currentTarget.parentElement?.parentElement
 
     if (!parentElem)
@@ -42,7 +38,24 @@ export default function ASellers() {
       })
     }
 
-    setEditingItem([...editingItem.filter(val => val !== key)])
+    setEditingItem(editingItem.filter(val => val !== key))
+  }
+
+  function cancelEdit(e: MouseEvent, seller: ISeller, key: number) {
+    const parentElem = e.currentTarget.parentElement?.parentElement
+
+    if (!parentElem)
+      return
+
+    setEditingItem(editingItem.filter(val => val !== key))
+
+    const sellerNameElem = parentElem.querySelector(".seller-name")
+    if (sellerNameElem)
+      sellerNameElem.textContent = seller.name
+
+    const sellerEmailElem = parentElem.querySelector(".seller-email")
+    if (sellerEmailElem)
+      sellerEmailElem.textContent = seller.email
   }
 
   return (
@@ -64,7 +77,7 @@ export default function ASellers() {
               <th>Email</th>
               <th>Passport number</th>
               <th>Phone number</th>
-              <th>Actions</th>
+              <th></th>
             </tr>
           </thead>
 
@@ -90,51 +103,20 @@ export default function ASellers() {
                 </td>
 
                 <td className="seller-actions">
-                  {!editingItem.includes(key) && <button
-                      type="button"
-                      title={!seller.blocked ? "Block" : "Unblock"}
-                      style={{ backgroundColor: seller.blocked ? 'green' : 'red' }}
-                      onClick={async () => {
-                        await toggleBlockSeller(seller._id)
-                      }}>
+                {!editingItem.includes(key) && <ThreeDotsOptionsBtn>
+                    <div title={!seller.blocked ? "Block" : "Unblock"}
+                      style={{ color: seller.blocked ? 'green' : 'red' }}
+                      onClick={async () => await toggleBlockSeller(seller._id)}>
                       {!seller.blocked ? "Block" : "Unblock"}
-                    </button>
-                  }
+                    </div>
+                    <div title="Edit" onClick={() => setEditingItem([...editingItem, key])}>Edit</div>
+                    <div title="Delete Seller" onClick={async () => await deleteSeller(seller._id)}>Delete</div>
+                  </ThreeDotsOptionsBtn>}
 
-                  <button
-                    type="button"
-                    title={!editingItem.includes(key) ? "Edit": "Confirm"}
-                    onClick={async (e) => await onEdit(e, seller, key)}
-                  >
-                    {!editingItem.includes(key) ? "Edit": "Confirm"}
-                  </button>
-
-                  {editingItem.includes(key) &&
-                    <button
-                      type="button"
-                      title="Cancel"
-                      onClick={e => {
-                        const parentElem = e.currentTarget.parentElement?.parentElement
-
-                        if (!parentElem)
-                          return
-
-                        parentElem.querySelector(".seller-name")?.textContent || seller.name
-                        parentElem.querySelector(".seller-email")?.textContent || seller.email
-                        setEditingItem([...editingItem.filter(val => val !== key)])
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  }
-
-                  {!editingItem.includes(key) && <button
-                    type="button" title="Delete Seller" onClick={
-                    async () => await deleteSeller(seller._id)
-                    }>
-                      Delete
-                    </button>
-                  }
+                  {editingItem.includes(key) && <>
+                    <div title="Confirm" onClick={async (e) => await submitEdit(e, seller, key)}>✅</div>
+                    <div title="Cancel" onClick={e => cancelEdit(e, seller, key)}>❌</div>
+                  </>}
                 </td>
               </tr>
             ))}

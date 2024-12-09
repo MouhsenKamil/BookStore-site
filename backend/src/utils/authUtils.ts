@@ -12,7 +12,7 @@ import { HttpError, ForceReLogin } from "./exceptions.ts"
 // import { Admin } from "../models/Admin.ts"
 
 
-const T_15_MINS =  15 * 60 * 1000
+const T_15_MINS =  1 * 60 * 1000
 const T_7_DAYS =  7 * 24 * 60 * 60 * 1000
 
 
@@ -38,12 +38,12 @@ export interface AccessToken {
 }
 
 
-export async function hashAccessToken(accessToken: string) {
-  return await bcrypt.hash(accessToken, 12)
-}
+// export async function hashAccessToken(accessToken: string) {
+//   return await bcrypt.hash(accessToken, 12)
+// }
 
 
-export async function getAccessToken(user: UserDoc) {
+export function getAccessToken(user: UserDoc) {
   return jwt.sign(
     {
       id: user._id,
@@ -123,20 +123,22 @@ export interface RefreshToken {
 }
 
 
-export async function getRefreshToken(req: Request, user: UserDoc, accessToken: string) {
+export function getRefreshToken(req: Request, user: UserDoc, accessToken: string) {
   const userIP = req.headers['cf-connecting-ip'] || 
                  req.headers['x-real-ip'] ||
                  req.headers['x-forwarded-for'] ||
                  req.socket.remoteAddress || ''
 
   const userAgent = req.headers["user-agent"]
-  const accessTokenHash = hashAccessToken(accessToken)
+  // const accessTokenHash = hashAccessToken(accessToken)
 
   return jwt.sign(
     {
       id: user._id,
       type: user.type,
-      userIP, userAgent, accessTokenHash
+      userIP, userAgent,
+      // accessTokenHash,
+      passwordHash: user.passwordHash
     },
     env.REFRESH_TOKEN_SECRET,
     { expiresIn: '7d' },
@@ -187,11 +189,16 @@ export async function verifyRefreshToken(refreshToken: string): Promise<RefreshT
 
 
 // Other utils
-export async function updateTokensInCookies(
-  req: Request, res: Response, user: UserDoc, options?: { accessToken?: string, refreshToken?: string }
+export function updateTokensInCookies(
+  req: Request, res: Response, user: UserDoc,
+  // options?: { accessToken?: string, refreshToken?: string }
 ) {
-  const accessToken = options?.accessToken ?? await getAccessToken(user)
-  const refreshToken = options?.refreshToken ?? await getRefreshToken(req, user, accessToken)
+  // const accessToken = options?.accessToken ?? getAccessToken(user)
+  // const refreshToken = options?.refreshToken ?? getRefreshToken(req, user, accessToken)
+
+  const accessToken = getAccessToken(user)
+  const refreshToken = getRefreshToken(req, user, accessToken)
+
   setRefreshTokenToCookies(res, refreshToken)
   setAccessTokenToCookies(res, accessToken)
 

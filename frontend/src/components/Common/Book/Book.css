@@ -16,6 +16,10 @@
   margin-left: 1em;
 }
 
+.book-display .book-info .book-title {
+  line-height: 1.35em;
+}
+
 .book-display h1, .book-display h5 {
   text-align: center;
 }
@@ -25,6 +29,25 @@
   flex-wrap: wrap;
   gap: 0.5em;
   padding: 0.5em 0;
+}
+
+.tags-list .tags-item:hover .tags-list .del-category-btn {
+  padding: 4px 0;
+}
+
+.tags-list .add-category-btn {
+  padding: 4px 0;
+}
+
+.tags-list .category-btn {
+  user-select: none;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.tags-list .tags-item .tag-item-content {
+  padding: 5px;
 }
 
 .tags-list .tags-item {

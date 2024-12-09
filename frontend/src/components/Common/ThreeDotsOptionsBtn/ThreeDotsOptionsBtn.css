@@ -1,0 +1,53 @@
+/* .three-dots-option-btn.container {
+  position: relative;
+  z-index: 2;
+} */
+
+.three-dots-option-btn.icon {
+  padding: 0;
+  width: 2em;
+  height: 2em;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.three-dots-option-btn.icon:hover {
+  background-color: #2b2b2b;
+}
+
+.three-dots-option-btn.icon li {
+  background-color: #3f3f3f;
+  list-style: none outside none;
+  line-height: 0;
+  width: 0;
+  border: 3px solid black;
+  border-radius: 50%;
+  vertical-align: top;
+  pointer-events: none;
+  margin-bottom: 1px;
+}
+
+.three-dots-option-btn.options {
+  position: absolute;
+  z-index: 1;
+  margin-left: 2%;
+  margin-top: -2.5%;
+  flex-direction: column;
+  gap: 0.25em;
+  padding: 0.1em;
+  background-color: #3f3f3f;
+  border-radius: 3px;
+}
+
+.three-dots-option-btn.option {
+  cursor: pointer;
+  padding: 0.25em 0.5em;
+  border: 2px solid transparent;
+}
+
+.three-dots-option-btn.option:hover {
+  border: 2px solid black;
+}

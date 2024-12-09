@@ -8,7 +8,7 @@ import { getSellers } from '../controllers/sellerController'
 import { getOrders } from '../controllers/orderController'
 
 
-const router = express.Router({mergeParams: true})
+const router = express.Router({ mergeParams: true })
 
 router.use(authenticate, restrictToRoles(UserType.ADMIN))
 router.get('/analytics', getSiteAnalytics)

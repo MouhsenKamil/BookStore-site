@@ -24,7 +24,7 @@ export default function useOrders(props?: { userId?: string }) {
     throw new Error(`Unknown user type: ${user.type}`)
 
   useEffect(() => {
-    getOrdersListOfUserAPI()
+    getOrdersListOfUserAPI(userId)
       .then(response => {
         const ordersList: IOrder[] = response.data
         setOrders(

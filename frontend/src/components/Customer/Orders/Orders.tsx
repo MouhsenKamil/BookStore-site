@@ -23,8 +23,8 @@ export function OrdersListItem({ orderItem, userId }: OrdersListItemProps) {
         <p className="order-id"><strong>ID: </strong>{orderItem._id}</p>
         <p className="ordered-time"><strong>Ordered on: </strong>{orderItem.orderTime.toLocaleString()}</p>
         <p className="delivered-time"><strong>Delivered by: </strong>
-          <br /> {orderItem.deliveredBy.toLocaleString()}
-          <br /> (in {getTimeDiff(orderItem.orderTime, orderItem.deliveredBy)})
+          <br />&nbsp;&nbsp; {orderItem.deliveredBy.toLocaleString()}
+          <br />&nbsp;&nbsp; (in {getTimeDiff(orderItem.orderTime, orderItem.deliveredBy)})
         </p>
         <p className="delivery-status">
           <strong>Delivery Status: </strong>
@@ -59,7 +59,7 @@ export function OrdersListItem({ orderItem, userId }: OrdersListItemProps) {
 
 export default function Orders() {
   const { user } = useAuth().authState
-  const { customerId = '@me' } = useParams()
+  const { customerId } = useParams()
   const navigate = useNavigate()
 
   if (user?.type === 'admin' && (!customerId || customerId === "undefined")) {
@@ -76,7 +76,9 @@ export default function Orders() {
       ((orders ?? []).length === 0)
         ? <h3>You haven't done any orders. <Link to='/'>Start shopping now.</Link></h3>
         : <div className="orders-list">
-            {(orders.map((order, key) => <OrdersListItem key={key} orderItem={order} />))}
+            {(orders.map((order, key) => (
+              <OrdersListItem key={key} orderItem={order} userId={customerId} />
+            )))}
           </div>
     }</div>
   )

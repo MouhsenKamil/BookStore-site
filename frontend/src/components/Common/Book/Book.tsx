@@ -3,15 +3,16 @@ import { useState, MouseEvent, useEffect } from "react"
 import axios from "axios"
 
 import languages from "../../../public/languages-iso-639-2.json"
-import { IBookWithSellerName } from "../../../types/book"
+import { IBook, IBookWithSellerName } from "../../../types/book"
 import CoverImage from "../CoverImage/CoverImage"
 import { AddtoCartButton, AddtoWishlistButton } from "../CommonButtons"
 import IntInput from "../IntInput/IntInput"
 import { useAuth } from "../../../hooks/useAuth"
-
 import { toTitleCase } from "../../../utils/stringUtils"
+import { updateBookAPI } from "../../../services/bookServices"
 
 import './Book.css'
+import { title } from "process"
 
 
 type bookStateType = IBookWithSellerName & { error?: string }
@@ -19,25 +20,14 @@ type bookStateType = IBookWithSellerName & { error?: string }
 interface TagsProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string
   items: string[]
+  // editable: boolean
 }
 
-
-function TagsList(props: TagsProps) {
-  const { title, items, className = '', ...otherProps } = props
-
-  if (!items || !items.length)
-    return <></>
-
-  return (
-    <div className={"tags-list " + className} {...otherProps}>
-      <span className="tags-title">{title} </span>{(
-        items.map((item, key) => 
-          <span key={key} className="tags-item">{toTitleCase(item)}</span>
-      ))}
-    </div>
-  )
+interface getElementsAndTheirAttrsInStructRetVal {
+  [key: (keyof IBookWithSellerName)]: {
+    elem: HTMLDivElement | null, value: string | number | null
+  }
 }
-
 
 export default function Book() {
   const { bookId } = useParams()
@@ -55,6 +45,68 @@ export default function Book() {
   const [quantity, setQuantity] = useState(1)
 
   const [editing, setEditing] = useState(false)
+
+  function getElementsAndTheirAttrsInStruct(): getElementsAndTheirAttrsInStructRetVal {
+    const parentElem = document.querySelector(".book-info") as HTMLDivElement
+
+    return {
+      title: { elem: parentElem.querySelector(".book-title"), value: book.title },
+      subtitle: { elem: parentElem.querySelector(".book-subtitle"), value: book.subtitle },
+      authorNames: { elem: parentElem.querySelector(".authors-publishers"), value: book.authorNames },
+      categories: { elem: parentElem.querySelector(".categories"), value: book.categories },
+      lang: { elem: parentElem.querySelector(".languages"), value: book.lang },
+      description: { elem: parentElem.querySelector(".book-desc div"), value: book.description },
+      price: { elem: parentElem.querySelector('.book-price'), value: book.price },
+      unitsInStock: { elem: parentElem.querySelector('.stock-count'), value: book.unitsInStock },
+    }
+  }
+
+  function TagsList(props: TagsProps) {
+    const { title, items, className = '', ...otherProps } = props
+    const [itemsList, setItemsList] = useState<string[]>(items)
+
+    if (!items || !items.length)
+      return <></>
+
+    return (
+      <div className={"tags-list " + className} {...otherProps}>
+        <span className="tags-title">{title} </span>{(
+          itemsList.map((item, key) => 
+            <span key={key} className="tags-item">
+              <span className="tag-item-content" contentEditable={editing}>
+                {toTitleCase(item)}
+              </span>
+              {editing && <span
+                className="item-btn del-item-btn" title="Remove item" onClick={() => {
+                setItemsList(itemsList.filter(_item => _item !== item))
+              }}>
+                &nbsp;x
+              </span>}
+            </span>
+        ))}
+        {editing && <span
+          className="item-btn add-item-btn" title="Add Item"
+          onClick={e => {
+            const parentElem = e.currentTarget.parentElement
+            if (!parentElem) return
+
+            const itemsElements = (
+              parentElem.querySelectorAll('.tag-item-content') as unknown
+            ) as NodeList
+
+            const itemsElementsText: string[] = Array.from(itemsElements).map(
+              (value) => value.textContent || ''
+            )
+
+            if (itemsElementsText.filter(item => item.trim() === '').length === 0)
+              setItemsList([...itemsList, ''])
+          }}
+        >
+          +
+        </span>}
+      </div>
+    )
+  }
 
   useEffect(() => {
     async function getBook(bookId: string) {
@@ -75,45 +127,6 @@ export default function Book() {
   if (book.error)
     return <><h1>Book not found</h1><Link to='/'>Return to Home</Link></>
 
-  // const onAddToCart = async (_: MouseEvent<HTMLButtonElement>) => {
-  //   try { 
-  //     const response = await axios.post(
-  //       '/api/customer/@me/cart/add', { bookId, quantity }, { withCredentials: true }
-  //     )
-
-  //     if (response.status === 401) {
-  //       navigate('/account/user/login?from=' + location.pathname)
-  //       return
-  //     }
-
-  //     if (response.status < 400)
-  //       alert("Book has been added to cart successfully")
-
-  //     else
-  //       alert(response.data)
-
-  //   } catch (err) {
-  //     console.error(err)
-  //   }
-  // }
-
-  // const onAddToWishlist = async (_: MouseEvent<HTMLButtonElement>) => {
-  //   const response = await axios.post(
-  //     '/api/customer/@me/wishlist/add', { bookId }, { withCredentials: true }
-  //   )
-
-  //   if (response.status < 400) {
-  //     alert("Book has been added to wishlist successfully")
-  //     return
-  //   }
-
-  //   if (response.status == 401)
-  //     navigate('/account/user/login?from=' + location.pathname)
-
-  //   else
-  //     alert(response.data.error)
-  // }
-
   const onDelete = async (_: MouseEvent<HTMLButtonElement>) => {
     const response = await axios.delete(`/api/books/${bookId}`, { withCredentials: true })
     if (response.status >= 400) {
@@ -125,24 +138,37 @@ export default function Book() {
     navigate("/")
   }
 
-  function onEdit(_: MouseEvent<HTMLButtonElement>) {
+  async function onEdit(e: MouseEvent) {
     if (!editing) {
       setEditing(true)
       return
     }
 
-    
+    let changedValues: Partial<Omit<IBook, '_id'>> = {}
+
+    const htmlElements = getElementsAndTheirAttrsInStruct()
+    changedValues.authorNames = htmlElements.authorNames.querySelectorAll('.tag-item-content').map(
+      elem => elem.textContent
+    )
+
+    await updateBookAPI(bookId as string, {
+      title: htmlElements.
+    } as IBook)
+
+    setEditing(false)
   }
 
   return (
-    <div className="book-display" contentEditable={editing}>
+    <div className="book-display">
       <CoverImage coverImg={book.coverImage} alt={book.title} />
 
       <div className="book-info">
-        <h1 className="book-title">{book.title}</h1>
-        {book.subtitle && <h5 className="book-subtitle">{book.subtitle}</h5>}
+        <h1 className="book-title" contentEditable={editing}>{book.title}</h1>
+        {book.subtitle && <h5 className="book-subtitle" contentEditable={editing}>{book.subtitle}</h5>}
 
-        <TagsList className="authors-publishers" title="Authors and Publishers" items={book.authorNames} />
+        <TagsList
+          className="authors-publishers" title="Authors and Publishers" items={book.authorNames}
+        />
         <TagsList className="categories" title='Categories' items={book.categories} />
 
         <TagsList className="languages" title="Languages" items={
@@ -152,54 +178,69 @@ export default function Book() {
           })}
         />
 
-        {book.description && <div className="book-desc">
+        <div className="book-desc">
           <h4>Description</h4>
-          {book.description.trim().split(/(?:\r?\n\s*)+/).map(
-            (paragraph, key) => <p key={key}>{paragraph}</p>
-          )}
-        </div>}
+          <div contentEditable={editing}>{
+            (book.description || "No Description")
+              .trim().split(/(?:\r?\n\s*)+/).map(
+                (paragraph, key) => <p key={key}>{paragraph}</p>
+              )
+          }</div>
+        </div>
 
         <p><b>Seller: </b>{book.sellerName}</p>
-        <>
-          ₹ <h2 style={{display: "inline", color: 'orange'}}>
-            {book.price ? book.price.toFixed(2) : '---'}
-          </h2>
-        </>
 
-        {book.unitsInStock
-          ? <p className="stock-count">
-            <span className="pass-item">In Stock: </span>
-            <span>{book.unitsInStock}</span>
-          </p>
-          : <p className="stock-count"><span style={{color: "red"}}>Sold Out!</span></p>
-        }
-        {/* 
-        <label className="quantity-input">
-          Quantity: 
-          <input
-            type="number" id="quantity" name='quantity' required min={0}
-            max={book.unitsInStock} value={1}
-          />
-        </label>
+        ₹ <h2 className="book-price" style={{display: "inline", color: 'orange'}} contentEditable={editing}>
+          {book.price?.toFixed(2) ?? '---'}
+        </h2>
 
-        {errors.quantity && <p className="err-msg">{errors.quantity.message}</p>} */}
+        <p className="stock-count">
+          {book.unitsInStock
+            ? <>
+              <span className="pass-item">In Stock: </span>
+              <span contentEditable={editing}>{book.unitsInStock}</span>
+            </>
+            : <span style={{color: "red"}}>Sold Out!</span>
+          }
+        </p>
 
-        {(user?.type === 'customer') && <div className="book-actions">
-            <IntInput text="Quantity: " min={1} max={book.unitsInStock}
-              onValChange={val => { setQuantity(val) }}
-            />
-            <AddtoWishlistButton bookId={bookId} />
-            <AddtoCartButton bookId={bookId} />
+        {(user?.type === 'customer') && !editing && <>
+            <label className="quantity-input">
+              Quantity: 
+              <input
+                type="number" id="quantity" name='quantity' required min={0}
+                max={book.unitsInStock} value={1}
+              />
+            </label>
 
-            <button title="Buy" onClick={() => {
-              navigate(`/user/checkout?method=bookOnly&bookId=${bookId}&quantity=${quantity}`)
-            }}>Buy Now</button>
-          </div>
+            <div className="book-actions">
+              <IntInput text="Quantity: " min={1} max={book.unitsInStock}
+                onValChange={val => { setQuantity(val) }}
+              />
+              <AddtoWishlistButton bookId={bookId} />
+              <AddtoCartButton bookId={bookId} />
+
+              <button title="Buy" onClick={() => {
+                navigate(`/user/checkout?method=bookOnly&bookId=${bookId}&quantity=${quantity}`)
+              }}>Buy Now</button>
+            </div>
+          </>
         }
 
         {(user?.type === 'admin') && <div className="book-actions">
-          <button title="Edit" onClick={onEdit}>{!editing ? "Edit": "Confirm"}</button>
-          <button title="Delete" onClick={onDelete}>Delete</button>
+            <button title="Edit" onClick={async (e) => await onEdit(e)}>
+              {!editing ? "Edit": "Confirm"}
+            </button>
+            {editing && <button title="Cancel" onClick={() => {
+                setEditing(false)
+                const elementsAndValues = getElementsAndTheirAttrsInStruct()
+                Object.entries(elementsAndValues).map(([_, { elem, value }]) => {
+                  elem.textContent = value
+                })
+              }}>Cancel
+              </button>
+            }
+            <button title="Delete" onClick={onDelete}>Delete</button>
           </div>
         }
       </div>

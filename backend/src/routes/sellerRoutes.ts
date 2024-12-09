@@ -43,8 +43,10 @@ adminRoutesWithSellerId.use(restrictToRoles(UserType.ADMIN))
 adminRoutesWithSellerId.patch('/block', blockSeller)
 adminRoutesWithSellerId.patch('/unblock', unblockSeller)
 
+routerWithSellerId.use(adminRoutesWithSellerId)
+
 // export routes
-const router = express.Router({mergeParams: true})
+const router = express.Router({ mergeParams: true })
 
 router.use(authenticate, restrictToRoles(UserType.SELLER, UserType.ADMIN))
 router.use('/:sellerId', routerWithSellerId)

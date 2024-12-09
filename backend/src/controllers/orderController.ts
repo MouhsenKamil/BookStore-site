@@ -90,13 +90,16 @@ export async function getOrdersOfUser(req: Request, res: Response) {
 
 
 export async function getOrders(req: Request, res: Response) {
-  const { limit = 10, fields = [], sort = 'name', order = 'asc' } = req.query
-  const orderStr = (order as string).toLowerCase()
+  const { limit = 10, fields = [
+    '_id', 'user', 'books', 'orderTime', 'deliveredBy', 'status', 'homeNo', 'street',
+    'pinCode', 'city', 'state', 'country', 'phoneNo', 'paymentMethod'
+  ] } = req.query
+  // const orderStr = (order as string).toLowerCase()
 
-  if (!['asc', 'desc'].includes(orderStr))
-    throw new HttpError(`Invalid value for sort order: ${order}`, { statusCode: 400 })
+  // if (!['asc', 'desc'].includes(orderStr))
+  //   throw new HttpError(`Invalid value for sort order: ${order}`, { statusCode: 400 })
 
-  const orderInt = (orderStr === 'asc') ? 1: -1
+  // const orderInt = (orderStr === 'asc') ? 1: -1
   const fieldsArr = fields as string[] // (fields as string).trim().split(',')
 
   let projectionObj: Record<string, 1 | 0> = Object.fromEntries(
@@ -108,9 +111,74 @@ export async function getOrders(req: Request, res: Response) {
 
   projectionObj._id = projectionObj._id ?? 0
 
-  const orders = await Order.find(
-    {}, { limit: +limit }, { sort: { [sort as string]: orderInt } },
-  )
+  const orders = await Order.aggregate([
+    { $limit: +limit },
+    { $unwind: "$books" },
+    {
+      $lookup: {
+        from: 'books',
+        localField: 'books.id',
+        foreignField: '_id',
+        as: 'bookDetails'
+      }
+    },
+    { $unwind: '$bookDetails' },
+    {
+      $project: {
+        _id: 1,
+        user: 1,
+        books: {
+          _id: "$bookDetails._id",
+          quantity: 1,
+          price: "$bookDetails.price",
+          title: "$bookDetails.title",
+          coverImage: "$bookDetails.coverImage",
+        },
+        orderTime: 1,
+        deliveredBy: 1,
+        status: 1,
+        homeNo: 1,
+        street: 1,
+        pinCode: 1,
+        city: 1,
+        state: 1,
+        country: 1,
+        phoneNo: 1,
+        paymentMethod: 1,
+      },
+    },
+    {
+      $group: {
+        _id: "$_id",
+        user: { $first: "$user" },
+        books: {
+          $push: {
+            _id: "$books._id",
+            quantity: "$books.quantity",
+            price: "$books.price",
+            title: "$books.title",
+            coverImage: "$books.coverImage",
+          },
+        },
+        orderTime: { $first: "$orderTime" },
+        deliveredBy: { $first: "$deliveredBy" },
+        status: { $first: "$status" },
+        homeNo: { $first: "$homeNo" },
+        street: { $first: "$street" },
+        pinCode: { $first: "$pinCode" },
+        city: { $first: "$city" },
+        state: { $first: "$state" },
+        country: { $first: "$country" },
+        phoneNo: { $first: "$phoneNo" },
+        paymentMethod: { $first: "$paymentMethod" },
+      }
+    },
+    { $project: projectionObj }
+  ])
+    .catch((err) => {
+      throw new HttpError('Error occurred while fetching order', { cause: err })
+    })
+
   res.status(200).json(orders)
 }
 

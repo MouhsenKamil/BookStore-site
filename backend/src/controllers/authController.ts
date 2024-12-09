@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 
 import { logEvents } from '../middlewares/logger.ts'
 import { ForceReLogin, HttpError } from '../utils/exceptions.ts'
-import { clearRefreshTokenFromCookies, updateTokensInCookies } from '../utils/authUtils.ts'
+import { clearTokensInCookies, updateTokensInCookies } from '../utils/authUtils.ts'
 import { UserType } from '../models/User.ts'
 import { Customer } from '../models/Customer.ts'
 import { Seller } from '../models/Seller.ts'
@@ -34,7 +34,7 @@ export async function register(req: Request, res: Response) {
       debugMsg: `Got '${userType}' as user type while trying to register user`
     })
 
-  await updateTokensInCookies(req, res, newUser)
+  updateTokensInCookies(req, res, newUser)
 
   // res.sendStatus(204)
   res.status(200).json({ message: 'User registered successfully' })
@@ -81,7 +81,7 @@ export async function login(req: Request, res: Response) {
     )
 
   // Issue access and refresh token to the user
-  await updateTokensInCookies(req, res, user)
+  updateTokensInCookies(req, res, user)
 
   res.status(200).json({ message: 'Redirect to continue', url: '/' })
 
@@ -123,7 +123,6 @@ export async function refresh(req: Request, res: Response) {
   //     if (!user)
   //       throw new HttpError('Unauthorized', { statusCode: 401 })
 
-      
   //     // res.status(200).json({ accessToken, refreshToken })
   //     res.sendStatus(204)
   //   }
@@ -156,21 +155,19 @@ export async function refresh(req: Request, res: Response) {
       }
     )
 
-  await updateTokensInCookies(req, res, user)
+  updateTokensInCookies(req, res, user)
 }
 
 
 export function logout(req: Request, res: Response) {
-  clearRefreshTokenFromCookies(res)
-  res.send(200).json({ message: "Logged out successfully", url: '/' })
+  clearTokensInCookies(res)
+  res.status(200).json({ message: "Logged out successfully", url: '/' })
 }
 
 
 export async function verify(req: Request, res: Response) {
   const userType = req.__userAuth.type
   let user
-
-  console.log('from verify: ', Object.keys(req.cookies))
 
   try {
     if (userType === UserType.CUSTOMER)
@@ -259,7 +256,7 @@ export async function changePassword(req: Request, res: Response) {
       throw new HttpError('Error occurred while updating password', { cause: err as Error })
     })
 
-  await updateTokensInCookies(req, res, user)
+  updateTokensInCookies(req, res, user)
   logEvents(`${userType} ${userId} has changed their password`)
   res.sendStatus(204)
 }

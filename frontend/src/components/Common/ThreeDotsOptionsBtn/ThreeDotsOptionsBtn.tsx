@@ -1,33 +1,15 @@
-import { HtmlHTMLAttributes, useEffect, useRef, useState } from 'react'
+import React, { HtmlHTMLAttributes, JSXElementConstructor, useEffect, useRef, useState } from 'react'
 
 import './ThreeDotsOptionsBtn.css'
 
 
 type ThreeDotsOptionsBtnProps = HtmlHTMLAttributes<HTMLDivElement> & {
-  children?: React.ReactNode[]
-}
-
-
-type ThreeDotsOptionsItemProps = HtmlHTMLAttributes<HTMLDivElement> & {
-  key: string | number
-  children: string
-}
-
-
-export function ThreeDotsOptionsItem(props: ThreeDotsOptionsItemProps) {
-  const { className, children, key, ...otherProps } = props
-
-  return <div
-    key={key}
-    className={"three-dots-option-btn option " + (className || '')} {...otherProps}
-  >
-    {children}
-  </div>
+  children: React.ReactElement[]
 }
 
 
 export function ThreeDotsOptionsBtn(props: ThreeDotsOptionsBtnProps) {
-  const { children = [], ...otherProps } = props
+  const { children = [], ...otherParentProps } = props
   const optionsRef = useRef<HTMLDivElement>(null)
   const [showOptions, setShowOptions] = useState(false)
 
@@ -49,13 +31,24 @@ export function ThreeDotsOptionsBtn(props: ThreeDotsOptionsBtnProps) {
   })
 
   return (
-    <div className="three-dots-option-btn container" {...otherProps} ref={optionsRef}>
+    <div className="three-dots-option-btn container" {...otherParentProps} ref={optionsRef}>
       <ul className="three-dots-option-btn icon" onClick={() => setShowOptions(!showOptions)}>
         <li></li>
         <li></li>
         <li></li>
       </ul>
-      {children}
+
+      {showOptions && <div className="three-dots-option-btn options">{
+        (children.map((child, key) => {
+          return (
+            <div key={key} className={"three-dots-option-btn option"} onClick={async (e) => {
+              child?.props.onClick(e)
+              setShowOptions(false)
+            }}>
+              {child}
+            </div>
+          )}))
+      }</div>}
     </div>
   )
 }
