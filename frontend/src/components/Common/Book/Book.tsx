@@ -12,7 +12,6 @@ import { toTitleCase } from "../../../utils/stringUtils"
 import { updateBookAPI } from "../../../services/bookServices"
 
 import './Book.css'
-import { title } from "process"
 
 
 type bookStateType = IBookWithSellerName & { error?: string }
@@ -23,9 +22,9 @@ interface TagsProps extends React.HTMLAttributes<HTMLDivElement> {
   // editable: boolean
 }
 
-interface getElementsAndTheirAttrsInStructRetVal {
-  [key: (keyof IBookWithSellerName)]: {
-    elem: HTMLDivElement | null, value: string | number | null
+type getElementsAndTheirAttrsInStructRetVal = {
+  [key in keyof Omit<IBook, '_id' | 'coverImage' | 'quantity' | 'seller'>]: {
+    elem: HTMLDivElement | null, value: string | string[] | number | null
   }
 }
 
@@ -57,7 +56,7 @@ export default function Book() {
       lang: { elem: parentElem.querySelector(".languages"), value: book.lang },
       description: { elem: parentElem.querySelector(".book-desc div"), value: book.description },
       price: { elem: parentElem.querySelector('.book-price'), value: book.price },
-      unitsInStock: { elem: parentElem.querySelector('.stock-count'), value: book.unitsInStock },
+      unitsInStock: { elem: parentElem.querySelector('.stock-count-val'), value: book.unitsInStock },
     }
   }
 
@@ -138,23 +137,40 @@ export default function Book() {
     navigate("/")
   }
 
-  async function onEdit(e: MouseEvent) {
+  async function onEdit() {
     if (!editing) {
       setEditing(true)
       return
     }
 
+    const htmlElements = getElementsAndTheirAttrsInStruct()
+
     let changedValues: Partial<Omit<IBook, '_id'>> = {}
 
-    const htmlElements = getElementsAndTheirAttrsInStruct()
-    changedValues.authorNames = htmlElements.authorNames.querySelectorAll('.tag-item-content').map(
-      elem => elem.textContent
-    )
+    changedValues.authorNames = Array.from(
+      htmlElements.authorNames.elem?.querySelectorAll('.tag-item-content') || []
+    ).map((value) => value.textContent as string)
 
-    await updateBookAPI(bookId as string, {
-      title: htmlElements.
-    } as IBook)
+    changedValues.categories = Array.from(
+      htmlElements.categories.elem?.querySelectorAll('.tag-item-content') || []
+    ).map((value) => value.textContent as string)
 
+    changedValues.lang = Array.from(
+      htmlElements.lang.elem?.querySelectorAll('.tag-item-content') || []
+    ).map((value) => value.textContent as string)
+
+    changedValues = {
+      title: htmlElements.title.elem?.textContent ?? htmlElements.title.value,
+      subtitle: htmlElements.subtitle.elem?.textContent ?? htmlElements.subtitle.value,
+      description: htmlElements.description.elem?.textContent ?? htmlElements.description.value,
+      price: +(htmlElements.price.elem?.textContent ?? htmlElements.price.value ?? 0),
+      unitsInStock: +(htmlElements.unitsInStock.elem?.textContent ?? htmlElements.unitsInStock.value ?? 0),
+      ...changedValues
+    } as Partial<Omit<IBook, '_id'>>
+
+    await updateBookAPI(bookId as string, changedValues as IBook)
+
+    setBook({ ...book, ...changedValues })
     setEditing(false)
   }
 
@@ -190,7 +206,7 @@ export default function Book() {
 
         <p><b>Seller: </b>{book.sellerName}</p>
 
-        ₹ <h2 className="book-price" style={{display: "inline", color: 'orange'}} contentEditable={editing}>
+        ₹ <h2 className="book-price" style={{ display: "inline", color: 'orange' }} contentEditable={editing}>
           {book.price?.toFixed(2) ?? '---'}
         </h2>
 
@@ -198,7 +214,7 @@ export default function Book() {
           {book.unitsInStock
             ? <>
               <span className="pass-item">In Stock: </span>
-              <span contentEditable={editing}>{book.unitsInStock}</span>
+              <span className="stock-count-val" contentEditable={editing}>{book.unitsInStock}</span>
             </>
             : <span style={{color: "red"}}>Sold Out!</span>
           }
@@ -228,14 +244,18 @@ export default function Book() {
         }
 
         {(user?.type === 'admin') && <div className="book-actions">
-            <button title="Edit" onClick={async (e) => await onEdit(e)}>
+            <button title="Edit" onClick={async () => await onEdit()}>
               {!editing ? "Edit": "Confirm"}
             </button>
             {editing && <button title="Cancel" onClick={() => {
                 setEditing(false)
                 const elementsAndValues = getElementsAndTheirAttrsInStruct()
+
                 Object.entries(elementsAndValues).map(([_, { elem, value }]) => {
-                  elem.textContent = value
+                  if (!value || !elem)
+                    return
+
+                  elem.textContent = (typeof value === "string") ? value : value?.toString()
                 })
               }}>Cancel
               </button>

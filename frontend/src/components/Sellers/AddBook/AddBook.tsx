@@ -20,7 +20,6 @@ export default function AddBook() {
       // navigate('/')
       // console.log(JSON.stringify(data))
       // console.log(coverImage)
-      // console.log(coverImage)
       // data.coverImage = coverImage
       // const formData = new FormData()
 

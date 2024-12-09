@@ -83,6 +83,7 @@ export function SearchBar() {
 
       e.preventDefault()
       navigate('/search?query=' + (e.target as HTMLInputElement).value)
+      setShowSearchResults(false)
     }
 
     document.addEventListener("mousedown", closeSearchResultsAtOutsideClick)
