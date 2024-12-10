@@ -38,7 +38,7 @@ export default function IntInput(props: IntInputProps) {
         {text}
         <input {...otherProps} type="text" value={value}
           onChange={(e) => {
-            let num = +e.target.value
+            const num = +e.target.value
             if (!isNaN(num))
               setValue(num)
 

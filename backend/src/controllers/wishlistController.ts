@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { Wishlist } from '../models/Wishlist.ts'
 import { HttpError } from '../utils/exceptions.ts'
+import mongoose from 'mongoose'
 
 
 export async function getWishlistOfUser(req: Request, res: Response) {
@@ -11,7 +12,7 @@ export async function getWishlistOfUser(req: Request, res: Response) {
 
   const wishlist = await Wishlist.aggregate([
     {
-      $match: { user: userId }
+      $match: { user: new mongoose.Types.ObjectId(userId) }
     },
     {
       $lookup: {
@@ -21,11 +22,36 @@ export async function getWishlistOfUser(req: Request, res: Response) {
         as: "bookDetails"
       }
     },
+    { $unwind: '$bookDetails' },
     {
       $project: {
-        user: 1,
-        "$bookDetails.seller": 0,
-        books: "$bookDetails"
+        // _id: 1,
+        "bookDetails._id": 1,
+        "bookDetails.quantity": 1,
+        "bookDetails.price": 1,
+        "bookDetails.title": 1,
+        "bookDetails.unitsInStock": 1,
+        "bookDetails.coverImage": 1,
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        books: {
+          $push: {
+            _id: "$bookDetails._id",
+            quantity: "$bookDetails.quantity",
+            title: "$bookDetails.title",
+            price: "$bookDetails.price",
+            unitsInStock: "$bookDetails.unitsInStock",
+            coverImage: "$bookDetails.coverImage",
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 0, "bookDetails": 0
       }
     }
   ])
@@ -33,7 +59,7 @@ export async function getWishlistOfUser(req: Request, res: Response) {
       throw new HttpError('Error occurred while fetching wishlist', { cause: err })
     })
 
-  res.status(201).json(wishlist)
+  res.status(201).json(wishlist[0]?.books || [])
 }
 
 

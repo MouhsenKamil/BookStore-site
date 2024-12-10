@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
-import mongoose, { PipelineStage } from 'mongoose'
+import mongoose, { FilterQuery, PipelineStage } from 'mongoose'
 
-import { Book, IBookWithSellerName } from '../models/Book.ts'
+import { Book, IBook, IBookWithSellerName } from '../models/Book.ts'
 import { logEvents } from '../middlewares/logger.ts'
 import { HttpError } from '../utils/exceptions.ts'
 import { Seller } from '../models/Seller.ts'
@@ -9,10 +9,13 @@ import { BookArchive } from '../models/BooksArchive.ts'
 import { getRandInt } from '../utils/funcUtils.ts'
 import { ICheckoutFormData, Order } from '../models/Order.ts'
 // import { BookUniqueListValues } from '../models/BookUniqueListValues.ts'
-import { metadataListQuerier } from '../utils/bookUtils.ts'
 import { Language } from '../models/Languages.ts'
 import { Author } from '../models/Author.ts'
 import { Category } from '../models/Category.ts'
+
+
+
+const _7_DAYS = 24 * 60 * 60 * 1000
 
 
 interface IBookPurchaseFormData extends ICheckoutFormData {
@@ -40,10 +43,10 @@ interface SearchFilters {
 export async function addBook(req: Request, res: Response) {
   req.body.seller = req.body.seller ?? req.__userAuth.id
 
-  console.log(JSON.stringify(req.body))
+  // console.log(JSON.stringify(req.body))
 
   const coverImage = req.body.coverImage
-  req.body.coverImage = !!coverImage ? coverImage.name: null
+  req.body.coverImage = coverImage ? coverImage.name: null
   req.body.seller = req.__userAuth.id
 
   const newBook = new Book()
@@ -160,11 +163,11 @@ export async function getBooks(req: Request, res: Response) {
 
   const sellerNameInFields = fields.includes('sellerName')
 
-  let projectionObj: { [key: string]: number | string } =
+  const projectionObj: { [key: string]: number | string } =
     (fields.length) ? Object.fromEntries(fields.map(elem => [elem, 1])) : {}
 
-  let filters: any = {}
-  let pipeline: PipelineStage[] = []
+  const filters: FilterQuery<IBook> = {}
+  const pipeline: PipelineStage[] = []
 
   if (query)
     filters.title = { $regex: new RegExp(query.replace('/', '\\/'), 'i') }
@@ -252,7 +255,7 @@ export async function getBooks(req: Request, res: Response) {
     //     queryObj, projectionObj, { limit: limitInt }
     //   )
 
-    let resultBooks = await Book.aggregate(pipeline)
+    const resultBooks = await Book.aggregate(pipeline)
     res.status(200).json({ total: resultBooks.length, results: resultBooks })
 
   } catch (err) {
@@ -280,7 +283,7 @@ export async function getBookById(req: Request, res: Response) {
       throw new HttpError(`Error occurred while fetching book`, { cause: err })
     })
 
-  let resObj = (book.toObject() as unknown) as IBookWithSellerName
+  const resObj = (book.toObject() as unknown) as IBookWithSellerName
   resObj.sellerName = seller?.name || ''
 
   res.status(200).json(resObj)
@@ -325,7 +328,7 @@ export async function purchaseBook(req: Request, res: Response) {
 
   const currentDate = new Date()
   const deliveredByDate = new Date(
-    currentDate.getTime() + getRandInt(1, 7) * (24 * 60 * 60) // Delivery time: 1-7 days (random)
+    currentDate.getTime() + getRandInt(1, 7) * _7_DAYS
   )
 
   const order = new Order({
@@ -378,7 +381,7 @@ export async function purchaseBook(req: Request, res: Response) {
 
 
 export async function suggestAuthorNames(req: Request, res: Response) {
-  const { query = '' } = req.query
+  const { query = '', limit = 1 } = req.query
 
   if (typeof query !== "string")
     throw new HttpError("Expected 'query' to be a type of string.")
@@ -390,7 +393,8 @@ export async function suggestAuthorNames(req: Request, res: Response) {
 
   // const authorNames = await metadataListQuerier({ param: 'authorNames', query })
   const authorNames = await Author.find(
-    { english: { $regex: `^${query.replace('/', '\\/')}`, $options: "i" } }, { english: 1 }
+    { name: { $regex: `^${query.replace('/', '\\/')}`, $options: "i" } },
+    { _id: 0 }, { limit: +limit }
   )
 
   res.status(200).json({ total: authorNames.length, result: authorNames })
@@ -398,7 +402,7 @@ export async function suggestAuthorNames(req: Request, res: Response) {
 
 
 export async function suggestCategories(req: Request, res: Response) {
-  const { query = '' } = req.query
+  const { query = '', limit = 1 } = req.query
 
   if (typeof query !== "string")
     throw new HttpError("Expected 'query' to be a type of string.")
@@ -410,7 +414,8 @@ export async function suggestCategories(req: Request, res: Response) {
 
   // const categories = await metadataListQuerier({ param: 'categories', query })
   const categories = await Category.find(
-    { english: { $regex: `^${query.replace('/', '\\/')}`, $options: "i" } }, { english: 1 }
+    { name: { $regex: `^${query.replace('/', '\\/')}`, $options: "i" } },
+    { _id: 0 }, { limit: +limit }
   )
 
   res.status(200).json({ total: categories.length, result: categories })
@@ -418,7 +423,7 @@ export async function suggestCategories(req: Request, res: Response) {
 
 
 export async function suggestLanguages(req: Request, res: Response) {
-  const { query = '' } = req.query
+  const { query = '', limit = 1 } = req.query
 
   if (typeof query !== "string")
     throw new HttpError("Expected 'query' to be a type of string.")
@@ -430,7 +435,8 @@ export async function suggestLanguages(req: Request, res: Response) {
 
   // const langs = await metadataListQuerier({ param: 'lang', query })
   const langs = await Language.find(
-    { english: { $regex: `^${query.replace('/', '\\/')}`, $options: "i" } }, { english: 1 }
+    { english: { $regex: `^${query.replace('/', '\\/')}`, $options: "i" } },
+    { _id: 0, english: 1 }, { limit: +limit }
   )
 
   res.status(200).json({ total: langs.length, result: langs })

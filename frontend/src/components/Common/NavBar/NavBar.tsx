@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
@@ -12,7 +12,7 @@ import './NavBar.css'
 const roleBasedRoutesMap = {
   user: ['profile', 'cart', 'wishlist', 'orders'],
   seller: ['home', 'profile', 'add-a-book'],
-  admin: ['home', 'books', 'customers', 'sellers']
+  admin: ['home', 'customers', 'sellers', 'orders', 'add-a-book']
 }
 
 
@@ -21,9 +21,9 @@ export default function NavBar() {
   const { user } = authState
   const navigate = useNavigate()
   const [showProfileMenu, setShowProfileMenu] = useState(false)
-
+  
   function ProfilePic() {
-    let userType: string | undefined = user?.type
+    let userType: 'user' | 'seller' | 'admin' | 'customer' | undefined = user?.type
 
     if (userType === undefined)
       return <></>
@@ -31,22 +31,43 @@ export default function NavBar() {
     if (userType === "customer")
       userType = "user"
 
-    const userTypeRoutes = roleBasedRoutesMap[userType as 'user' | 'seller' | 'admin']
+    const dropdownRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+      function closeProfileDropdownAtOutsideClick(e: MouseEvent) {
+        if (
+          showProfileMenu
+          && dropdownRef.current
+          && !dropdownRef.current?.contains(e.target as Node)
+        )
+          setShowProfileMenu(false)
+      }
+
+      document.addEventListener('mousedown', closeProfileDropdownAtOutsideClick)
+
+      return () => {
+        document.removeEventListener('mousedown', closeProfileDropdownAtOutsideClick)
+      }
+    })
+
+    const userTypeRoutes = roleBasedRoutesMap[userType]
 
     return (
-      <div className="user-icon">
+      <div className="user-icon" ref={dropdownRef}>
         <img
           className='img-icon user-profile-icon' src="/api/static/user-profile-icon.png"
           alt="User" onClick={() => setShowProfileMenu(!showProfileMenu)}
         />
-        <div className={`actions ${showProfileMenu ? 'show': ''}`}>
+        <div className={`actions ${showProfileMenu ? 'show' : ''}`}>
           <div className='username'>
-            {user?.name} {user?.type === 'customer' ? '': `(${user?.type})`}
+            {user?.name} {user?.type === 'customer' ? '' : `(${user?.type})`}
           </div>
           <hr />
           <div className="links" onClick={() => setShowProfileMenu(!showProfileMenu)}>{
             userTypeRoutes.map((endpoint, key) =>
-                <Link key={key} to={`/${userType}/${endpoint}`}>{toTitleCase(endpoint.replace(/-/g, ' '))}</Link>
+              <Link key={key} to={`/${userType}/${endpoint}`}>
+                {toTitleCase(endpoint.replace(/-/g, ' '))}
+              </Link>
             )
           }</div>
           <button className='logout-btn' onClick={async () => {
@@ -55,7 +76,6 @@ export default function NavBar() {
               alert(response.data.error)
               return
             }
-
             setShowProfileMenu(false)
             navigate(response.data.url)
             fetchAuthData()
@@ -73,11 +93,11 @@ export default function NavBar() {
         alt="Bookstore site"
         onClick={() => navigate('/')}
       />
-      {(!user || user.type === 'customer') && <SearchBar />}
-      {(user !== null)
+      <SearchBar />
+      {user
         ? <ProfilePic />
-        : <button className='login-btn'>
-          <Link to="/account/user/login">Login</Link>
+        : <button className='login-btn' onClick={() => navigate("/account/user/login")}>
+          Login
         </button>
       }
     </div>

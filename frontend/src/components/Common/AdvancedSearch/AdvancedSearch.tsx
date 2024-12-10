@@ -2,66 +2,76 @@ import{ useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import axios from "axios"
 import Slider from "rc-slider"
-import { IBook } from "../../types/book"
 
-import { useParams } from "react-router-dom"
+import { IBook } from "../../../types/book"
+
 import "rc-slider/assets/index.css"
-
 import './AdvancedSearch.css'
+import { useLocation } from "react-router-dom"
 
+
+interface SearchParamsData {
+  query: string
+  subtitle?: string
+  lang?: string[]
+  authorNames?: string[]
+  categories?: string[]
+  minPrice?: number,
+  maxPrice?: number,
+  sellerName?: string
+}
 
 interface SearchFormData {
   query: string
   subtitle?: string
-  lang?: string
-  categories?: string
+  lang?: string[]
+  authorNames?: string[]
+  categories?: string[]
   priceRange: [number, number]
   sellerName?: string
 }
 
 
 export default function AdvancedBookSearch() {
-  const params = useParams()
+  const location = useLocation()
+  const searchParams = Object.fromEntries(new URLSearchParams(decodeURI(location.search)))
+
   const [books, setBooks] = useState<IBook[]>([])
   const { handleSubmit, control, register } = useForm<SearchFormData>({
     defaultValues: {
       query: "",
       subtitle: "",
-      lang: "",
-      categories: "",
-      priceRange: [0, undefined],
-      sellerName: "",
-    },
+      lang: [],
+      categories: [],
+      authorNames: [],
+      priceRange: [0, 5000],
+      sellerName: ''
+    }
   })
 
   useEffect(() => {
-    if (!params.query)
+    console.log(searchParams)
+
+    if (!searchParams.query)
       return
 
-    const priceRange = (params.priceRange as unknown) as [number, number]
+    // const priceRange = (params.get("priceRange") as unknown) as [number, number]
 
     onSubmit({
-      query: params.query,
-      subtitle: params.subtitle,
-      lang: params.lang,
-      categories: params.categories,
-      priceRange: priceRange,
-      sellerName: params.sellerName,
+      query: searchParams.query || '',
+      subtitle: searchParams.subtitle || '',
+      lang: (searchParams.lang as string[]) ?? [],
+      categories: searchParams.categories.spliit() ?? [],
+      minPrice: +(searchParams.minPrice ?? 0),
+      maxPrice: +(searchParams.maxPrice ?? 5000),
+      sellerName: searchParams.sellerName ?? undefined,
     })
   }, [])
 
-  const onSubmit = async (data: SearchFormData) => {
+  const onSubmit = async (data: SearchParamsData) => {
     try {
       const response = await axios.get("/api/books/", {
-        params: {
-          query: data.query,
-          subtitle: data.subtitle,
-          lang: data.lang,
-          categories: data.categories,
-          minPrice: data.priceRange[0],
-          maxPrice: data.priceRange[1],
-          sellerName: data.sellerName,
-        },
+        params: Object.entries(data).filter(([_, val]) => val === null || val === undefined)
       })
 
       if (response.status !== 200)
@@ -78,7 +88,6 @@ export default function AdvancedBookSearch() {
   return (
     <div className="advanced-search">
       <form onSubmit={handleSubmit(onSubmit)} className="filters">
-        <input type="text" placeholder="Search Title" {...register("query", { required: true })} />
         <input type="text" placeholder="Subtitle" {...register("subtitle")} />
         <input type="text" placeholder="Language" {...register("lang")} />
         <input type="text" placeholder="Categories" {...register("categories")} />
@@ -89,7 +98,7 @@ export default function AdvancedBookSearch() {
             control={control}
             render={({ field }) => (
               <>
-                <p>Price Range: ₹{field.value[0]} - ₹{field.value[1] || 1000}</p>
+                <p>Price Range: ₹{field.value[0] || 0} - ₹{field.value[1] || 1000}</p>
                 <Slider
                   range min={0} max={5000} defaultValue={[0, 1000]} onChange={field.onChange}
                 />

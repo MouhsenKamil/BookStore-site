@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import axios from 'axios'
 
 import { useAuth } from '../../../hooks/useAuth'
@@ -29,19 +30,32 @@ export default function Profile() {
   }, [])
 
   return (
-    <div className="seller-profile">
-      <div className="form-heading">{userObj.name}</div>
-      <p>{toTitleCase(user?.type || '---')}</p>
+    <div className="profile-container">
+      <div className="profile-header">
+        <h1 className='profile-heading'>{userObj.name}</h1>
+        <p><strong>{toTitleCase(user?.type || '---')}</strong></p>
+      </div>
       {
         Object.entries(userObj).map(([key, value]) => {
+          if (['type', 'name', 'blocked'].includes(key))
+            return
+
+          if ((value instanceof Object) && Object.keys(value).length === 0)
+            return
+
           return (
             <p>
-              <label>{key.replace(/[A-Z]/g, letter => ` ${letter.toLowerCase()}`)}: </label>
-              <span>{value}</span>
+              <label><strong>{toTitleCase(key.replace(/[A-Z]/g, letter => ` ${letter}`))}: </strong></label>
+              <span>{(typeof value === "string") ? value: value.toString()}</span>
             </p>
           )
         })
       }
+      <Link to='/user/cart'>My Cart</Link>
+      <br />
+      <Link to='/user/wishlist'>My Wishlist</Link>
+      <br />
+      <Link to='/user/orders'>My Orders</Link>
     </div>
   )
 }

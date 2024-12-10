@@ -1,5 +1,5 @@
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import axios, { AxiosError } from 'axios'
 import { useAuth } from '../../../hooks/useAuth'
@@ -18,13 +18,19 @@ const passwordValidationFuncs: { [key: string]:[ (val: string) => boolean, strin
 
 
 export default function Register(props: { parent: 'user' | 'seller' }) {
-  const { fetchAuthData } = useAuth()
+  const { authState, fetchAuthData } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (authState.user)
+      navigate('/')
+  }, [])
+
   const { parent: parentEndpoint } = props
   const {
     register, handleSubmit, watch, formState: { errors }
   } = useForm<RegisterFormInputs>()
   const [registrationError, setRegistrationError] = useState<string>('')
-  const navigate = useNavigate()
   const location = useLocation()
 
   // Watch password field to compare it with confirmPassword
@@ -43,13 +49,11 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
         dataObj = {
           ...dataObj,
           phoneNo: data.phoneNo,
-          passportNumber: data.passportNumber,
+          passportNo: data.passportNo,
         }
       }
 
       const response = await axios.post('/api/auth/register', dataObj)
-
-      console.log(JSON.stringify(response))
 
       if (response.status !== 200) {
         setRegistrationError(response.data.error)
@@ -58,8 +62,8 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
   
       fetchAuthData()
 
-      let uri = Object.fromEntries(new URLSearchParams(decodeURI(location.search)))
-      let redirectTo = uri.from || response.data.url || '/'
+      const uri = Object.fromEntries(new URLSearchParams(decodeURI(location.search)))
+      const redirectTo = uri.from || response.data.url || '/'
 
       navigate(redirectTo)
     } catch (err) {
@@ -116,8 +120,8 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
         />
         {errors.password && <ul className='error-msg'>{(
           Object.values(passwordValidationFuncs).map(([validateFunc, errormsg], key) => {
-            let checkRes = validateFunc(password)
-            let msgTagClassName = checkRes ? "pass-item": "error-item"
+            const checkRes = validateFunc(password)
+            const msgTagClassName = checkRes ? "pass-item": "error-item"
             return <li key={key} className={msgTagClassName}>{errormsg}</li>
           }))}</ul>
         }
@@ -141,7 +145,7 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
                 'phoneNo', {
                   required: 'Please enter your phone number',
                   pattern: {
-                    value: /^[0-9]{2}[a-z]{3}[CPHFATBLJG]{1}[a-z]{1}[0-9]{4}[a-z]{1}[0-9a-z]{1}Z[0-9a-z]{1}$/,
+                    value: /^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,
                     message: 'Phone number is invalid'
                   }
                 })}
@@ -149,15 +153,15 @@ export default function Register(props: { parent: 'user' | 'seller' }) {
             {errors.phoneNo && <p className='error-msg'>{errors.phoneNo.message}</p>}
 
             <input type="string" placeholder="Passport no."
-              {...register('passportNumber', {
-                required: 'Please enter your passportNumber',
+              {...register('passportNo', {
+                required: 'Please enter your passport number',
                 pattern: {
                   value: /^[A-Z][1-9][0-9]\s?[0-9]{4}[1-9]$/,
                   message: 'Passport number number is invalid'
                 }
               })}
             />
-            {errors.passportNumber && <p className='error-msg'>{errors.passportNumber.message}</p>}
+            {errors.passportNo && <p className='error-msg'>{errors.passportNo.message}</p>}
           </>
         }
 

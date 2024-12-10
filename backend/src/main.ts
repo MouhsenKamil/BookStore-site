@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express"
+import express, { Request, Response } from "express"
 import 'express-async-errors'
 
 import mongoose from "mongoose"
@@ -47,8 +47,8 @@ app.get('/', (req: Request, res: Response) => {
 })
 
 // Return 404 on unknown routes
-app.use((req: Request, res: Response, next: NextFunction) => {
-  res.status(404).json({ error: "Sorry can't find that!" })
+app.use((req: Request, res: Response) => {
+  res.status(404).json({ error: "Unknown endpoint" })
 })
 
 app.use(errorHandler) // Error handling middleware
@@ -89,10 +89,11 @@ const sslServer = https.createServer({
 sslServer
   .listen(PORT, async () => {
     await connectDB({
-      host: 'localhost',
+      // host: 'localhost',
       // host: `${env.MONGODB_ADMIN_USERNAME}:${env.MONGODB_ADMIN_PASSWORD}@localhost`,
-      port: env.MONGODB_PORT,
-      dbName: env.BOOKSTORE_DB_NAME,
+      // port: env.MONGODB_PORT,
+      // dbName: env.BOOKSTORE_DB_NAME,
+      uri: env.MONGODB_URI,
       username: env.MONGODB_ADMIN_USERNAME,
       password: env.MONGODB_ADMIN_PASSWORD
     })

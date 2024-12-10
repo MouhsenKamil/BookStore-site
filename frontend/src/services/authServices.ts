@@ -2,11 +2,11 @@ import axios, { AxiosResponse } from "axios"
 import { UserData, RegisterFormInputs, UserType, LoginFormInputs } from "../types/auth"
 
 
-const AUTH_API_URL = "'/api/auth"
+const AUTH_API_URL = "/api/auth/"
 
 export async function registerUser(
   data: RegisterFormInputs, { userType }: { userType: UserType }
-): Promise<AxiosResponse<any, any>> {
+) {
 
   let dataObj: { [key: string]: any } = {
     email: data.email,
@@ -19,7 +19,7 @@ export async function registerUser(
     dataObj = {
       ...dataObj,
       phoneNo: data.phoneNo,
-      passportNumber: data.passportNumber
+      passportNo: data.passportNo
     }
 
   return await axios.post(`${AUTH_API_URL}register`, dataObj)
@@ -28,7 +28,7 @@ export async function registerUser(
 
 export async function loginUser(
   data: LoginFormInputs, { userType }: { userType: Exclude<UserType, 'customer'> }
-): Promise<AxiosResponse<any, any>>  {
+) {
 
   data.type = userType === 'user' ? 'customer': userType
   return await axios.post(`${AUTH_API_URL}login`, data)

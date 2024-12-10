@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { register, login, logout, refresh, verify, changePassword } from '../controllers/authController.ts'
+import { register, login, logout, refresh, verify } from '../controllers/authController.ts'
 import { rateLimiter } from '../middlewares/rateLimiter.ts'
 import { IsAuthenticated } from '../middlewares/authMiddleware.ts'
 import { checkRequestAttrs, emailPasswordValidators } from '../middlewares/validators.ts'
@@ -55,14 +55,14 @@ router.post(
   login
 )
 
-router.post(
-  '/change-password',
-  redirectToLoginIfNotAuthenticated,
-  rateLimiter(
-    'Too many changes from this IP, please try again after a minute',
-    ONE_MINUTE,
-  ),
-  changePassword
-)
+// router.post(
+//   '/change-password',
+//   redirectToLoginIfNotAuthenticated,
+//   rateLimiter(
+//     'Too many changes from this IP, please try again after a minute',
+//     ONE_MINUTE,
+//   ),
+//   changePassword
+// )
 
 export default router

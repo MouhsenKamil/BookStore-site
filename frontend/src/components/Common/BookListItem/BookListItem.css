@@ -1,12 +1,12 @@
-.book-card {
-  padding: 0 0.25em;
+.book-list-item {
+  padding: 1em;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
 }
 
-.book-card .image-container {
+.book-list-item .image-container {
   margin: 0 auto;
   height: 20em;
 }
@@ -14,11 +14,9 @@
 .image-container {
   position: relative;
   overflow: hidden;
-  /* height: 100%; */
 }
 
 .image-container img {
-  /* margin: auto 0; */
   width: 13em;
   height: 100%;
 }
@@ -54,11 +52,9 @@
   gap: 0.5em
 }
 
-.book-card .book-title {
+.book-list-item .book-title {
   margin: 0;
-  /* height: 2em; */
   text-wrap: balance;
-  /* text-overflow: ellipsis; */
   font-weight: bold;
   cursor: pointer;
 }

@@ -1,0 +1,17 @@
+div.table__col-resizeable {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5px;
+  cursor: col-resize;
+  background-color: red;
+  user-select: none;
+}
+
+div.table__col-resizeable:hover {
+  border-color: #ccc;
+}
+
+div.table__col-resizeable.active {
+  border-color: #517ea5;
+}

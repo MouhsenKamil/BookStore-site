@@ -1,0 +1,54 @@
+.seller-details-text-content {
+  text-align: left;
+}
+
+.sellers-list {
+  border-collapse: collapse;
+  border-spacing: 0px;
+}
+
+.sellers-list tr {
+  display: flex;
+}
+
+.sellers-list .seller-item td, .sellers-list thead th {
+  flex: 2.8;
+  margin: 0px;
+  padding: 0.25em 0.5em;
+  width: fit-content;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  resize: horizontal;
+  text-align: center;
+  scrollbar-width: thin;
+}
+
+.sellers-list .customer-item td {
+  border-bottom: 0;
+}
+
+.sellers-list thead th {
+  border-top: 0;
+}
+
+.sellers-list .seller-item td.seller-id, .sellers-list thead th:first-child {
+  flex: 1;
+}
+
+.sellers-list .seller-item .seller-actions,  .sellers-list thead th:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex: 1;
+}
+
+.sellers-list .seller-item .seller-actions > div {
+  cursor: pointer;
+}
+
+.sellers-list-container input[type="text"] {
+  width: calc(100% - 2rem);
+  margin-bottom: 1em;
+}

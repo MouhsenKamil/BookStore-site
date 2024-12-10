@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
 
 import { logServerErrors } from './logger'
 import { BackendError, HttpError, ForceReLogin } from '../utils/exceptions'
@@ -6,7 +6,14 @@ import { clearTokensInCookies } from '../utils/authUtils'
 
 
 export default function errorHandler(err: HttpError, req: Request, res: Response, next: NextFunction) {
-  const error = (err instanceof BackendError) ? err.message: 'Internal Server Error'
+  if (res.headersSent)
+    return next(err)
+
+  let error = (err instanceof BackendError) ? err.message: 'Internal Server Error'
+
+  if (err instanceof HttpError && err.cause instanceof Error && err.cause.name === "ValidationError")
+    error += '\n' + err.cause.message
+
   const statusCode = err.statusCode ?? 500
 
   let logMsg = (

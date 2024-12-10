@@ -1,83 +1,40 @@
-import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import axios from "axios"
+import { Link } from "react-router-dom"
 
-import { IBook } from "../../../types/book"
+import BookListItem from "../../Common/BookListItem/BookListItem"
+import useWishlist from "../../../hooks/useWishlist"
+import { AddtoCartButton } from "../../Common/CommonButtons"
+
+import './Wishlist.css'
 
 
 export default function Wishlist() {
-  const navigate = useNavigate()
-  const [wishlistBooks, setWishlistBooks] = useState<IBook[]>([])
-
-  async function removeFromWishlist(bookId: string) {
-    try {
-      const response = await axios.patch("/api/customer/@me/wishlist/delete", { bookId })
-      if (response.status !== 204)
-        throw new Error(response.data.error)
-
-      setWishlistBooks(wishlistBooks.filter(book => book._id !== bookId))
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  async function clearWishlist() {
-    try {
-      const response = await axios.delete('/api/customer/@me/wishlist/clear')
-      if (response.status !== 204)
-        throw new Error(response.data.error)
-
-      setWishlistBooks([])
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  function BookListItem({ book }: { book: IBook }) {
-    return (
-      <div className="book">
-        <img
-          src={`/api/static${book.coverImage}`}
-          alt={book.title}
-          onClick={() => navigate(`/book/${book._id}`)}
-        />
-
-        <div className="book-details">
-          <div className="book-title">{book.title}</div>
-          <div className="price">{book.price}</div>
-          <button className="remove-from-wishlist-btn" onClick={() => {
-            removeFromWishlist(book._id as string)
-          }}>
-            Remove from Wishlist
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  async function fetchWishlist() {
-    try {
-      const response = await axios.get(`/api/customer/@me/wishlist`)
-      if (response.status !== 200)
-        throw new Error(response.data.error)
-      setWishlistBooks(response.data.books)
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  useEffect(() => {
-    fetchWishlist()
-  }, [])
+  const { wishlist, clearWishlist, removeBookFromWishlist } = useWishlist()
 
   return (
-    <div className="customer-orders">
-    <h3>Your wishlist has ${wishlistBooks.length} books</h3>{
-      (!wishlistBooks.length)
+    <div className="customer-wishlist">
+    <h3>Your wishlist has {wishlist.length} books</h3>{
+      (!wishlist.length)
         ? <h5>No items in wishlist. <Link to='/'>Start shopping for books now.</Link></h5>
         : <>
         <div className="wishlist-books-list">
-          {(wishlistBooks.map((book, key) => <BookListItem key={key} book={book} />))}
+          {(wishlist.map((book, key) => (
+            <BookListItem key={key} book={book}>
+              <button onClick={async (e) => {
+                const target = e.currentTarget ?? e.target
+                try {
+                  await removeBookFromWishlist(book._id)
+                  target.inputMode = "Removed from Wishlist ✅"
+                } catch {
+                  target.inputMode = "Error Occurred ❗"
+                }
+
+                setTimeout(() => {
+                  target.innerText = "Remove from Wishlist"
+                }, 2500)
+              }}>Remove from Wishlist</button>
+              <AddtoCartButton bookId={book._id} />
+            </BookListItem>
+          )))}
         </div>
         <button onClick={clearWishlist}>Clear Wishlist</button>
       </>

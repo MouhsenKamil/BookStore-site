@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { AxiosError } from 'axios'
 
 import { toTitleCase } from '../../../utils/stringUtils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../../../hooks/useAuth'
 import { LoginFormInputs, UserType } from '../../../types/auth'
 import { loginUser } from '../../../services/authServices'
@@ -12,9 +12,15 @@ import './Login.css'
 
 
 export default function Login(props: { parent: Exclude<UserType, 'customer'> }) {
-  const [loginErr, setLoginErr] = useState('')
-  const { fetchAuthData } = useAuth()
+  const { authState, fetchAuthData } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (authState.user)
+      navigate('/')
+  }, [])
+
+  const [loginErr, setLoginErr] = useState('')
 
   const [UrlSearchParams, _] = useSearchParams({ from: '', msg: '' })
 
@@ -22,10 +28,12 @@ export default function Login(props: { parent: Exclude<UserType, 'customer'> }) 
   const { register, handleSubmit, formState: { errors }} = useForm<LoginFormInputs>()
 
   const onSubmit = async (data: LoginFormInputs) => {
+    setLoginErr("")
+
     try {
       const response = await loginUser(data, { userType: parentEndpoint })
 
-      if (response.status !== 200) {
+      if (response.status >= 400) {
         setLoginErr(response.data.error)
         return
       }
@@ -34,7 +42,7 @@ export default function Login(props: { parent: Exclude<UserType, 'customer'> }) 
 
       // let uri = Object.fromEntries(new URLSearchParams(decodeURI(location.search)))
       // let redirectTo = uri.from || response.data.url || '/'
-      let redirectTo = UrlSearchParams.get('from') || response.data.url || '/'
+      const redirectTo = UrlSearchParams.get('from') || response.data.url || '/'
       console.log('redirectTo', redirectTo)
 
       navigate(redirectTo)
@@ -83,7 +91,7 @@ export default function Login(props: { parent: Exclude<UserType, 'customer'> }) 
         {errors.password && <p className='error-msg'>{errors.password.message}</p>}
         {loginErr && <p className='login-err error-msg'>{loginErr}</p>}
 
-        <Link to={`/account/${parentEndpoint}/forgot-password`}>Forgot Password?</Link>
+        {/* <Link to={`/account/${parentEndpoint}/forgot-password`}>Forgot Password?</Link> */}
 
         <button type="submit">Login</button>
       </form>

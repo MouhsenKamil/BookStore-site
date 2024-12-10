@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 
-import BookCard from "../BookCard/BookCard"
+import BookListItem from "../BookListItem/BookListItem"
+import { AddtoCartButton, AddtoWishlistButton } from "../CommonButtons"
+import { IBookInCart } from "../../../types/cart"
 
 import './Home.css'
 
+
+export function BookCard({ book }: { book: IBookInCart }) {
+  return (
+    <BookListItem book={book}>
+      <AddtoWishlistButton bookId={book._id} />
+      <AddtoCartButton bookId={book._id} />
+    </BookListItem>
+  )
+}
 
 export default function Home() {
   const [newBooks, setNewBooks] = useState([])

@@ -3,9 +3,9 @@ import {
   // createSeller,
   deleteSeller,
   getSalesAnalytics,
-  getSellers,
+  // getSellers,
   getSellerById,
-  registerBook,
+  // registerBook,
   updateSeller,
   blockSeller,
   unblockSeller,
@@ -15,8 +15,7 @@ import { authenticate, restrictToRoles } from '../middlewares/authMiddleware.ts'
 import { verifyUserIdParamByUserAuth } from '../middlewares/userMiddleware.ts'
 
 import { UserType } from '../models/User.ts'
-
-import { upload } from '../config/upload.ts'
+// import { upload } from '../config/upload.ts'
 
 
 const routerWithSellerId = express.Router({ mergeParams: true })
@@ -32,7 +31,7 @@ routerWithSellerId.patch('/', restrictEditingSensibleInfo, updateSeller)
 routerWithSellerId.delete('/', deleteSeller)
 
 
-routerWithSellerId.put('/add-book', upload.single('coverImage'), registerBook)
+// routerWithSellerId.put('/add-book', upload.single('coverImage'), registerBook)
 routerWithSellerId.get('/analytics', getSalesAnalytics)
 // routerWithSellerId.patch('/change-password', changePassword)
 
@@ -44,8 +43,10 @@ adminRoutesWithSellerId.use(restrictToRoles(UserType.ADMIN))
 adminRoutesWithSellerId.patch('/block', blockSeller)
 adminRoutesWithSellerId.patch('/unblock', unblockSeller)
 
+routerWithSellerId.use(adminRoutesWithSellerId)
+
 // export routes
-const router = express.Router({mergeParams: true})
+const router = express.Router({ mergeParams: true })
 
 router.use(authenticate, restrictToRoles(UserType.SELLER, UserType.ADMIN))
 router.use('/:sellerId', routerWithSellerId)

@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import axios, { AxiosError } from "axios"
-import { IBook } from "../../../types/book"
-import { IOrder } from "../../../types/order"
+import axios from "axios"
+
+import './AHome.css'
 
 
 interface ISiteAnalytics {
   totalCustomers: number
   totalSellers: number
-  totalBooks: IBook[]
-  totalBooksSold: IBook[]
-  totalOrders: IOrder[]
+  totalBooks: number
+  totalBooksSold: number
+  totalOrders: {
+    packaging: number
+    onDelivery: number
+    delivered: number
+    cancelled: number
+    aborted: number
+  }
 }
 
 
@@ -18,9 +24,15 @@ export default function AHome() {
   const [analytics, setAnalytics] = useState<ISiteAnalytics>({
     totalCustomers: 0,
     totalSellers: 0,
-    totalBooks: [],
-    totalBooksSold: [],
-    totalOrders: [],
+    totalBooks: 0,
+    totalBooksSold: 0,
+    totalOrders: {
+      packaging: 0,
+      onDelivery: 0,
+      delivered: 0,
+      cancelled: 0,
+      aborted: 0,
+    },
   })
 
   useEffect(() => {
@@ -28,12 +40,11 @@ export default function AHome() {
       try {
         const response = await axios.get("/api/admin/analytics", { withCredentials: true })
         if (response.status !== 200)
-          throw new Error(response.data.error)
-
-        setAnalytics(response.data)
+          alert(response.data.error)
+        else
+          setAnalytics(response.data)
       } catch (error) {
         console.error(error)
-        alert((error as AxiosError).response?.data?.error || error)
       }
     }
 
@@ -41,18 +52,57 @@ export default function AHome() {
   }, [])
 
   return (
-    <div className="site-analytics">
-      <p>Total Users: {analytics.totalCustomers}</p>
-      <p>Total Sellers: {analytics.totalSellers}</p>
-      <p>Total Books in Stock: {analytics.totalBooks.length}</p>
-      <p>Total Books Sold: {10}</p>
-      <p>Total Orders: {analytics.totalOrders.length}</p>
+    <div className="analytics-container admin-analytics">
+      <div className="analytics-section customers-section">
+        <p className="analytics-header">
+          <Link to='/admin/customers'>Customers</Link>
+        </p>
+        <p className="analytics-value">{analytics.totalCustomers}</p>
+      </div>
+      <div className="analytics-section sellers-section">
+        <p className="analytics-header">
+          <Link to='/admin/sellers'>Sellers</Link>
+        </p>
+        <p className="analytics-value">{analytics.totalSellers}</p>
+      </div>
+      <div className="analytics-section books-in-stock-section">
+        <p className="analytics-header">
+          <Link to='/admin/books'>Books in Stock</Link>
+        </p>
+        <p className="analytics-value">{analytics.totalBooks}</p>
+      </div>
+      <div className="analytics-section books-sold-section">
+        <p className="analytics-header">Books Sold</p>
+        <p className="analytics-value">{analytics.totalBooksSold}</p>
+      </div>
+      <div className="analytics-section orders-section">
+        <p className="analytics-header">
+          <Link to='/admin/orders'>Orders</Link>
+        </p>
+        <p className="analytics-value">{
+          Object.values(analytics.totalOrders).reduce((acc, order) => acc + order, 0)
+        }</p>
 
-      <Link to='/admin/customers'>Customers</Link>
-      <br />
-      <Link to='/admin/sellers'>Sellers</Link>
-      <br />
-      <Link to='/admin/books'>Books</Link>
+        <span className="orders-status-section" title="Packaging">
+          {analytics.totalOrders.packaging}
+        </span>
+        /
+        <span className="orders-status-section" style={{ color: 'lightgreen' }} title="On Delivery">
+          {analytics.totalOrders.onDelivery}
+        </span>
+        /
+        <span className="orders-status-section" style={{ color: 'green' }} title="Delivered">
+          {analytics.totalOrders.delivered}
+        </span>
+        /
+        <span className="orders-status-section" style={{ color: 'orange' }} title="Cancelled">
+          {analytics.totalOrders.cancelled}
+        </span>
+        /
+        <span className="orders-status-section" style={{ color: 'red' }} title="Aborted">
+          {analytics.totalOrders.aborted}
+        </span>
+      </div>
     </div>
   )
 }

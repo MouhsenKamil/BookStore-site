@@ -22,13 +22,3 @@ export function verifyUserIdParamByUserAuth(paramName: string) {
     next()
   }
 }
-
-
-// // FIXME: This middleware does not work
-// export function parseMeInParams(paramName: string) {
-//   return (req: Request, res: Response, next: NextFunction) => {
-//     if (req.params[paramName] === '@me')
-//       req.params[paramName] = req.__userAuth.id
-//     next()
-//   }
-// }

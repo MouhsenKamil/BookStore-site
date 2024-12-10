@@ -1,74 +1,107 @@
-import { useEffect, useState } from "react"
-import axios from "axios"
-import { IUser } from "../../../types/user"
+import { ChangeEvent, MouseEvent, useState } from "react"
+import { Link } from "react-router-dom"
+
+import { ThreeDotsOptionsBtn } from "../../Common/ThreeDotsOptionsBtn/ThreeDotsOptionsBtn"
+import { IBlockableUser } from "../../../types/user"
+import useCustomers from "../../../hooks/useCustomers"
+
+import './ACustomers.css'
 
 
 export default function ACustomers() {
-  const [customers, setCustomers] = useState<IUser[]>([])
+  const {
+    customers, searchCustomers, updateCustomer, deleteCustomer, toggleBlockCustomer
+  } = useCustomers()
+  const [editingItem, setEditingItem] = useState<number[]>([])
 
-  useEffect(() => {
-    async function fetchCustomers() {
-      try {
-        const response = await axios.get("/api/admin/customers", {
-          params: {
-            query: '',
-            fields: ['_id', 'name', 'email', 'blocked']
-          }
-        })
-        if (response.status !== 200)
-          throw new Error(response.data.error)
-        setCustomers(response.data)
-      } catch (error) {
-        console.error(error)
-      }
+  async function submitEdit(e: MouseEvent, customer: IBlockableUser, key: number) {
+    const parentElem = e.currentTarget.parentElement?.parentElement
+
+    if (!parentElem)
+      return
+
+    const newCustomerName = parentElem.querySelector(".customer-name")?.textContent || customer.name
+    const newCustomerEmail = parentElem.querySelector(".customer-email")?.textContent || customer.email
+
+    if ((customer.name !== newCustomerName) || (customer.email !== newCustomerEmail)) {
+      let res = await updateCustomer(customer._id, { name: newCustomerName, email: newCustomerEmail })
+      console.log(res.status)
     }
 
-    fetchCustomers()
-  }, [])
-
-  async function deleteCustomer(customerId: string) {
-    try {
-      const response = await axios.delete(`/api/customer/${customerId}`)
-      if (response.status !== 200)
-        throw new Error(response.data.error)
-      setCustomers(customers.filter(customer => customer._id !== customerId))
-    } catch (error) {
-      console.error(error)
-    }
+    setEditingItem(editingItem.filter(val => val !== key))
   }
 
-  async function toggleBlockCustomer(customerId: string, currBlock: boolean) {
-    try {
-      const shouldBlock = currBlock ? 'unblock': 'block'
-      const response = await axios.patch(`/api/customer/${customerId}/${shouldBlock}`)
-      if (response.status !== 200)
-        throw new Error(response.data.error)
-    } catch (error) {
-      console.error(error)
-    }
+  function cancelEdit(e: MouseEvent, customer: IBlockableUser, key: number) {
+    const parentElem = e.currentTarget.parentElement?.parentElement
+
+    if (!parentElem)
+      return
+
+    setEditingItem(editingItem.filter(val => val !== key))
+
+    const customerNameElem = parentElem.querySelector(".customer-name")
+    if (customerNameElem)
+      customerNameElem.textContent = customer.name
+
+    const customerEmailElem = parentElem.querySelector(".customer-email")
+    if (customerEmailElem)
+      customerEmailElem.textContent = customer.email
   }
 
   return (
-    <div className="customers-list">
+    <div className="customers-list-container">
       <h1>Customer List</h1>
-      {!customers.length ? (
-        <p>No customers available.</p>
-      ) : (
-        <ul>
-          {customers.map((customer) => (
-            <li key={customer._id} className="customer-item">
-              <p>
-                <strong>{customer.name}</strong>
-                {customer.email}
-              </p>
-              <button onClick={() => toggleBlockCustomer(customer._id, customer.blocked)}>
-                {customer.blocked ? "Block": "Unblock"}
-              </button>
-              <button onClick={() => deleteCustomer(customer._id)}>Delete</button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <input type="text" placeholder="Search Customers"
+        onChange={async (e: ChangeEvent<HTMLInputElement>) => {
+          await searchCustomers({ query: e.target.value })
+        }}
+      />
+
+      {customers.length === 0
+        ? <p>No customers are available.</p>
+        : <table className="customers-list">
+          <thead>
+            <tr className="table-header">
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {customers.map((customer, key) => (
+              <tr key={key} className="customer-item">
+                <td className="customer-id">{customer._id}</td>
+                <td className="customer-name" contentEditable={editingItem.includes(key)}>{customer.name}</td>
+                <td className="customer-email" contentEditable={editingItem.includes(key)}>{customer.email}</td>
+                <td className="customer-orders">
+                  <Link to={`/admin/customers/${customer._id}/orders`}>Orders</Link>
+                </td>
+                <td className="customer-actions">
+                  {!editingItem.includes(key) && <ThreeDotsOptionsBtn>
+                    <div title={!customer.blocked ? "Block" : "Unblock"}
+                      style={{ color: customer.blocked ? 'green' : 'red' }}
+                      onClick={async () => {
+                        await toggleBlockCustomer(customer._id)
+                        console.log(customer.blocked)
+                      }}>
+                      {!customer.blocked ? "Block" : "Unblock"}
+                    </div>
+                    <div title="Edit" onClick={() => setEditingItem([...editingItem, key])}>Edit</div>
+                    <div title="Delete Customer" onClick={async () => await deleteCustomer(customer._id)}>Delete</div>
+                  </ThreeDotsOptionsBtn>}
+
+                  {editingItem.includes(key) && <>
+                    <div title="Confirm" onClick={async (e) => await submitEdit(e, customer, key)}>✅</div>
+                    <div title="Cancel" onClick={e => cancelEdit(e, customer, key)}>❌</div>
+                  </>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      }
     </div>
   )
 }

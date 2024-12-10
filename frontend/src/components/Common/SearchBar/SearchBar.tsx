@@ -44,7 +44,7 @@ export function SearchBar() {
     }
 
     try {
-      let fields = ['_id', 'title', 'subtitle']
+      const fields = ['_id', 'title', 'subtitle']
       if (window.screen.width > 600)
         fields.push('coverImage', 'authorName')
 
@@ -70,9 +70,9 @@ export function SearchBar() {
 
     function closeSearchResultsAtOutsideClick(e: MouseEvent) {
       if (
-        showSearchResults &&
-        resultsListRef.current &&
-        !resultsListRef.current?.contains(e.target as Node)
+        showSearchResults
+        && resultsListRef.current
+        && !resultsListRef.current?.contains(e.target as Node)
       )
         setShowSearchResults(false)
     }
@@ -83,6 +83,7 @@ export function SearchBar() {
 
       e.preventDefault()
       navigate('/search?query=' + (e.target as HTMLInputElement).value)
+      setShowSearchResults(false)
     }
 
     document.addEventListener("mousedown", closeSearchResultsAtOutsideClick)

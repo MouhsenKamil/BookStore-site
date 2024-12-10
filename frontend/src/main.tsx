@@ -1,6 +1,5 @@
-import React from "react"
 import ReactDOM from "react-dom/client"
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
 
 import { AuthProvider } from "./hooks/useAuth.tsx"
 
@@ -11,7 +10,7 @@ import Login from "./components/Common/Login/Login.tsx"
 import Register from "./components/Common/Register/Register.tsx"
 import Page404 from "./components/ErrorPage/404.tsx"
 import Home from "./components/Common/Home/Home.tsx"
-import ForgotPassword from "./components/Common/ForgotPassword/ForgotPassword.tsx"
+// import ForgotPassword from "./components/Common/ForgotPassword/ForgotPassword.tsx"
 import AboutUs from "./components/Common/AboutUs/AboutUs.tsx"
 import ContactUs from "./components/Common/ContactUs/ContactUs.tsx"
 import Profile from "./components/Common/Profile/Profile.tsx"
@@ -19,7 +18,7 @@ import Cart from "./components/Customer/Cart/Cart.tsx"
 import Wishlist from "./components/Customer/Wishlist/Wishlist.tsx"
 import Orders from "./components/Customer/Orders/Orders.tsx"
 import AHome from "./components/Admin/AHome/AHome.tsx"
-import ABooks from "./components/Admin/ABooks/ABooks.tsx"
+// import ABooks from "./components/Admin/ABooks/ABooks.tsx"
 import ACustomers from "./components/Admin/ACustomers/ACustomers.tsx"
 import ASellers from "./components/Admin/ASellers/ASellers.tsx"
 import SHome from "./components/Sellers/SHome/SHome.tsx"
@@ -27,7 +26,8 @@ import Checkout from "./components/Customer/Checkout/Checkout.tsx"
 import AddBook from "./components/Sellers/AddBook/AddBook.tsx"
 import AuthChecker from "./components/AuthChecker.tsx"
 import CSuccess from "./components/Customer/Checkout/CSuccess/CSuccess.tsx"
-import AdvancedBookSearch from "./components/AdvancedSearch/AdvancedSearch.tsx"
+import AdvancedBookSearch from "./components/Common/AdvancedSearch/AdvancedSearch.tsx"
+import AOrders from "./components/Admin/AOrders/AOrders.tsx"
 
 import "./index.css"
 
@@ -48,7 +48,7 @@ const router = createBrowserRouter([
       {path: '*', element: <Page404 />},
       {
         path: "account",
-        element: <Outlet />,
+        // element: <Outlet />,
         children: [
           {
             path: 'user',
@@ -56,7 +56,7 @@ const router = createBrowserRouter([
             children: [
               {path: "login", element: <Login parent='user' />},
               {path: "register", element: <Register parent='user' />},
-              {path: "forgot-password", element: <ForgotPassword parent='user' />},
+              // {path: "forgot-password", element: <ForgotPassword parent='user' />},
             ]
           },
           {
@@ -65,7 +65,7 @@ const router = createBrowserRouter([
             children: [
               {path: "login", element: <Login parent='seller' />},
               {path: "register", element: <Register parent='seller' />},
-              {path: "forgot-password", element: <ForgotPassword parent='seller' />},
+              // {path: "forgot-password", element: <ForgotPassword parent='seller' />},
             ]
           },
           {
@@ -103,19 +103,27 @@ const router = createBrowserRouter([
         element: <AuthChecker redirectPath='/account/admin/login' userType="admin" />,
         children: [
           {path: 'home', element: <AHome />},
-          {path: 'books', element: <ABooks />},
-          {path: 'customers', element: <ACustomers />},
+          {
+            path: 'customers',
+            children: [
+              { path: '', element: <ACustomers /> },
+              { path: ':customerId/orders', element: <Orders /> },
+            ]
+          },
           {path: 'sellers', element: <ASellers />},
+          {path: 'orders', element: <AOrders />},
+          {path: 'add-a-book', element: <AddBook />},
         ]
       },
     ],
   },
 ])
 
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
-  </React.StrictMode>,
+  // </React.StrictMode>
 )

@@ -1,0 +1,42 @@
+.analytics-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  width: 100%;
+}
+
+.analytics-section {
+  width: 20%;
+  border-radius: 5px;
+  text-wrap: nowrap;
+  border: 1px solid black;
+  padding: 1em 2em;
+  font-weight: 600;
+  font-size: large;
+  
+}
+
+.orders-status-section {
+  padding: 0 0.25em;
+}
+/* 
+.analytics-section.customers-section {
+
+}
+
+.analytics-section.sellers-section {
+
+}
+
+.analytics-section.books-in-stock-section {
+
+}
+
+.analytics-section.books-sold-section {
+
+}
+
+.analytics-section.orders-section {
+
+} */

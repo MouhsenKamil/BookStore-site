@@ -1,9 +1,10 @@
+import mongoose from 'mongoose'
 import { Request, Response } from 'express'
+
 import { Order, OrderStatus } from '../models/Order.ts'
 import { Book } from '../models/Book.ts'
 import { HttpError } from '../utils/exceptions.ts'
 import { BookArchive } from '../models/BooksArchive.ts'
-import mongoose from 'mongoose'
 
 
 export async function getOrdersOfUser(req: Request, res: Response) {
@@ -18,6 +19,7 @@ export async function getOrdersOfUser(req: Request, res: Response) {
         user: new mongoose.Types.ObjectId(userId)
       }
     },
+    { $unwind: "$books" },
     {
       $lookup: {
         from: 'books',
@@ -29,35 +31,50 @@ export async function getOrdersOfUser(req: Request, res: Response) {
     { $unwind: '$bookDetails' },
     {
       $project: {
-        // _id: 1,
-        "bookDetails._id": 1,
-        "bookDetails.quantity": 1,
-        "bookDetails.price": 1,
-        "bookDetails.title": 1,
-        "bookDetails.unitsInStock": 1,
-        "bookDetails.coverImage": 1,
-      }
+        _id: 1,
+        books: {
+          _id: "$bookDetails._id",
+          quantity: 1,
+          price: "$bookDetails.price",
+          title: "$bookDetails.title",
+          coverImage: "$bookDetails.coverImage",
+        },
+        orderTime: 1,
+        deliveredBy: 1,
+        status: 1,
+        homeNo: 1,
+        street: 1,
+        pinCode: 1,
+        city: 1,
+        state: 1,
+        country: 1,
+        phoneNo: 1,
+        paymentMethod: 1,
+      },
     },
     {
       $group: {
-        _id: null,
+        _id: "$_id",
         books: {
           $push: {
-            _id: "$bookDetails._id",
-            quantity: "$bookDetails.quantity",
-            title: "$bookDetails.title",
-            price: "$bookDetails.price",
-            orderTime: "$bookDetails.orderTime",
-            deliveredBy: "$bookDetails.deliveredBy",
-            status: "$bookDetails.status",
-            coverImage: "$bookDetails.coverImage",
-          }
-        }
-      }
-    },
-    {
-      $project: {
-        _id: 0, "bookDetails": 0
+            _id: "$books._id",
+            quantity: "$books.quantity",
+            price: "$books.price",
+            title: "$books.title",
+            coverImage: "$books.coverImage",
+          },
+        },
+        orderTime: { $first: "$orderTime" },
+        deliveredBy: { $first: "$deliveredBy" },
+        status: { $first: "$status" },
+        homeNo: { $first: "$homeNo" },
+        street: { $first: "$street" },
+        pinCode: { $first: "$pinCode" },
+        city: { $first: "$city" },
+        state: { $first: "$state" },
+        country: { $first: "$country" },
+        phoneNo: { $first: "$phoneNo" },
+        paymentMethod: { $first: "$paymentMethod" },
       }
     }
   ])
@@ -68,11 +85,100 @@ export async function getOrdersOfUser(req: Request, res: Response) {
   if (!orders)
     throw new HttpError("User haven't ordered anything yet", { statusCode: 404 })
 
-  res.status(200).json({ total: orders.length, results: orders })
+  res.status(200).json(orders)
 }
 
-export async function getAllOrders(req: Request, res: Response) {
-  const orders = await Order.find({})
+
+export async function getOrders(req: Request, res: Response) {
+  const { limit = 10, fields = [
+    '_id', 'user', 'books', 'orderTime', 'deliveredBy', 'status', 'homeNo', 'street',
+    'pinCode', 'city', 'state', 'country', 'phoneNo', 'paymentMethod'
+  ] } = req.query
+  // const orderStr = (order as string).toLowerCase()
+
+  // if (!['asc', 'desc'].includes(orderStr))
+  //   throw new HttpError(`Invalid value for sort order: ${order}`, { statusCode: 400 })
+
+  // const orderInt = (orderStr === 'asc') ? 1: -1
+  const fieldsArr = fields as string[] // (fields as string).trim().split(',')
+
+  let projectionObj: Record<string, 1 | 0> = Object.fromEntries(
+    fieldsArr.map(elem => [elem, 1])
+  )
+
+  if (Object.keys(projectionObj).length === 0)
+    projectionObj = { __v: 0 }
+
+  projectionObj._id = projectionObj._id ?? 0
+
+  const orders = await Order.aggregate([
+    { $limit: +limit },
+    { $unwind: "$books" },
+    {
+      $lookup: {
+        from: 'books',
+        localField: 'books.id',
+        foreignField: '_id',
+        as: 'bookDetails'
+      }
+    },
+    { $unwind: '$bookDetails' },
+    {
+      $project: {
+        _id: 1,
+        user: 1,
+        books: {
+          _id: "$bookDetails._id",
+          quantity: 1,
+          price: "$bookDetails.price",
+          title: "$bookDetails.title",
+          coverImage: "$bookDetails.coverImage",
+        },
+        orderTime: 1,
+        deliveredBy: 1,
+        status: 1,
+        homeNo: 1,
+        street: 1,
+        pinCode: 1,
+        city: 1,
+        state: 1,
+        country: 1,
+        phoneNo: 1,
+        paymentMethod: 1,
+      },
+    },
+    {
+      $group: {
+        _id: "$_id",
+        user: { $first: "$user" },
+        books: {
+          $push: {
+            _id: "$books._id",
+            quantity: "$books.quantity",
+            price: "$books.price",
+            title: "$books.title",
+            coverImage: "$books.coverImage",
+          },
+        },
+        orderTime: { $first: "$orderTime" },
+        deliveredBy: { $first: "$deliveredBy" },
+        status: { $first: "$status" },
+        homeNo: { $first: "$homeNo" },
+        street: { $first: "$street" },
+        pinCode: { $first: "$pinCode" },
+        city: { $first: "$city" },
+        state: { $first: "$state" },
+        country: { $first: "$country" },
+        phoneNo: { $first: "$phoneNo" },
+        paymentMethod: { $first: "$paymentMethod" },
+      }
+    },
+    { $project: projectionObj }
+  ])
+    .catch((err) => {
+      throw new HttpError('Error occurred while fetching order', { cause: err })
+    })
+
   res.status(200).json(orders)
 }
 
@@ -90,10 +196,9 @@ export async function getOrderById(req: Request, res: Response) {
 }
 
 
-export async function updateOrderStatus(req: Request, res: Response) {
-  const { status } = req.body
+export async function updateOrder(req: Request, res: Response) {
   const updatedOrder = await Order.findByIdAndUpdate(
-    req.params.orderId, { status: status }, { new: true, runValidators: true }
+    req.params.orderId, req.body, { new: true, runValidators: true }
   )
   .catch((err) => {
     throw new HttpError('Error occurred while updating order', { cause: err })
@@ -123,6 +228,7 @@ export async function updateOrderStatus(req: Request, res: Response) {
 
 
 export async function cancelOrder(req: Request, res: Response) {
+  console.log('from cancel order: ', req.params.orderId)
   const cancelledOrder = await Order.findById(req.params.orderId)
     .catch(err => {
       throw new HttpError('Error occurred while cancelling order', { cause: err })

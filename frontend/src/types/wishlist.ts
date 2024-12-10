@@ -1,25 +1,9 @@
-import { IBook } from "./book"
+import { IBookInCart } from "./cart"
 
 
-export interface IBookInWishlist {
-  _id: string
-  title: string
-  price: number
-  unitsInStock: number
-  coverImage: string
-  quantity: number
-}
+export type IBookInWishlist = Omit<IBookInCart, 'quantity'>
 
-
-export interface IwIBookInWishlist {
+export interface IWishlist {
   user: string
   books: IBookInWishlist[]
-}
-
-export interface IwIBookInWishlistWithBook {
-  user: string
-  books: {
-    obj: IBook
-    quantity: number
-  }[]
 }

@@ -9,7 +9,7 @@ export interface IUser {
   name: string
   email: string
   type: UserType
-  blocked: boolean
+  blocked?: boolean
 }
 
 export interface IBlockableUser extends IUser {

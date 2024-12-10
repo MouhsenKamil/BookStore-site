@@ -1,41 +1,68 @@
 import axios, { AxiosResponse } from "axios"
 
 
-export async function getWishlistOfUser(
+export async function getWishlistOfUserAPI(
   options?: { userId?: string }
 ): Promise<AxiosResponse> {
+  const { userId = "@me" } = options || {}
 
-  let { userId = "@me" } = options || {}
-
-  return await axios.get(
+  const response = await axios.get(
     `/api/customer/${userId}/wishlist/`, { withCredentials: true }
   )
+
+  if (response.status >= 400) {
+    alert(response.data.error)
+    throw new Error(response.data.error)
+  }
+
+  return response
 }
 
-export async function addBookToWishlist(
-  bookId: string, options?: { quantity?: number, userId?: string }
-): Promise<AxiosResponse> {
-  let { quantity = 1, userId = "@me" } = options || {}
-
-  return await axios.post(
-    `/api/customer/${userId}/wishlist/add`, { bookId, quantity }, { withCredentials: true }
-  )
-}
-
-export async function removeBookFromWishlist(
+export async function addBookToWishlistAPI(
   bookId: string, options?: { userId?: string }
 ): Promise<AxiosResponse> {
-  let { userId = "@me" } = options || {}
+  const { userId = "@me" } = options || {}
 
-  return await axios.patch(
-    `/api/customer/${userId}/wishlist/delete`, { bookId }, { withCredentials: true }
+  const response = await axios.post(
+    `/api/customer/${userId}/wishlist/add`, { bookId }, { withCredentials: true }
   )
+
+  if (response.status >= 400) {
+    alert(response.data.error)
+    throw new Error(response.data.error)
+  }
+
+  return response
 }
 
-export async function clearWishlist(options: { userId?: string }): Promise<AxiosResponse> {
-  let { userId = "@me" } = options || {}
+export async function removeBookFromWishlistAPI(
+  bookId: string, options?: { userId?: string }
+): Promise<AxiosResponse> {
+  const { userId = "@me" } = options || {}
 
-  return await axios.delete(
+  const response = await axios.patch(
+    `/api/customer/${userId}/wishlist/delete`, { bookId }, { withCredentials: true }
+  )
+
+  if (response.status >= 400) {
+    alert(response.data.error)
+    throw new Error(response.data.error)
+  }
+
+  return response
+}
+
+export async function clearWishlistAPI(options: { userId?: string }): Promise<AxiosResponse> {
+  const { userId = "@me" } = options || {}
+
+  const response = await axios.delete(
     `/api/customer/${userId}/wishlist/clear`, { withCredentials: true }
   )
+
+  if (response.status >= 400) {
+    alert(response.data.error)
+    throw new Error(response.data.error)
+  }
+
+  return response
 }

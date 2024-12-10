@@ -12,6 +12,7 @@ export interface IUser {
   email: string
   passwordHash: string
   type: UserType
+  blocked?: boolean
 }
 
 export interface IBlockableUser extends IUser {

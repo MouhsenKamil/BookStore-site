@@ -1,4 +1,4 @@
-import { IBook } from "./book"
+// import { IBook } from "./book"
 
 
 export interface IBookInCart {
@@ -16,10 +16,10 @@ export interface ICart {
   books: IBookInCart[]
 }
 
-export interface ICartWithBook {
-  user: string
-  books: {
-    obj: IBook
-    quantity: number
-  }[]
-}
+// export interface ICartWithBook {
+//   user: string
+//   books: {
+//     obj: IBook
+//     quantity: number
+//   }[]
+// }

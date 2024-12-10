@@ -25,7 +25,7 @@ routerWithBookId.delete('/', authenticate, restrictToRoles(UserType.ADMIN), dele
 routerWithBookId.post('/purchase', authenticate, restrictToRoles(UserType.CUSTOMER), purchaseBook)
 
 
-const router = express.Router({mergeParams: true})
+const router = express.Router({ mergeParams: true })
 
 router.put(
   '/',

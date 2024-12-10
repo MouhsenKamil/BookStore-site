@@ -1,0 +1,54 @@
+.customer-details-text-content {
+  text-align: left;
+}
+
+.customers-list {
+  border-collapse: collapse;
+  border-spacing: 0px;
+}
+
+.customers-list tr {
+  display: flex;
+}
+
+.customers-list .customer-item td, .customers-list thead th {
+  flex: 2.3;
+  margin: 0px;
+  padding: 0.25em 0.5em;
+  width: fit-content;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  resize: horizontal;
+  text-align: center;
+  scrollbar-width: thin;
+}
+
+.customers-list .customer-item td {
+  border-bottom: 0;
+}
+
+.customers-list thead th {
+  border-top: 0;
+}
+
+.customers-list .customer-item td.customer-id, .customers-list thead th:first-child {
+  flex: 1;
+}
+
+.customers-list .customer-item .customer-actions,  .customers-list thead th:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex: 1;
+}
+
+.customers-list .customer-item .customer-actions > div {
+  cursor: pointer;
+}
+
+.customers-list-container input[type="text"] {
+  width: calc(100% - 2rem);
+  margin-bottom: 1em;
+}

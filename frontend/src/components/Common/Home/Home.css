@@ -22,6 +22,10 @@ div.heading {
   gap: 0.5em;
 }
 
+.home-page .book-list-item {
+  padding: 0.25em;
+}
+
 
 @media only screen and (max-width: 800px) {
   div.heading {
