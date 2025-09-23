@@ -57,7 +57,7 @@ export default function useCustomers() {
     if (idxOfChangedCustomer === -1)
       throw new Error(`Customer ${customerId} not found`)
 
-    const newCustomersList = [...customers.filter(c => c._id !== customerId)]
+    let newCustomersList = customers.filter(c => c._id !== customerId)
 
     newCustomersList.splice(idxOfChangedCustomer, 0, {
       ...customers[idxOfChangedCustomer], ...data

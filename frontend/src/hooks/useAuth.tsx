@@ -31,12 +31,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
     }
 
-    console.log(authState.user !== null ? "User login detected" : 'User have not logged in')
+    // console.log(authState.user !== null ? "User login detected" : 'User have not logged in')
   }
 
   useEffect(() => {
-    console.log('auth reloaded')
     fetchAuthData()
+    console.log('auth reloaded')
   }, [])
 
   return (
