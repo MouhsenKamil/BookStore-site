@@ -16,7 +16,7 @@ export default function AuthChecker({ userType, redirectPath }: AuthCheckerProps
   const isAutheticated = authState.user !== null
   const isAuthorizedUserType = isAutheticated && (userType === authState.user?.type)
 
-  console.log(isAutheticated, isAuthorizedUserType)
+  // console.log(isAutheticated, isAuthorizedUserType)
 
   if (!isAutheticated) {
     if (location.pathname)

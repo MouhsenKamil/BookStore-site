@@ -1,11 +1,9 @@
 # Use this to get json data from openlibrary to pre populate the database
 
-import json, re, sys
+import aiofiles, asyncio, json, re, sys
 from random import randint
-import asyncio
 from typing import Any
 from httpx import AsyncClient
-import aiofiles
 
 
 MISSING = object()
@@ -21,6 +19,7 @@ IGNORE_CHARS_IN_SUBJECT_REGEX = re.compile(r"[.,#_\[\];:]|--|n/a")
 queries: list[str] = sys.argv[1:]
 
 if not queries:
+  # If no search queries were given via CLI, request for one.
   queries = [input('> ')]
 
 
@@ -68,9 +67,6 @@ async def main():
     obj['categories'] = [i for i in res.get('subject', []) if not IGNORE_CHARS_IN_SUBJECT_REGEX.match(i)]
 
     cover_key = res.get("cover_edition_key", MISSING)
-
-    # if 'key' not in obj:
-    #   print(obj)
     desc_res, cover_img_res = await desc_and_pic(client, cover_key, obj['key'])
 
     if cover_key != MISSING:
